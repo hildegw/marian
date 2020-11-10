@@ -73,22 +73,35 @@ class LinePainter extends CustomPainter{
     ..strokeWidth = 3;
 
     Path path = Path();
-    path.moveTo(size.width/2, size.height/2); //starting point
-      print(size.width);
+    print(size.width);
 
-    for (var i=4; i<segments.length; i++) {
-      double distance = segments[i][2] / 10 * size.width;
+    double offX = size.width/2;
+    double offY = size.height/2;
+    path.moveTo(offX, offY); //starting point
+    //List<Offset> points = [Offset(offX, offY)];
+
+    for (var i=1; i<segments.length; i++) {
+      double distance = segments[i][2] / 50 * size.width;
       double radians = segments[i][0] * math.pi / 180;
-      double x = distance * sin(radians) + size.width/2;
-      double y = distance * cos(radians) + size.height/2;
+      double x = distance * sin(radians);
+      double y = distance * cos(radians);
       print("x: $x, y: $y");
       print("x-y-distance $distance");
       print("length ${segments[i][2]}");
       print("radians $radians");
       print("azimuth ${segments[i][0]}");
-      path.lineTo(x, y); 
+      //points.add(Offset(x, y));
+      //path.lineTo(0, 0); 
+      path.relativeLineTo(x, y);
+      canvas.drawPath(path, paint);
 
     }
+    //path.addPolygon(points, false);
+
+    //path.relativeLineTo(10 + offX, 0 + offY);
+   // path.relativeLineTo(10 + offX, 10 + offY);
+    //path.relativeLineTo(offX, offY);
+      canvas.drawPath(path, paint);
 
     //path.moveTo(size.width, size.height); //starting point
     //path.lineTo(size.width/3, size.height/3+100); //end point
@@ -98,7 +111,6 @@ class LinePainter extends CustomPainter{
     // path.addPath(secondPath, Offset(16, 16));
 
 
-    canvas.drawPath(path, paint);
 
 
 
