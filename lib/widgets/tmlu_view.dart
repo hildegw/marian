@@ -78,40 +78,40 @@ class LinePainter extends CustomPainter{
     double offX = size.width/2;
     double offY = size.height/2;
     path.moveTo(offX, offY); //starting point
-    //List<Offset> points = [Offset(offX, offY)];
 
-    for (var i=1; i<segments.length; i++) {
-      double distance = segments[i][2] / 50 * size.width;
+    double scaleFactor =  size.width / 50;   //size to 50m as screen width
+
+//TODO correct for depth
+    for (var i=0; i<segments.length; i++) {
+      double deltaDepth = i > 0 ? segments[i][2] - segments[i-1][2] : 0;
+      //double distance = segments[i][2] * scaleFactor;
+      double projectedDistance = deltaDepth != 0.0 
+        ? math.sqrt(math.pow(segments[i][2], 2)-math.pow(deltaDepth, 2)) * scaleFactor
+        : segments[i][2];
       double radians = segments[i][0] * math.pi / 180;
-      double x = distance * sin(radians);
-      double y = distance * cos(radians);
-      print("x: $x, y: $y");
-      print("x-y-distance $distance");
-      print("length ${segments[i][2]}");
-      print("radians $radians");
-      print("azimuth ${segments[i][0]}");
-      //points.add(Offset(x, y));
-      //path.lineTo(0, 0); 
+      double x = projectedDistance * sin(radians);
+      double y = projectedDistance * cos(radians);
+      // print("depth at station $i: ${segments[i][1]}");
+      // print("x: $x, y: $y");
+      // print("length ${segments[i][2]}");
+      // print("azimuth ${segments[i][0]}");
+      print("deltaDepth $deltaDepth");
+      print("projectedDistance $projectedDistance");
+      print(segments[i][2] * scaleFactor); //uncorrected distance
       path.relativeLineTo(x, y);
-      canvas.drawPath(path, paint);
-
     }
-    //path.addPolygon(points, false);
-
-    //path.relativeLineTo(10 + offX, 0 + offY);
-   // path.relativeLineTo(10 + offX, 10 + offY);
-    //path.relativeLineTo(offX, offY);
-      canvas.drawPath(path, paint);
-
-    //path.moveTo(size.width, size.height); //starting point
-    //path.lineTo(size.width/3, size.height/3+100); //end point
+    print(path.getBounds());
     
+    //add jump
     // Path secondPath = Path();
     // secondPath.lineTo(size.width / 2, size.height / 2);
     // path.addPath(secondPath, Offset(16, 16));
-
-
-
+    //path.extendWithPath(path, Offset(10, 0));
+    
+    
+    
+    canvas.drawPath(path, paint);
+    
 
 
 
