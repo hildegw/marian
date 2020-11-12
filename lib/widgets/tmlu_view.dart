@@ -89,22 +89,17 @@ class LinePainter extends CustomPainter{
 
     if (segments == null || segments.length == 0) return;
 
-    for (var i=0; i<81; i++) { //segments.length -29
-      double deltaDepth = i > 0 ? segments[i].dp - segments[i-1].dp : 0;
-      //double distance = segments[i][2] * scaleFactor;
+    for (var i=1; i<155; i++) { //segments.length -29
+      double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
+      double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
+      double deltaDepth = depth - prevDepth;  
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(segments[i].lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
         : segments[i].lg;
       double radians = segments[i].az * math.pi / 180;
       double x = projectedDistance * sin(radians);
       double y = projectedDistance * cos(radians);
-      // print("depth at station $i: ${segments[i][1]}");
-      // print("x: $x, y: $y");
-      // print("length ${segments[i][2]}");
-      // print("azimuth ${segments[i][0]}");
-      print("deltaDepth $i: $deltaDepth");
-      print("projectedDistance $projectedDistance");
-      print(segments[i].lg * scaleFactor); //uncorrected distance
+
       path.relativeLineTo(x, y);
     }
     print(path.getBounds());
