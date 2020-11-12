@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
+import '../models/model_segment.dart';
+
 
 class TmluView extends StatefulWidget {
   @override
@@ -17,7 +19,7 @@ class _TmluViewState extends State<TmluView> {
   String cave;
   XmlDocument tmlu;
   Iterable srvd = [];
-  List segments = [];
+  List<ModelSegment> segments = [];
   
   @override
   void initState() {
@@ -35,14 +37,16 @@ class _TmluViewState extends State<TmluView> {
     // final Iterable data = tmlu.findAllElements("Data");
     srvd = tmlu.findAllElements(("SRVD"));
     print(srvd.length);
-    srvd.forEach((segment) {
+    srvd.forEach((item) {
       //XmlElement az = segment.getElement("AZ");
-      double az = double.parse(segment.getElement("AZ").text);
-      double dp = double.parse(segment.getElement("DP").text);
-      double lg = double.parse(segment.getElement("LG").text);
-      segments.add([az, dp, lg]);
+      double az = double.parse(item.getElement("AZ").text);
+      double dp = double.parse(item.getElement("DP").text);
+      double lg = double.parse(item.getElement("LG").text);
+      int id = int.parse(item.getElement("ID").text);
+      int frid = int.parse(item.getElement("FRID").text);
+      segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
+      print(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg).toString());
     });
-    print(segments);
   }
 
 
@@ -63,9 +67,10 @@ class _TmluViewState extends State<TmluView> {
 
 
 class LinePainter extends CustomPainter{
-  List segments;
+  List<ModelSegment> segments;
   LinePainter({this.segments});
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
+  
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
@@ -82,13 +87,15 @@ class LinePainter extends CustomPainter{
 
     double scaleFactor =  size.width / 1000;   //size to 50m as screen width
 
-    for (var i=0; i<segments.length -100; i++) {
-      double deltaDepth = i > 0 ? segments[i][1] - segments[i-1][1] : 0;
+    if (segments == null || segments.length == 0) return;
+
+    for (var i=0; i<81; i++) { //segments.length -29
+      double deltaDepth = i > 0 ? segments[i].dp - segments[i-1].dp : 0;
       //double distance = segments[i][2] * scaleFactor;
       double projectedDistance = deltaDepth != 0.0 
-        ? math.sqrt(math.pow(segments[i][2], 2)-math.pow(deltaDepth, 2)) * scaleFactor
-        : segments[i][2];
-      double radians = segments[i][0] * math.pi / 180;
+        ? math.sqrt(math.pow(segments[i].lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
+        : segments[i].lg;
+      double radians = segments[i].az * math.pi / 180;
       double x = projectedDistance * sin(radians);
       double y = projectedDistance * cos(radians);
       // print("depth at station $i: ${segments[i][1]}");
@@ -97,7 +104,7 @@ class LinePainter extends CustomPainter{
       // print("azimuth ${segments[i][0]}");
       print("deltaDepth $i: $deltaDepth");
       print("projectedDistance $projectedDistance");
-      print(segments[i][2] * scaleFactor); //uncorrected distance
+      print(segments[i].lg * scaleFactor); //uncorrected distance
       path.relativeLineTo(x, y);
     }
     print(path.getBounds());
