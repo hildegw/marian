@@ -1,4 +1,5 @@
-import 'dart:ffi';
+//import 'dart:ffi';
+//import 'dart:html';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ class TmluView extends StatefulWidget {
 
 class _TmluViewState extends State<TmluView> {
 
-  String bones;
+  String cave;
   XmlDocument tmlu;
   Iterable srvd = [];
   List segments = [];
@@ -26,9 +27,9 @@ class _TmluViewState extends State<TmluView> {
 
 
   loadTmlu() async {
-    bones = await rootBundle.loadString('assets/tmlu/bones.xml');
+    cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
     //print("loaded tmlu $bones");
-    tmlu = XmlDocument.parse(bones);
+    tmlu = XmlDocument.parse(cave);
     //final caveFile = tmlu.findElements('CaveFile');
     //final data = caveFile.elementAt(0).findElements('Data');
     // final Iterable data = tmlu.findAllElements("Data");
@@ -79,11 +80,10 @@ class LinePainter extends CustomPainter{
     double offY = size.height/2;
     path.moveTo(offX, offY); //starting point
 
-    double scaleFactor =  size.width / 50;   //size to 50m as screen width
+    double scaleFactor =  size.width / 1000;   //size to 50m as screen width
 
-//TODO correct for depth
-    for (var i=0; i<segments.length; i++) {
-      double deltaDepth = i > 0 ? segments[i][2] - segments[i-1][2] : 0;
+    for (var i=0; i<segments.length -100; i++) {
+      double deltaDepth = i > 0 ? segments[i][1] - segments[i-1][1] : 0;
       //double distance = segments[i][2] * scaleFactor;
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(segments[i][2], 2)-math.pow(deltaDepth, 2)) * scaleFactor
@@ -95,7 +95,7 @@ class LinePainter extends CustomPainter{
       // print("x: $x, y: $y");
       // print("length ${segments[i][2]}");
       // print("azimuth ${segments[i][0]}");
-      print("deltaDepth $deltaDepth");
+      print("deltaDepth $i: $deltaDepth");
       print("projectedDistance $projectedDistance");
       print(segments[i][2] * scaleFactor); //uncorrected distance
       path.relativeLineTo(x, y);
