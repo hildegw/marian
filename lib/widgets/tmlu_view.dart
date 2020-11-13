@@ -84,12 +84,12 @@ class LinePainter extends CustomPainter{
     double offX = size.width/2;
     double offY = size.height/2;
     path.moveTo(offX, offY); //starting point
-
     double scaleFactor =  size.width / 1000;   //size to 50m as screen width
+    List linePoints = [];  //list of all relative coordinates
 
     if (segments == null || segments.length == 0) return;
 
-    for (var i=1; i<155; i++) { //segments.length -29
+    for (var i=1; i<150; i++) { //segments.length -29
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
@@ -100,6 +100,22 @@ class LinePainter extends CustomPainter{
       double x = projectedDistance * sin(radians);
       double y = projectedDistance * cos(radians);
 
+      linePoints.add([i, x, y]); 
+
+      //find jumps starting coordinates
+      int currentId = segments.singleWhere((data) => data.id == i).id;
+      int fromId = segments.singleWhere((data) => data.id == i).frid;
+
+      if (fromId + 1 != currentId && linePoints.length > 0) {
+        print(fromId);
+        print(currentId);
+        var startCoord = [0.0, 0.0];
+        linePoints.forEach((segment) {
+          if (segment[0] <= i) startCoord = [startCoord[0] + segment[1], startCoord[1] + segment[2]];
+        });
+        print("reducer $startCoord ");
+        path.moveTo(startCoord[0], startCoord[1]);
+      }
       path.relativeLineTo(x, y);
     }
     print(path.getBounds());
