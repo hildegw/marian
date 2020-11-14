@@ -84,41 +84,52 @@ class LinePainter extends CustomPainter{
     double offX = size.width/2;
     double offY = size.height/2;
     path.moveTo(offX, offY); //starting point
-    double scaleFactor =  size.width / 1000;   //size to 50m as screen width
-    List linePoints = [];  //list of all relative coordinates
+    double scaleFactor =  size.width / 600;   //size to 50m as screen width
+    List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, x: 0, y: 0)];  //list of all relative coordinates
 
     if (segments == null || segments.length == 0) return;
 
-    for (var i=1; i<150; i++) { //segments.length -29
+    //read all stations and calculate their relative points
+    for (var i=1; i<segments.length; i++) { //155
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(segments[i].lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
         : segments[i].lg;
-      double radians = segments[i].az * math.pi / 180;
-      double x = projectedDistance * sin(radians);
-      double y = projectedDistance * cos(radians);
+      double radians = segments[i].az * math.pi / 180 + 180;
+      double x = projectedDistance * cos(radians);
+      double y = projectedDistance * sin(radians);
+      print("$i: ${segments[i]} ");
+      linePoints.add(ModelLinePoint(station: i, x: x, y: y)); 
+    }
 
-      linePoints.add([i, x, y]); 
-
-      //find jumps starting coordinates
+    //then check for jumps/Ts and paint line
+    for (var i=0; i<155; i++) { //segments.length -29
       int currentId = segments.singleWhere((data) => data.id == i).id;
       int fromId = segments.singleWhere((data) => data.id == i).frid;
-
+      //check where ids are discontinuous, and calculate jump/T tie-in point
       if (fromId + 1 != currentId && linePoints.length > 0) {
         print(fromId);
         print(currentId);
-        var startCoord = [0.0, 0.0];
+        List <double> startCoord = [0.0, 0.0];
         linePoints.forEach((segment) {
-          if (segment[0] <= i) startCoord = [startCoord[0] + segment[1], startCoord[1] + segment[2]];
+          if (segment.station <= fromId) startCoord = [startCoord[0] + segment.x, startCoord[1] + segment.y];
         });
-        print("reducer $startCoord ");
-        path.moveTo(startCoord[0], startCoord[1]);
+        //move to tie-in point
+        print("move to $startCoord ");
+        //move to [-48.94182047421762, -14.34621069655474]: 14
+        // x=50;
+        // y=50;
+        path.moveTo(startCoord[0]+offX, startCoord[1]+offY);
       }
-      path.relativeLineTo(x, y);
+      //paint line relative to previous point or to jump/T tie-in point
+      path.relativeLineTo(linePoints[i].x, linePoints[i].y);
     }
-    print(path.getBounds());
+
+
+    print(linePoints[linePoints.length -1]);
+   //print(path.getBounds());
     
     //add jump
     // Path secondPath = Path();
