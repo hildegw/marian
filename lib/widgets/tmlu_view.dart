@@ -71,29 +71,52 @@ class LinePainter extends CustomPainter{
   LinePainter({this.segments});
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
   List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
+  int count = 0;
 
-  void checkJumpOffsets(int fromId, int currentId) {
-    print(linePoints.length); 
-    print(fromId);
-    double absX = fromId < linePoints.length && linePoints[fromId].absX != null 
+  void checkMissingDataPoints(ModelLinePoint linePoint) {
+    int currentId = segments.singleWhere((data) => data.id == linePoint.station).id;
+    int fromId = segments.singleWhere((data) => data.id == linePoint.station).frid;
+    if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
+    double absX = linePoints[fromId].absX != null 
       ? linePoints[fromId].absX + linePoints[currentId].relX 
       : null;
-    double absY = fromId < linePoints.length && linePoints[fromId].absY != null 
+    double absY = linePoints[fromId].absY != null 
       ? linePoints[fromId].absY + linePoints[currentId].relY 
       : null;
     linePoints[currentId].absX = absX;
     linePoints[currentId].absY = absY;
-    print(linePoints[currentId].toString());
-    if (absX == null || absY == null) {
-      checkJumpOffsets(linePoints[fromId].station, fromId); 
-      print("loop missing abs points ${linePoints[fromId].station.toString()} ");
+    print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
+    print("check jumps, 153: ${linePoints[153].toString()}");
+  }
+
+  void checkJumpOffsets() {
+    count++;
+    for (var i=1; i<155; i++) { //155 segments.length
+      int currentId = segments.singleWhere((data) => data.id == i).id;
+      int fromId = segments.singleWhere((data) => data.id == i).frid;
+      if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
+      double absX = linePoints[fromId].absX != null 
+        ? linePoints[fromId].absX + linePoints[currentId].relX 
+        : null;
+      double absY = linePoints[fromId].absY != null 
+        ? linePoints[fromId].absY + linePoints[currentId].relY 
+        : null;
+      linePoints[currentId].absX = absX;
+      linePoints[currentId].absY = absY;
+      print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
+      print("check jumps, 153: ${linePoints[153].toString()}");
     }
+    Iterable<ModelLinePoint> missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+    missingDataPoints.forEach((linePoint) {
+      this.checkMissingDataPoints(linePoint);
+      count++;
+    });
   }
 
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    for (var i=1; i<segments.length-95; i++) { //155
+    for (var i=1; i<155; i++) { //155 segments.length
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
@@ -103,14 +126,10 @@ class LinePainter extends CustomPainter{
       double radians = segments[i].az * math.pi / 180 + 180;
       double relX = projectedDistance * cos(radians);
       double relY = projectedDistance * sin(radians);
-      print("$i: ${segments[i]} ");
+      //print("$i: ${segments[i]} ");
       linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY)); 
     }
-    for (var i=1; i<segments.length-95; i++) { //155
-      int currentId = segments.singleWhere((data) => data.id == i).id;
-      int fromId = segments.singleWhere((data) => data.id == i).frid;
-      checkJumpOffsets(fromId, currentId);
-    }
+    checkJumpOffsets();
   }
 
 
@@ -132,36 +151,11 @@ class LinePainter extends CustomPainter{
     if (segments == null || segments.length == 0) return;
 
     setRelativeLinePoints(scaleFactor);
-    //print(linePoints.toString());
-
-    // //calculate absolute offsets for each point
-    // //for (var i=0; i<155; i++) { //segments.length -29
-    // linePoints.where((item) {
-    //   int currentId = segments.singleWhere((data) => data.id == item.station).id;
-    //   int fromId = segments.singleWhere((data) => data.id == item.station).frid;
-    //   //check where ids are discontinuous, and calculate jump/T tie-in point
-    //   if (fromId + 1 != currentId && linePoints.length > 0) {
-    //     print(fromId);
-    //     print(currentId);
-    //     List <double> startCoord = [0.0, 0.0];
-    //     linePoints.forEach((segment) {
-    //       if (segment.station <= fromId) startCoord = [startCoord[0] + segment.relX, startCoord[1] + segment.relY];
-    //     });
-    //     //move to tie-in point
-    //     print("move to $startCoord ");
-    //     //move to [-48.94182047421762, -14.34621069655474]: 14
-    //     // x=50;
-    //     // y=50;
-    //     path.moveTo(startCoord[0]+offX, startCoord[1]+offY);
-    //   }
-    //   //paint line relative to previous point or to jump/T tie-in point
-    //   path.relativeLineTo(item.relX, item.relY);
-    // });
 
     linePoints.forEach((seg) {
-      //path.moveTo(seg.absY+offX, seg.absY+offY);
+      if (seg.absX != null && seg.absY != null) path.moveTo(seg.absX+offX, seg.absY+offY);
       path.relativeLineTo(seg.relX, seg.relY);
-      print(seg.toString());
+      //print(seg.toString());
      });
 
 
