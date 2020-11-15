@@ -12,17 +12,19 @@ class ModelSegment {
     this.id, this.frid, this.az, this.dp, this.lg,
   });
 
-  toString() => 'from $frid to $id: az=$az dp=$dp lg=$lg';
+  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg';
 }
 
 class ModelLinePoint {
   int station;
-  double x;
-  double y;
+  double relX;
+  double relY;
+  double absX;
+  double absY;
    
   ModelLinePoint({
-    this.station, this.x, this.y,
+    this.station, this.relX, this.relY, this.absX, this.absY,
   });
 
-  toString() => 'station $station: x=$x y=$y';
+  toString() => 'station $station: relative: x=$relX y=$relY, offset: x=$absX, y=$absY ';
 }
