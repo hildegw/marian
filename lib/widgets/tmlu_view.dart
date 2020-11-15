@@ -70,18 +70,30 @@ class LinePainter extends CustomPainter{
   List<ModelSegment> segments;
   LinePainter({this.segments});
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
+  List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
 
-
-    List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
-
-
+  void checkJumpOffsets(int fromId, int currentId) {
+    print(linePoints.length); 
+    print(fromId);
+    double absX = fromId < linePoints.length && linePoints[fromId].absX != null 
+      ? linePoints[fromId].absX + linePoints[currentId].relX 
+      : null;
+    double absY = fromId < linePoints.length && linePoints[fromId].absY != null 
+      ? linePoints[fromId].absY + linePoints[currentId].relY 
+      : null;
+    linePoints[currentId].absX = absX;
+    linePoints[currentId].absY = absY;
+    print(linePoints[currentId].toString());
+    if (absX == null || absY == null) {
+      checkJumpOffsets(linePoints[fromId].station, fromId); 
+      print("loop missing abs points ${linePoints[fromId].station.toString()} ");
+    }
+  }
 
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    for (var i=1; i<segments.length; i++) { //155
-      int currentId = segments.singleWhere((data) => data.id == i).id;
-      int fromId = segments.singleWhere((data) => data.id == i).frid;
+    for (var i=1; i<segments.length-95; i++) { //155
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
@@ -92,28 +104,13 @@ class LinePainter extends CustomPainter{
       double relX = projectedDistance * cos(radians);
       double relY = projectedDistance * sin(radians);
       print("$i: ${segments[i]} ");
-
-      //if IDs are continuous, calculate absolute start values where possible
-      if (fromId + 1 == currentId) {
-        print("line points from $fromId to $currentId");
-        List <double> startCoord = [0.0, 0.0];
-        linePoints.forEach((segment) {
-          if (segment.station <= fromId) startCoord = [startCoord[0] + segment.relX, startCoord[1] + segment.relY];
-        });
-        //move to tie-in point
-        print("move to $startCoord ");
-        //move to [-48.94182047421762, -14.34621069655474]: 14
-        // x=50;
-        // y=50;
-       // path.moveTo(startCoord[0]+offX, startCoord[1]+offY);
-      linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY, absX: startCoord[0], absY: startCoord[1])); 
-      }
+      linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY)); 
     }
-  }
-
-  //iterate until all absolute line points have been set
-  void setAbsoluteLinePoints() {
-
+    for (var i=1; i<segments.length-95; i++) { //155
+      int currentId = segments.singleWhere((data) => data.id == i).id;
+      int fromId = segments.singleWhere((data) => data.id == i).frid;
+      checkJumpOffsets(fromId, currentId);
+    }
   }
 
 
@@ -135,7 +132,7 @@ class LinePainter extends CustomPainter{
     if (segments == null || segments.length == 0) return;
 
     setRelativeLinePoints(scaleFactor);
-    print(linePoints.toString());
+    //print(linePoints.toString());
 
     // //calculate absolute offsets for each point
     // //for (var i=0; i<155; i++) { //segments.length -29
