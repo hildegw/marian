@@ -71,12 +71,12 @@ class LinePainter extends CustomPainter{
   LinePainter({this.segments});
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
   List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
-  int count = 0;
   Iterable<ModelLinePoint> missingDataPoints = [];
 
-  void checkMissingDataPoints(ModelLinePoint linePoint) {
-    int currentId = segments.singleWhere((data) => data.id == linePoint.station).id;
+  //set absolute offset values for each line point
+  void setLinePointOffsets(ModelLinePoint linePoint) {
     int fromId = segments.singleWhere((data) => data.id == linePoint.station).frid;
+    int currentId = linePoint.station;//segments.singleWhere((data) => data.id == linePoint.station).id;
     if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
     double absX = linePoints[fromId].absX != null 
       ? linePoints[fromId].absX + linePoints[currentId].relX 
@@ -90,37 +90,41 @@ class LinePainter extends CustomPainter{
     // print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
   }
 
-  void checkJumpOffsets() {
-    print("iteration count ${count++}");
+  //check if all absolute line offsets exists (for) jumps, Ts, etc.), if not run iteration until all are set
+  void addAbsoluteOffsets() {
     missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
     missingDataPoints.forEach((linePoint) {
-      checkMissingDataPoints(linePoint);
+      setLinePointOffsets(linePoint);
     });
     missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
     if (missingDataPoints != null && missingDataPoints.length > 0) {
       // print("still missing data points");
       // print(missingDataPoints.length);
-      checkJumpOffsets();
+      addAbsoluteOffsets();
     }
   }
 
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    for (var i=1; i<segments.length-28; i++) { //155 segments.length
-      double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
-      double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
+    //for (var i=1; i<segments.length-27; i++) { //155 segments.length
+    segments.forEach((seg) { 
+      print(seg.toString());
+      double depth = seg.dp ?? 0.0; 
+      double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
+        ? segments[seg.frid].dp : 0.0;
       double deltaDepth = depth - prevDepth;  
       double projectedDistance = deltaDepth != 0.0 
-        ? math.sqrt(math.pow(segments[i].lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
-        : segments[i].lg;
-      double radians = segments[i].az * math.pi / 180 + 180;
+        ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
+        : seg.lg;
+      double radians = seg.az * math.pi / 180 + 180;
       double relX = projectedDistance * cos(radians);
       double relY = projectedDistance * sin(radians);
       //print("$i: ${segments[i]} ");
-      linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY)); 
-    }
-    checkJumpOffsets();
+      if (seg.frid > -1) linePoints.add(ModelLinePoint(station: seg.id, relX: relX, relY: relY)); 
+    });
+    //add absolute offsets for jumps, Ts, etc. 
+    addAbsoluteOffsets();
     //linePoints.forEach((element) => print(element.toString()));
   }
 
@@ -144,8 +148,16 @@ class LinePainter extends CustomPainter{
 
     setRelativeLinePoints(scaleFactor);
 
+    print(linePoints.length);
+    print(linePoints[139].toString());
+    print(linePoints[155].toString());
+    print(linePoints[156].toString());
+    print(segments.length);
+    print(segments[139].toString());
+    print(segments[156].toString());
+    print(segments[155].toString());
+
     linePoints.forEach((seg) {
-      print(seg.toString());
       if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
         path.moveTo(seg.absX-seg.relX+offX, seg.absY-seg.relY+offY);
       if (seg.relX != null && !seg.relX.isNaN && seg.relY != null && !seg.relY.isNaN) 
