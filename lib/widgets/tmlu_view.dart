@@ -36,7 +36,7 @@ class _TmluViewState extends State<TmluView> {
     //final data = caveFile.elementAt(0).findElements('Data');
     // final Iterable data = tmlu.findAllElements("Data");
     srvd = tmlu.findAllElements(("SRVD"));
-    print(srvd.length);
+    print("SRVDs ${srvd.length}");
     srvd.forEach((item) {
       //XmlElement az = segment.getElement("AZ");
       double az = double.parse(item.getElement("AZ").text);
@@ -45,7 +45,6 @@ class _TmluViewState extends State<TmluView> {
       int id = int.parse(item.getElement("ID").text);
       int frid = int.parse(item.getElement("FRID").text);
       segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
-      //print(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg).toString());
     });
   }
 
@@ -86,8 +85,6 @@ class LinePainter extends CustomPainter{
       : null;
     linePoints[currentId].absX = absX;
     linePoints[currentId].absY = absY;
-    // print("from $fromId to $currentId");
-    // print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
   }
 
   //check if all absolute line offsets exists (for) jumps, Ts, etc.), if not run iteration until all are set
@@ -98,8 +95,6 @@ class LinePainter extends CustomPainter{
     });
     missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
     if (missingDataPoints != null && missingDataPoints.length > 0) {
-      // print("still missing data points");
-      // print(missingDataPoints.length);
       addAbsoluteOffsets();
     }
   }
@@ -107,9 +102,8 @@ class LinePainter extends CustomPainter{
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    //for (var i=1; i<segments.length-27; i++) { //155 segments.length
     segments.forEach((seg) { 
-      print(seg.toString());
+      //print(seg.toString());
       double depth = seg.dp ?? 0.0; 
       double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
         ? segments[seg.frid].dp : 0.0;
@@ -120,7 +114,6 @@ class LinePainter extends CustomPainter{
       double radians = seg.az * math.pi / 180 + 180;
       double relX = projectedDistance * cos(radians);
       double relY = projectedDistance * sin(radians);
-      //print("$i: ${segments[i]} ");
       if (seg.frid > -1) linePoints.add(ModelLinePoint(station: seg.id, relX: relX, relY: relY)); 
     });
     //add absolute offsets for jumps, Ts, etc. 
@@ -137,57 +130,30 @@ class LinePainter extends CustomPainter{
     ..strokeWidth = 3;
 
     Path path = Path();
-    //print(size.width);
-    double scaleFactor =  size.width / 600;   //size to 50m as screen width
 
-    double offX = size.width/2;
-    double offY = size.height/2;
-    path.moveTo(offX, offY); //starting point
-    
-    if (segments == null || segments.length == 0) return;
-
-    setRelativeLinePoints(scaleFactor);
-
-    print(linePoints.length);
-    print(linePoints[139].toString());
-    print(linePoints[155].toString());
-    print(linePoints[156].toString());
-    print(segments.length);
-    print(segments[139].toString());
-    print(segments[156].toString());
-    print(segments[155].toString());
+    double scaleFactor = 1; //no longer needed  
+    setRelativeLinePoints(scaleFactor); //create the list of points to draw
 
     linePoints.forEach((seg) {
       if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
-        path.moveTo(seg.absX-seg.relX+offX, seg.absY-seg.relY+offY);
+        path.moveTo(seg.absX-seg.relX, seg.absY-seg.relY);
       if (seg.relX != null && !seg.relX.isNaN && seg.relY != null && !seg.relY.isNaN) 
         path.relativeLineTo(seg.relX, seg.relY);
-      //else path.relativeLineTo(0, 0);
      });
 
-
-
-   //print(path.getBounds());
-    
-    //add jump
-    // Path secondPath = Path();
-    // secondPath.lineTo(size.width / 2, size.height / 2);
-    // path.addPath(secondPath, Offset(16, 16));
-    //path.extendWithPath(path, Offset(10, 0));
-    
-    
-    
+    //center and scale canvas to fit path/cave 
+    Rect bounds = path.getBounds();
+    print(bounds);
+    double xScale = size.width / bounds.width;
+    double yScale = size.height / bounds.height;
+    double scale = xScale > yScale ? yScale : xScale;
+    print(xScale);
+    print(yScale);
+    print(bounds.width);
+    print(bounds.height);
+    canvas.translate(bounds.width, bounds.height);
+    canvas.scale(scale/2, scale/2);
     canvas.drawPath(path, paint);
-    
-
-
-
-    // canvas.drawLine(
-    //   Offset(0, size.height / 2),
-    //   Offset(size.width, size.height / 2),
-    //   paint,
-    // );
-
   }
 
   @override
