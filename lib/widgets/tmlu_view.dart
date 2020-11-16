@@ -45,7 +45,7 @@ class _TmluViewState extends State<TmluView> {
       int id = int.parse(item.getElement("ID").text);
       int frid = int.parse(item.getElement("FRID").text);
       segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
-      print(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg).toString());
+      //print(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg).toString());
     });
   }
 
@@ -98,8 +98,8 @@ class LinePainter extends CustomPainter{
     });
     missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
     if (missingDataPoints != null && missingDataPoints.length > 0) {
-      print("still missing data points");
-      print(missingDataPoints.length);
+      // print("still missing data points");
+      // print(missingDataPoints.length);
       checkJumpOffsets();
     }
   }
@@ -107,7 +107,7 @@ class LinePainter extends CustomPainter{
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    for (var i=1; i<segments.length-29; i++) { //155 segments.length
+    for (var i=1; i<segments.length-28; i++) { //155 segments.length
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
@@ -121,7 +121,7 @@ class LinePainter extends CustomPainter{
       linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY)); 
     }
     checkJumpOffsets();
-    linePoints.forEach((element) => print(element.toString()));
+    //linePoints.forEach((element) => print(element.toString()));
   }
 
 
@@ -133,11 +133,11 @@ class LinePainter extends CustomPainter{
     ..strokeWidth = 3;
 
     Path path = Path();
-    print(size.width);
+    //print(size.width);
     double scaleFactor =  size.width / 600;   //size to 50m as screen width
 
-    double offX = 400;//size.width/2;
-    double offY = 400; //size.height/2;
+    double offX = size.width/2;
+    double offY = size.height/2;
     path.moveTo(offX, offY); //starting point
     
     if (segments == null || segments.length == 0) return;
@@ -145,10 +145,12 @@ class LinePainter extends CustomPainter{
     setRelativeLinePoints(scaleFactor);
 
     linePoints.forEach((seg) {
-      if (seg.absX != null && seg.absY != null) //path.moveTo(seg.absX, seg.absY);
+      print(seg.toString());
+      if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
         path.moveTo(seg.absX-seg.relX+offX, seg.absY-seg.relY+offY);
-      path.relativeLineTo(seg.relX, seg.relY);
-      //print(seg.toString());
+      if (seg.relX != null && !seg.relX.isNaN && seg.relY != null && !seg.relY.isNaN) 
+        path.relativeLineTo(seg.relX, seg.relY);
+      //else path.relativeLineTo(0, 0);
      });
 
 
