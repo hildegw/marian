@@ -72,6 +72,7 @@ class LinePainter extends CustomPainter{
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
   List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
   int count = 0;
+  Iterable<ModelLinePoint> missingDataPoints = [];
 
   void checkMissingDataPoints(ModelLinePoint linePoint) {
     int currentId = segments.singleWhere((data) => data.id == linePoint.station).id;
@@ -85,32 +86,22 @@ class LinePainter extends CustomPainter{
       : null;
     linePoints[currentId].absX = absX;
     linePoints[currentId].absY = absY;
+    print("from $fromId to $currentId");
     print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
-    print("check jumps, 153: ${linePoints[153].toString()}");
   }
 
   void checkJumpOffsets() {
-    count++;
-    for (var i=1; i<155; i++) { //155 segments.length
-      int currentId = segments.singleWhere((data) => data.id == i).id;
-      int fromId = segments.singleWhere((data) => data.id == i).frid;
-      if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
-      double absX = linePoints[fromId].absX != null 
-        ? linePoints[fromId].absX + linePoints[currentId].relX 
-        : null;
-      double absY = linePoints[fromId].absY != null 
-        ? linePoints[fromId].absY + linePoints[currentId].relY 
-        : null;
-      linePoints[currentId].absX = absX;
-      linePoints[currentId].absY = absY;
-      print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
-      print("check jumps, 153: ${linePoints[153].toString()}");
-    }
-    Iterable<ModelLinePoint> missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+    print("iteration count ${count++}");
+    missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
     missingDataPoints.forEach((linePoint) {
-      this.checkMissingDataPoints(linePoint);
-      count++;
+      checkMissingDataPoints(linePoint);
     });
+    missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+    if (missingDataPoints != null && missingDataPoints.length > 0) {
+      print("still missing data points");
+      print(missingDataPoints.length);
+      checkJumpOffsets();
+    }
   }
 
   //get lines data and create list with all relative line points 
