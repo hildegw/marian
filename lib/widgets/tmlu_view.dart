@@ -111,7 +111,7 @@ class LinePainter extends CustomPainter{
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
         : seg.lg;
-      double radians = seg.az * math.pi / 180 + 180;
+      double radians = (seg.az-90) * math.pi / 180;
       double relX = projectedDistance * cos(radians);
       double relY = projectedDistance * sin(radians);
       if (seg.frid > -1) linePoints.add(ModelLinePoint(station: seg.id, relX: relX, relY: relY)); 
@@ -147,15 +147,17 @@ class LinePainter extends CustomPainter{
     double xScale = size.width / bounds.width;
     double yScale = size.height / bounds.height;
     double scale = xScale > yScale ? yScale : xScale;
-    double transX = xScale > yScale ? bounds.width : bounds.width * scale;
-    double transY = xScale > yScale ? bounds.height * scale: bounds.height;
+    double transX = xScale > yScale ? bounds.width : bounds.width*scale*2/3*6/5;
+    double transY = xScale > yScale ? bounds.height*scale*2/3*6/5 : bounds.height;
     print(xScale);
     print(yScale);
+    print(scale);
+
     print(bounds.width);
     print(bounds.height);
 
     canvas.translate(transX, transY);
-    canvas.scale(scale, scale);
+    canvas.scale(scale*5/6, scale*5/6);
     canvas.drawPath(path, paint);
   }
 

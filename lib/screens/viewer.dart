@@ -19,3 +19,5 @@ class _ViewerState extends State<Viewer> {
     );
   }
 }
+
+//TODO Canvas controller to move and resize cave
