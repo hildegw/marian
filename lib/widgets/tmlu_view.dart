@@ -147,13 +147,15 @@ class LinePainter extends CustomPainter{
     double xScale = size.width / bounds.width;
     double yScale = size.height / bounds.height;
     double scale = xScale > yScale ? yScale : xScale;
+    double transX = xScale > yScale ? bounds.width : bounds.width * scale;
+    double transY = xScale > yScale ? bounds.height * scale: bounds.height;
     print(xScale);
     print(yScale);
     print(bounds.width);
     print(bounds.height);
 
-    canvas.translate(bounds.width, bounds.height);
-    canvas.scale(scale/4, scale/4);
+    canvas.translate(transX, transY);
+    canvas.scale(scale, scale);
     canvas.drawPath(path, paint);
   }
 
