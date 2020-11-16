@@ -86,8 +86,8 @@ class LinePainter extends CustomPainter{
       : null;
     linePoints[currentId].absX = absX;
     linePoints[currentId].absY = absY;
-    print("from $fromId to $currentId");
-    print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
+    // print("from $fromId to $currentId");
+    // print("check jumps, iteration $count: ${linePoints[currentId].toString()}");
   }
 
   void checkJumpOffsets() {
@@ -107,7 +107,7 @@ class LinePainter extends CustomPainter{
   //get lines data and create list with all relative line points 
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
-    for (var i=1; i<155; i++) { //155 segments.length
+    for (var i=1; i<segments.length-29; i++) { //155 segments.length
       double depth = segments.singleWhere((data) => data.id == i).dp;  //TODO catch error
       double prevDepth = segments.singleWhere((data) => data.id == i-1).dp;
       double deltaDepth = depth - prevDepth;  
@@ -121,6 +121,7 @@ class LinePainter extends CustomPainter{
       linePoints.add(ModelLinePoint(station: i, relX: relX, relY: relY)); 
     }
     checkJumpOffsets();
+    linePoints.forEach((element) => print(element.toString()));
   }
 
 
@@ -135,8 +136,8 @@ class LinePainter extends CustomPainter{
     print(size.width);
     double scaleFactor =  size.width / 600;   //size to 50m as screen width
 
-    double offX = size.width/2;
-    double offY = size.height/2;
+    double offX = 400;//size.width/2;
+    double offY = 400; //size.height/2;
     path.moveTo(offX, offY); //starting point
     
     if (segments == null || segments.length == 0) return;
@@ -144,7 +145,8 @@ class LinePainter extends CustomPainter{
     setRelativeLinePoints(scaleFactor);
 
     linePoints.forEach((seg) {
-      if (seg.absX != null && seg.absY != null) path.moveTo(seg.absX+offX, seg.absY+offY);
+      if (seg.absX != null && seg.absY != null) //path.moveTo(seg.absX, seg.absY);
+        path.moveTo(seg.absX-seg.relX+offX, seg.absY-seg.relY+offY);
       path.relativeLineTo(seg.relX, seg.relY);
       //print(seg.toString());
      });
