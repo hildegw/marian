@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
-import '../models/model_segment.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong/latlong.dart' as coord;
 
-import 'map_tiles.dart';
+import '../models/model_segment.dart';
 
 class TmluView extends StatefulWidget {
   @override
@@ -31,6 +31,41 @@ class _TmluViewState extends State<TmluView> {
   }
 
 
+  //calculate coordinates for lines to define map size
+  void addCoordinates() {
+    //get starting point coordinates
+    XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("AZ").text != null);
+    int startId = int.parse(startSrvd.getElement("ID").text);
+    double lat = double.parse(startSrvd.getElement("LT").text);
+    double lon = double.parse(startSrvd.getElement("LGT").text);
+    segments[startId].latlng = coord.LatLng(lat, lon);
+    //calculate other coordinates
+    segments.forEach((seg) { 
+      if (seg.id == startId ) return;
+      coord.Distance distance =  coord.Distance();
+      if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
+        coord.LatLng prevCoord = segments[seg.frid].latlng;  //check if from-station has coordinates to calculate offset
+        coord.LatLng currentCoord = distance.offset(prevCoord, seg.lg, seg.az );
+        segments[seg.id].latlng = currentCoord.round();
+      }
+      //print(currentCoord.round());
+    });
+    Iterable <ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
+    if (missingCoordinates != null && missingCoordinates.length > 0) addCoordinates();
+  }
+
+
+  //   void addAbsoluteOffsets() {
+  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+  //   missingDataPoints.forEach((linePoint) {
+  //     setLinePointOffsets(linePoint);
+  //   });
+  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+  //   if (missingDataPoints != null && missingDataPoints.length > 0) {
+  //     addAbsoluteOffsets();
+  //   }
+  // }
+
   loadTmlu() async {
     cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
     //print("loaded tmlu $bones");
@@ -49,6 +84,7 @@ class _TmluViewState extends State<TmluView> {
       int frid = int.parse(item.getElement("FRID").text);
       segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
     });
+    addCoordinates();
   }
 
 
@@ -107,11 +143,11 @@ class LinePainter extends CustomPainter{
   void setRelativeLinePoints(double scaleFactor) {
     //read all stations and calculate their relative points
     segments.forEach((seg) { 
-      //print(seg.toString());
+      print(seg.toString());
       double depth = seg.dp ?? 0.0; 
       double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
         ? segments[seg.frid].dp : 0.0;
-      double deltaDepth = 0.0;//depth - prevDepth;  
+      double deltaDepth = depth - prevDepth;  
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
         : seg.lg;
@@ -161,9 +197,9 @@ class LinePainter extends CustomPainter{
     print(bounds.width);
     print(bounds.height);
 
-    canvas.translate(transX, transY);
-    canvas.scale(scale*zoomFactor, scale*zoomFactor);
-    canvas.drawPath(path, paint);
+    // canvas.translate(transX, transY);
+    // canvas.scale(scale*zoomFactor, scale*zoomFactor);
+    // canvas.drawPath(path, paint);
   }
 
   @override

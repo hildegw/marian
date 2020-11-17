@@ -59,8 +59,9 @@ class _MapTilesState extends State<MapTiles> {
                   child: FlutterMap(
                     key: _houseAddressKey,
                     options:  MapOptions(
-                      center: LatLng(20.196525, -87.517539), //TODO get from tmlu
-                      zoom: 14.0
+                      bounds: LatLngBounds(LatLng(20.19, -87.49), LatLng(20.2, -87.53)),
+                      // center: LatLng(20.196525, -87.517539), //TODO get from tmlu
+                      // zoom: 14.0
                     ),
                     layers: [
                       TileLayerOptions(
@@ -74,6 +75,14 @@ class _MapTilesState extends State<MapTiles> {
                         },                
                       ),
 
+                    // PolylineLayerOptions(
+                    //   polylines: [
+                    //     Polyline(
+                    //         points: points,
+                    //         strokeWidth: 4.0,
+                    //         color: Colors.purple),
+                    //   ],
+                    // ),
 
                       MarkerLayerOptions(markers: [
                         Marker(

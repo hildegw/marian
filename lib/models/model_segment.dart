@@ -1,5 +1,6 @@
 
 
+import 'package:latlong/latlong.dart';
 
 class ModelSegment {
   int id;
@@ -7,12 +8,13 @@ class ModelSegment {
   double az;
   double dp;
   double lg;
+  LatLng latlng;
    
   ModelSegment({
-    this.id, this.frid, this.az, this.dp, this.lg,
+    this.id, this.frid, this.az, this.dp, this.lg, this.latlng,
   });
 
-  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg';
+  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}';
 }
 
 class ModelLinePoint {
