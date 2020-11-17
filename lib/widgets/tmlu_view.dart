@@ -8,7 +8,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
 import '../models/model_segment.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 
+import 'map_tiles.dart';
 
 class TmluView extends StatefulWidget {
   @override
@@ -53,11 +55,11 @@ class _TmluViewState extends State<TmluView> {
   @override
   Widget build(BuildContext context) {    
     return Container(
-      color: Colors.amberAccent,
+      color: Colors.transparent,
       child: CustomPaint(
         painter: LinePainter(segments: segments),
         child: Center(
-          child: Text("paint"),
+          //child: //MapTiles(),
           //add buttons for zooming +-, and recenter
         ),
       ),
@@ -109,7 +111,7 @@ class LinePainter extends CustomPainter{
       double depth = seg.dp ?? 0.0; 
       double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
         ? segments[seg.frid].dp : 0.0;
-      double deltaDepth = depth - prevDepth;  
+      double deltaDepth = 0.0;//depth - prevDepth;  
       double projectedDistance = deltaDepth != 0.0 
         ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
         : seg.lg;

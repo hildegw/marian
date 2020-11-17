@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/tmlu_view.dart';
+import '../widgets/map_tiles.dart';
 
 
 class Viewer extends StatefulWidget {
@@ -14,7 +15,12 @@ class _ViewerState extends State<Viewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.title,)),
-      body: TmluView(),
+      body: Stack(
+        children: <Widget>[
+          MapTiles(),
+          TmluView(),
+        ]
+      )
       
     );
   }
