@@ -23,6 +23,7 @@ class _TmluViewState extends State<TmluView> {
   XmlDocument tmlu;
   Iterable srvd = [];
   List<ModelSegment> segments = [];
+  coord.LatLng startCoord;
   
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _TmluViewState extends State<TmluView> {
     double lat = double.parse(startSrvd.getElement("LT").text);
     double lon = double.parse(startSrvd.getElement("LGT").text);
     segments[startId].latlng = coord.LatLng(lat, lon);
+    startCoord = coord.LatLng(lat, lon);
     //calculate other coordinates
     segments.forEach((seg) { 
       if (seg.id == startId ) return;
@@ -53,18 +55,6 @@ class _TmluViewState extends State<TmluView> {
     Iterable <ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
     if (missingCoordinates != null && missingCoordinates.length > 0) addCoordinates();
   }
-
-
-  //   void addAbsoluteOffsets() {
-  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
-  //   missingDataPoints.forEach((linePoint) {
-  //     setLinePointOffsets(linePoint);
-  //   });
-  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
-  //   if (missingDataPoints != null && missingDataPoints.length > 0) {
-  //     addAbsoluteOffsets();
-  //   }
-  // }
 
   loadTmlu() async {
     cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
@@ -93,7 +83,7 @@ class _TmluViewState extends State<TmluView> {
     return Container(
       color: Colors.transparent,
       child: CustomPaint(
-        painter: LinePainter(segments: segments),
+        painter: LinePainter(segments: segments, startCoord: startCoord),
         child: Center(
           //child: //MapTiles(),
           //add buttons for zooming +-, and recenter
@@ -107,59 +97,60 @@ class _TmluViewState extends State<TmluView> {
 
 class LinePainter extends CustomPainter{
   List<ModelSegment> segments;
-  LinePainter({this.segments});
+  coord.LatLng startCoord;
+  LinePainter({this.segments, this.startCoord});
   //https://medium.com/flutter-community/paths-in-flutter-a-visual-guide-6c906464dcd0
   List <ModelLinePoint> linePoints = [ModelLinePoint(station: 0, relX: 0, relY: 0, absX: 0, absY: 0)];  //list of all relative coordinates
   Iterable<ModelLinePoint> missingDataPoints = [];
 
-  //set absolute offset values for each line point
-  void setLinePointOffsets(ModelLinePoint linePoint) {
-    int fromId = segments.singleWhere((data) => data.id == linePoint.station).frid;
-    int currentId = linePoint.station;//segments.singleWhere((data) => data.id == linePoint.station).id;
-    if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
-    double absX = linePoints[fromId].absX != null 
-      ? linePoints[fromId].absX + linePoints[currentId].relX 
-      : null;
-    double absY = linePoints[fromId].absY != null 
-      ? linePoints[fromId].absY + linePoints[currentId].relY 
-      : null;
-    linePoints[currentId].absX = absX;
-    linePoints[currentId].absY = absY;
-  }
+  // //set absolute offset values for each line point
+  // void setLinePointOffsets(ModelLinePoint linePoint) {
+  //   int fromId = segments.singleWhere((data) => data.id == linePoint.station).frid;
+  //   int currentId = linePoint.station;//segments.singleWhere((data) => data.id == linePoint.station).id;
+  //   if (linePoints[currentId].absX != null && linePoints[currentId].absY != null) return;
+  //   double absX = linePoints[fromId].absX != null 
+  //     ? linePoints[fromId].absX + linePoints[currentId].relX 
+  //     : null;
+  //   double absY = linePoints[fromId].absY != null 
+  //     ? linePoints[fromId].absY + linePoints[currentId].relY 
+  //     : null;
+  //   linePoints[currentId].absX = absX;
+  //   linePoints[currentId].absY = absY;
+  // }
 
-  //check if all absolute line offsets exists (for) jumps, Ts, etc.), if not run iteration until all are set
-  void addAbsoluteOffsets() {
-    missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
-    missingDataPoints.forEach((linePoint) {
-      setLinePointOffsets(linePoint);
-    });
-    missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
-    if (missingDataPoints != null && missingDataPoints.length > 0) {
-      addAbsoluteOffsets();
-    }
-  }
+  // //check if all absolute line offsets exists (for) jumps, Ts, etc.), if not run iteration until all are set
+  // void addAbsoluteOffsets() {
+  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+  //   missingDataPoints.forEach((linePoint) {
+  //     setLinePointOffsets(linePoint);
+  //   });
+  //   missingDataPoints = linePoints.where((point) => point.absX == null || point.absY == null);
+  //   if (missingDataPoints != null && missingDataPoints.length > 0) {
+  //     addAbsoluteOffsets();
+  //   }
+  // }
 
-  //get lines data and create list with all relative line points 
-  void setRelativeLinePoints(double scaleFactor) {
-    //read all stations and calculate their relative points
-    segments.forEach((seg) { 
-      print(seg.toString());
-      double depth = seg.dp ?? 0.0; 
-      double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
-        ? segments[seg.frid].dp : 0.0;
-      double deltaDepth = depth - prevDepth;  
-      double projectedDistance = deltaDepth != 0.0 
-        ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
-        : seg.lg;
-      double radians = (seg.az-90) * math.pi / 180;
-      double relX = projectedDistance * cos(radians);
-      double relY = projectedDistance * sin(radians);
-      if (seg.frid > -1) linePoints.add(ModelLinePoint(station: seg.id, relX: relX, relY: relY)); 
-    });
-    //add absolute offsets for jumps, Ts, etc. 
-    addAbsoluteOffsets();
-    //linePoints.forEach((element) => print(element.toString()));
-  }
+  // //get lines data and create list with all relative line points 
+  // void setRelativeLinePoints(double scaleFactor) {
+  //   //read all stations and calculate their relative points
+  //   segments.forEach((seg) { 
+  //     print(seg.toString());
+  //     double depth = seg.dp ?? 0.0; 
+  //     double prevDepth = seg.frid > -1 && segments.length > seg.frid != null && segments[seg.frid].dp != null 
+  //       ? segments[seg.frid].dp : 0.0;
+  //     double deltaDepth = depth - prevDepth;  
+  //     double projectedDistance = deltaDepth != 0.0 
+  //       ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2)) * scaleFactor
+  //       : seg.lg;
+  //     double radians = (seg.az-90) * math.pi / 180;
+  //     double relX = projectedDistance * cos(radians);
+  //     double relY = projectedDistance * sin(radians);
+  //     if (seg.frid > -1) linePoints.add(ModelLinePoint(station: seg.id, relX: relX, relY: relY)); 
+  //   });
+  //   //add absolute offsets for jumps, Ts, etc. 
+  //   addAbsoluteOffsets();
+  //   //linePoints.forEach((element) => print(element.toString()));
+  // }
 
 
   @override
@@ -171,16 +162,32 @@ class LinePainter extends CustomPainter{
 
     Path path = Path();
 
-    double scaleFactor = 1; //no longer needed  
-    setRelativeLinePoints(scaleFactor); //create the list of points to draw
+    // double scaleFactor = 1; //no longer needed  
+    // setRelativeLinePoints(scaleFactor); //create the list of points to draw
     double zoomFactor = 5/6; //zooming cave with gestures or +- TODO
 
-    linePoints.forEach((seg) {
-      if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
-        path.moveTo(seg.absX-seg.relX, seg.absY-seg.relY);
-      if (seg.relX != null && !seg.relX.isNaN && seg.relY != null && !seg.relY.isNaN) 
-        path.relativeLineTo(seg.relX, seg.relY);
+    // linePoints.forEach((seg) {
+    //   if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
+    //     path.moveTo(seg.absX-seg.relX, seg.absY-seg.relY);
+    //   if (seg.relX != null && !seg.relX.isNaN && seg.relY != null && !seg.relY.isNaN) 
+    //     path.relativeLineTo(seg.relX, seg.relY);
+    //  });
+
+    // if (startCoord != null && startCoord.latitude != null && startCoord.longitude != null)
+    //   path.moveTo(startCoord.latitude, startCoord.longitude);
+    segments.forEach((seg) {
+      if (seg.frid < 0) return; //path.moveTo(startCoord.latitude, startCoord.longitude);
+      if (seg.latlng.latitude != null && !seg.latlng.latitude.isNaN  && seg.latlng.longitude != null && !seg.latlng.longitude.isNaN ) {
+        double prevLat = segments[seg.frid].latlng.latitude; //- startCoord.latitude;
+        double prevLong = segments[seg.frid].latlng.longitude; //- startCoord.longitude;
+        double latDiff = seg.latlng.latitude - prevLat;
+        double longDiff = seg.latlng.longitude - prevLong;
+print(prevLat-startCoord.latitude);
+        path.moveTo(prevLat-startCoord.latitude, prevLong-startCoord.longitude);
+        path.relativeLineTo(latDiff, longDiff);
+      }
      });
+
 
     //center and scale canvas to fit path/cave 
     Rect bounds = path.getBounds();
@@ -197,9 +204,9 @@ class LinePainter extends CustomPainter{
     print(bounds.width);
     print(bounds.height);
 
-    // canvas.translate(transX, transY);
-    // canvas.scale(scale*zoomFactor, scale*zoomFactor);
-    // canvas.drawPath(path, paint);
+    canvas.translate(transX, transY);
+    canvas.scale(scale*zoomFactor, scale*zoomFactor);
+    canvas.drawPath(path, paint);
   }
 
   @override
