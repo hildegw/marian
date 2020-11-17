@@ -21,3 +21,7 @@ class _ViewerState extends State<Viewer> {
 }
 
 //TODO Canvas controller to move and resize cave
+//https://blog.codemagic.io/multi-touch-canvas-with-flutter/
+//https://github.com/rodydavis/flutter_multi_touch_canvas
+
+//MobX https://circleci.com/blog/state-management-for-flutter-apps-with-mobx/

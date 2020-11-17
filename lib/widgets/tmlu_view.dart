@@ -7,6 +7,7 @@ import 'package:xml/xml.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
 import '../models/model_segment.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class TmluView extends StatefulWidget {
@@ -57,6 +58,7 @@ class _TmluViewState extends State<TmluView> {
         painter: LinePainter(segments: segments),
         child: Center(
           child: Text("paint"),
+          //add buttons for zooming +-, and recenter
         ),
       ),
 
@@ -133,6 +135,7 @@ class LinePainter extends CustomPainter{
 
     double scaleFactor = 1; //no longer needed  
     setRelativeLinePoints(scaleFactor); //create the list of points to draw
+    double zoomFactor = 5/6; //zooming cave with gestures or +- TODO
 
     linePoints.forEach((seg) {
       if (seg.absX != null && !seg.absX.isNaN  && seg.absY != null && !seg.absY.isNaN )
@@ -147,8 +150,8 @@ class LinePainter extends CustomPainter{
     double xScale = size.width / bounds.width;
     double yScale = size.height / bounds.height;
     double scale = xScale > yScale ? yScale : xScale;
-    double transX = xScale > yScale ? bounds.width : bounds.width*scale*2/3*6/5;
-    double transY = xScale > yScale ? bounds.height*scale*2/3*6/5 : bounds.height;
+    double transX = size.width/2 + bounds.width/2*zoomFactor;  
+    double transY = size.height/2 + bounds.height/2*zoomFactor; 
     print(xScale);
     print(yScale);
     print(scale);
@@ -157,7 +160,7 @@ class LinePainter extends CustomPainter{
     print(bounds.height);
 
     canvas.translate(transX, transY);
-    canvas.scale(scale*5/6, scale*5/6);
+    canvas.scale(scale*zoomFactor, scale*zoomFactor);
     canvas.drawPath(path, paint);
   }
 
