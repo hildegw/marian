@@ -39,10 +39,12 @@ enum TmluStatus {
 class TmluState {
   final TmluStatus status;
   final List<ModelSegment> segments;
+  final List<LatLng> points;
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
     this.segments,
+    this.points,
     this.error,
   });
 
@@ -71,8 +73,11 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   
     if (event is LoadData) {
         print('tmlu bloc has data ${event.segments} ');
+        List<LatLng> points = [];
+        event.segments.forEach((seg) => points.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)) );
         yield TmluState(
           segments: event.segments,
+          points: points,
           status: TmluStatus.hasTmlu,
           error: null,
         );

@@ -22,11 +22,9 @@ class MapTiles extends StatefulWidget {
 class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
 
-
-
   @override
   void initState() {
-    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    //final tmluBloc = BlocProvider.of<TmluBloc>(context);
 
     super.initState();
   }
@@ -41,7 +39,9 @@ class _MapTilesState extends State<MapTiles> {
   @override
   Widget build(BuildContext context) {
     final Responsive _responsive = Responsive(context);
-     
+    //final tmluBloc = BlocProvider.of<TmluBloc>(context);
+
+    return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
 
       return Stack(
           children: <Widget>[
@@ -61,9 +61,9 @@ class _MapTilesState extends State<MapTiles> {
                   child: FlutterMap(
                     key: _houseAddressKey,
                     options:  MapOptions(
-                      bounds: LatLngBounds(LatLng(20.19, -87.49), LatLng(20.2, -87.53)),
-                      // center: LatLng(20.196525, -87.517539), //TODO get from tmlu
-                      // zoom: 14.0
+                      //bounds: LatLngBounds(LatLng(20.19, -87.49), LatLng(20.2, -87.53)),
+                      center: LatLng(20.196525, -87.517539), //TODO get from tmlu
+                      zoom: 16.0
                     ),
                     layers: [
                       TileLayerOptions(
@@ -77,14 +77,15 @@ class _MapTilesState extends State<MapTiles> {
                         },                
                       ),
 
-                    // PolylineLayerOptions(
-                    //   polylines: [
-                    //     Polyline(
-                    //         points: points,
-                    //         strokeWidth: 4.0,
-                    //         color: Colors.purple),
-                    //   ],
-                    // ),
+                      if (state.status == TmluStatus.hasTmlu )
+                      PolylineLayerOptions(
+                        polylines: [
+                          Polyline(
+                              points: state.points,
+                              strokeWidth: 1.0,
+                              color: Colors.white),
+                        ],
+                      ),
 
                       MarkerLayerOptions(markers: [
                         Marker(
@@ -104,6 +105,7 @@ class _MapTilesState extends State<MapTiles> {
             ),
           ),
         ],);
+    });
 
   }
 }
