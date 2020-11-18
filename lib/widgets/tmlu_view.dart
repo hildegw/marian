@@ -11,6 +11,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart' as coord;
 
 import '../models/model_segment.dart';
+import '../blocs/tmlu_bloc.dart';
 
 class TmluView extends StatefulWidget {
   @override
@@ -28,6 +29,8 @@ class _TmluViewState extends State<TmluView> {
   @override
   void initState() {
     loadTmlu();
+    //final tmluBloc = BlocProvider.of<TmluBloc>(context);
+
     super.initState();
   }
 
@@ -79,18 +82,23 @@ class _TmluViewState extends State<TmluView> {
 
 
   @override
-  Widget build(BuildContext context) {    
-    return Container(
-      color: Colors.transparent,
-      child: CustomPaint(
-        painter: LinePainter(segments: segments, startCoord: startCoord),
-        child: Center(
-          //child: //MapTiles(),
-          //add buttons for zooming +-, and recenter
-        ),
-      ),
+  Widget build(BuildContext context) {   
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    if (segments != null && segments.length > 0) 
+        tmluBloc.add(LoadData(segments: segments));
 
-    );
+    //return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {        
+      return Container(
+        color: Colors.transparent,
+        child: CustomPaint(
+          painter: LinePainter(segments: segments, startCoord: startCoord),
+          child: Center(
+            //child: //MapTiles(),
+            //add buttons for zooming +-, and recenter
+          ),
+        ),
+      );
+    //});
   }
 }
 
@@ -176,15 +184,17 @@ class LinePainter extends CustomPainter{
     // if (startCoord != null && startCoord.latitude != null && startCoord.longitude != null)
     //   path.moveTo(startCoord.latitude, startCoord.longitude);
     segments.forEach((seg) {
+      //print(seg.toString());
       if (seg.frid < 0) return; //path.moveTo(startCoord.latitude, startCoord.longitude);
       if (seg.latlng.latitude != null && !seg.latlng.latitude.isNaN  && seg.latlng.longitude != null && !seg.latlng.longitude.isNaN ) {
         double prevLat = segments[seg.frid].latlng.latitude; //- startCoord.latitude;
         double prevLong = segments[seg.frid].latlng.longitude; //- startCoord.longitude;
         double latDiff = seg.latlng.latitude - prevLat;
         double longDiff = seg.latlng.longitude - prevLong;
-print(prevLat-startCoord.latitude);
-        path.moveTo(prevLat-startCoord.latitude, prevLong-startCoord.longitude);
-        path.relativeLineTo(latDiff, longDiff);
+//print(prevLat-startCoord.latitude);
+        path.moveTo((prevLat-startCoord.latitude)*110000, (prevLong-startCoord.longitude)*110000);
+        //path.moveTo(size.width/2, size.height/2);
+        path.relativeLineTo(latDiff*110000, longDiff*110000);
       }
      });
 

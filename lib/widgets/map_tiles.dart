@@ -7,8 +7,8 @@ import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 import '../utils/responsive.dart';
-// import '../blocs/houses_bloc.dart';
-// import '../models/house_model.dart';
+import '../blocs/tmlu_bloc.dart';
+import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
 
 
@@ -26,6 +26,8 @@ class _MapTilesState extends State<MapTiles> {
 
   @override
   void initState() {
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+
     super.initState();
   }
 

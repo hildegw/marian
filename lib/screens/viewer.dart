@@ -17,7 +17,7 @@ class _ViewerState extends State<Viewer> {
       appBar: AppBar(title: Text(widget.title,)),
       body: Stack(
         children: <Widget>[
-          //MapTiles(),
+          MapTiles(),
           TmluView(),
         ]
       )

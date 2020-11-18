@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import './screens/viewer.dart';
+import './blocs/tmlu_bloc.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +18,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Viewer(title: 'Viewer'),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<TmluBloc>(
+            create: (BuildContext context) => TmluBloc("_myRepository"),  //TODO is just a dummy string
+          ),
+        ],
+        child: Viewer(title: 'Viewer')
+      ),
       debugShowCheckedModeBanner: false,
     );
   }
