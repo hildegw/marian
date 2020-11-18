@@ -24,6 +24,7 @@ class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
 
   List <Polyline> lines = [];
+  LatLng start;
 
 
   @override
@@ -45,7 +46,7 @@ class _MapTilesState extends State<MapTiles> {
 
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
-    if (state.status == TmluStatus.hasTmlu) {
+    if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
       state.polylines.forEach((lineSegment) {
         lines.add(    
           Polyline(
@@ -54,6 +55,7 @@ class _MapTilesState extends State<MapTiles> {
             color: Colors.white
           ));
       });
+      start = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
     }
 
     return Stack(
@@ -71,11 +73,12 @@ class _MapTilesState extends State<MapTiles> {
               Container(
                 width: _responsive.wp(100),
                 height: _responsive.hp(100) - _responsive.safeAreaBottom,              
-                child: FlutterMap(
+                child: start != null 
+                ? FlutterMap(
                   key: _houseAddressKey,
                   options:  MapOptions(
                     //bounds: state.bounds,
-                    center: LatLng(20.196525, -87.517539), 
+                    center: start,
                     zoom: 16.0
                   ),
                   layers: [
@@ -97,15 +100,15 @@ class _MapTilesState extends State<MapTiles> {
 
                     MarkerLayerOptions(markers: [
                       Marker(
-                        width: 5.0,
-                        height: 5.0,
-                        point: LatLng(20.196525, -87.517539),
+                        width: 10.0,
+                        height: 10.0,
+                        point: start,
                         builder: (context) => Container(
-                          child: Icon(Icons.location_on, size: 5, color: Theme.of(context).errorColor,),
+                          child: Icon(Icons.location_on, size: 10, color: Theme.of(context).errorColor,),
                         )
                       )
                     ])
-                  ]),
+                  ]) : Container(),
                 ),
 
               ],

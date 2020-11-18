@@ -51,9 +51,7 @@ class TmluData {
       final tmluBloc = BlocProvider.of<TmluBloc>(context);
       if (segments == null || segments.length < 1 || polylines == null) return;
       tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
-      // tmluBloc.add(LoadData(polylines: polylines));
       print(startCoord);
-      // tmluBloc.add(LoadData(startCoord: startCoord));
     } catch (err) {
       print('error loading tmlu data in utils: $err');
     }
