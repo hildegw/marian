@@ -48,13 +48,14 @@ class TmluData {
         segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
       });
       addCoordinates();
-      calculatePolylines();
+      calculatePolylineCoord();
       //add data to bloc
       final tmluBloc = BlocProvider.of<TmluBloc>(context);
       if (segments == null || segments.length < 1 || polylines == null) return;
       tmluBloc.add(LoadData(segments: segments));
       tmluBloc.add(LoadData(polylines: polylines));
-      segments.forEach((element) => print(element.toString()));
+      //segments.forEach((element) => print(element.toString()));
+      //polylines.forEach((element) => print(element.toString()));
     } catch (err) {
       print('error loading tmlu data in utils: $err');
     }
@@ -83,12 +84,17 @@ class TmluData {
     if (missingCoordinates != null && missingCoordinates.length > 0) addCoordinates();
   }
 
-  void calculatePolylines() {
+  void calculatePolylineCoord() {
     if (segments == null || segments.length < 1) return polylines = null;
     List<LatLng> polyline = [];
-    //identify jumps and Ts
+    //identify jumps and Ts >> check SC tag TODO
     segments.forEach((seg) {
-      if (seg.frid+1 != seg.id && polyline.length > 0) {
+      print(seg.frid);
+      print(seg.id);
+      if (seg.id < 155 && seg.id > 95) return;
+      if (seg.frid+1 != seg.id) {
+        if (seg.frid-1 == seg.id) polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
+        print(polyline);
         polylines.add(polyline);
         polyline = [];
       } 
@@ -184,43 +190,6 @@ class TmluData {
 //     return _firestoreInstance.onAuthStateChanged;
 //   }
 
-//   //check for app opening via deep link, listener is set in init home
-//   static void initDynamicLinks(BuildContext context) async {
-//     //listener for deep link when app is open or in background
-//     FirebaseDynamicLinks.instance.onLink(onSuccess: (PendingDynamicLinkData dynamicLink) async {
-//       print('FB API received onLink success ${dynamicLink.toString()} ');
-//       final Uri deepLink = dynamicLink?.link;
-//       if (deepLink == null) return;
-//       final queryParams = deepLink.queryParameters;
-//       print('FB API received onLink success ${queryParams.toString()} ');
-//       if (queryParams.length > 0) {
-//         String houseId = queryParams['houseid'];
-//         //send house info to bloc
-//         final housesBloc = BlocProvider.of<HousesBloc>(context);
-//         housesBloc.add(SharedHouse(houseId: houseId));
-//       }
-//     }, onError: (OnLinkErrorException e) async {
-//       print('FB API onLinkError');
-//       print(e.message);
-//     });
-//     //deeplink with app closed or newly installed
-//     try {
-//       final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
-//       final Uri deepLink = data?.link;
-//       if (deepLink == null) return;
-//       print('FB API received dynamic link: ${deepLink.toString()}');
-//       final queryParams = deepLink.queryParameters;
-//       if (queryParams.length > 0) {
-//         print('FB API received dynamic link ${queryParams.toString()} ');
-//         String houseId = queryParams['houseid'];
-//         //send house info to bloc
-//         final housesBloc = BlocProvider.of<HousesBloc>(context);
-//         housesBloc.add(SharedHouse(houseId: houseId));
-//       }
-//     } catch (err) {
-//       print('error checking for dynamic link in FB API: $err');
-//     }
-//   }
 // }
 
 
