@@ -10,6 +10,7 @@ import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
+import '../utils/tmlu_data.dart';
 
 
 class MapTiles extends StatefulWidget {
@@ -22,10 +23,10 @@ class MapTiles extends StatefulWidget {
 class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
 
+
   @override
   void initState() {
-    //final tmluBloc = BlocProvider.of<TmluBloc>(context);
-
+    TmluData().loadTmlu(context);
     super.initState();
   }
 
@@ -77,15 +78,15 @@ class _MapTilesState extends State<MapTiles> {
                         },                
                       ),
 
-                      if (state.status == TmluStatus.hasTmlu )
-                      PolylineLayerOptions(
-                        polylines: [
-                          Polyline(
-                              points: state.points,
-                              strokeWidth: 1.0,
-                              color: Colors.white),
-                        ],
-                      ),
+                      if (state.status == TmluStatus.hasTmlu)
+                        PolylineLayerOptions(
+                          polylines: [
+                            Polyline(
+                                points: state.polylines[0],
+                                strokeWidth: 1.0,
+                                color: Colors.white),
+                          ],
+                        ),
 
                       MarkerLayerOptions(markers: [
                         Marker(

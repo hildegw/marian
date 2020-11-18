@@ -8,14 +8,15 @@ import 'dart:async';
 import 'package:latlong/latlong.dart';
 
 import '../models/model_segment.dart';
-
+//import '../utils/tmlu_data.dart';
 
 
 abstract class TmluEvent {}
 
 class LoadData extends TmluEvent {
   final List<ModelSegment> segments;
-  LoadData({ this.segments });
+  final List<List<LatLng>> polylines;
+  LoadData({ this.segments, this.polylines });
 }
 // class SignupEvent extends UserDataEvent {
 //   final UserModel userData;
@@ -39,12 +40,12 @@ enum TmluStatus {
 class TmluState {
   final TmluStatus status;
   final List<ModelSegment> segments;
-  final List<LatLng> points;
+  final List<List<LatLng>> polylines;
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
     this.segments,
-    this.points,
+    this.polylines,
     this.error,
   });
 
@@ -72,12 +73,11 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
     if (event is LoadData) {
-        print('tmlu bloc has data ${event.segments} ');
-        List<LatLng> points = [];
-        event.segments.forEach((seg) => points.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)) );
+        print('tmlu bloc has data ${event.polylines} ');
+
         yield TmluState(
           segments: event.segments,
-          points: points,
+          polylines: event.polylines,
           status: TmluStatus.hasTmlu,
           error: null,
         );

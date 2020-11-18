@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/tmlu_view.dart';
 import '../widgets/map_tiles.dart';
 
 
@@ -18,7 +17,6 @@ class _ViewerState extends State<Viewer> {
       body: Stack(
         children: <Widget>[
           MapTiles(),
-          TmluView(),
         ]
       )
       
