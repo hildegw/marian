@@ -73,8 +73,7 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
     if (event is LoadData) {
-        print('tmlu bloc has data ${event.polylines} ');
-
+        //print('tmlu bloc has data ${event.polylines} ');
         yield TmluState(
           segments: event.segments,
           polylines: event.polylines,
@@ -82,7 +81,6 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
           error: null,
         );
     }
-
 
     else if (event is TmluError) {
         print('tmlu bloc event error ${event.error} ');

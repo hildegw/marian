@@ -21,11 +21,45 @@ class TmluData {
   XmlDocument tmlu;
   Iterable srvd = [];
   List<ModelSegment> segments = [];
-  List<List<LatLng>> polylines;
+  List<List<LatLng>> polylines = [];
   LatLng startCoord;
   
 
   //calculate coordinates for lines to define map size
+
+
+  void loadTmlu(BuildContext context) async {
+    try {
+      cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
+      //print("loaded tmlu $bones");
+      tmlu = XmlDocument.parse(cave);
+      //final caveFile = tmlu.findElements('CaveFile');
+      //final data = caveFile.elementAt(0).findElements('Data');
+      // final Iterable data = tmlu.findAllElements("Data");
+      srvd = tmlu.findAllElements(("SRVD"));
+      print("SRVDs ${srvd.length}");
+      srvd.forEach((item) {
+        //XmlElement az = segment.getElement("AZ");
+        double az = double.parse(item.getElement("AZ").text);
+        double dp = double.parse(item.getElement("DP").text);
+        double lg = double.parse(item.getElement("LG").text);
+        int id = int.parse(item.getElement("ID").text);
+        int frid = int.parse(item.getElement("FRID").text);
+        segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
+      });
+      addCoordinates();
+      calculatePolylines();
+      //add data to bloc
+      final tmluBloc = BlocProvider.of<TmluBloc>(context);
+      if (segments == null || segments.length < 1 || polylines == null) return;
+      tmluBloc.add(LoadData(segments: segments));
+      tmluBloc.add(LoadData(polylines: polylines));
+      segments.forEach((element) => print(element.toString()));
+    } catch (err) {
+      print('error loading tmlu data in utils: $err');
+    }
+  }
+
   void addCoordinates() {
     //get starting point coordinates
     XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("AZ").text != null);
@@ -49,40 +83,22 @@ class TmluData {
     if (missingCoordinates != null && missingCoordinates.length > 0) addCoordinates();
   }
 
+  void calculatePolylines() {
+    if (segments == null || segments.length < 1) return polylines = null;
+    List<LatLng> polyline = [];
+    //identify jumps and Ts
+    segments.forEach((seg) {
+      if (seg.frid+1 != seg.id && polyline.length > 0) {
+        polylines.add(polyline);
+        polyline = [];
+      } 
+      polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
+    });
 
-  void loadTmlu(BuildContext context) async {
-    try {
-      cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
-      //print("loaded tmlu $bones");
-      tmlu = XmlDocument.parse(cave);
-      //final caveFile = tmlu.findElements('CaveFile');
-      //final data = caveFile.elementAt(0).findElements('Data');
-      // final Iterable data = tmlu.findAllElements("Data");
-      srvd = tmlu.findAllElements(("SRVD"));
-      print("SRVDs ${srvd.length}");
-      srvd.forEach((item) {
-        //XmlElement az = segment.getElement("AZ");
-        double az = double.parse(item.getElement("AZ").text);
-        double dp = double.parse(item.getElement("DP").text);
-        double lg = double.parse(item.getElement("LG").text);
-        int id = int.parse(item.getElement("ID").text);
-        int frid = int.parse(item.getElement("FRID").text);
-        segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
-      });
-      addCoordinates();
 
-      final tmluBloc = BlocProvider.of<TmluBloc>(context);
-      if (segments != null && segments.length > 0) {
-        List<LatLng> polyline = [];
-        segments.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)) );
-        tmluBloc.add(LoadData(segments: segments));
-        tmluBloc.add(LoadData(polylines: [polyline]));
-      }
-    } catch (err) {
-      print('error checking for dynamic link in FB API: $err');
-    }
+    //segments.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)) );
+
   }
-  
 }
 
 
