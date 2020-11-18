@@ -9,14 +9,16 @@ class ModelSegment {
   double dp;
   double lg;
   LatLng latlng;
+  String sc;
    
   ModelSegment({
-    this.id, this.frid, this.az, this.dp, this.lg, this.latlng,
+    this.id, this.frid, this.az, this.dp, this.lg, this.latlng, this.sc,
   });
 
-  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}';
+  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}, $sc';
 }
 
+//not in use, just for drawing lines
 class ModelLinePoint {
   int station;
   double relX;

@@ -42,7 +42,6 @@ class _MapTilesState extends State<MapTiles> {
   @override
   Widget build(BuildContext context) {
     final Responsive _responsive = Responsive(context);
-    //final tmluBloc = BlocProvider.of<TmluBloc>(context);
 
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
@@ -75,8 +74,8 @@ class _MapTilesState extends State<MapTiles> {
                 child: FlutterMap(
                   key: _houseAddressKey,
                   options:  MapOptions(
-                    //bounds: LatLngBounds(LatLng(20.19, -87.49), LatLng(20.2, -87.53)),
-                    center: LatLng(20.196525, -87.517539), //TODO get from tmlu
+                    //bounds: state.bounds,
+                    center: LatLng(20.196525, -87.517539), 
                     zoom: 16.0
                   ),
                   layers: [
@@ -98,11 +97,11 @@ class _MapTilesState extends State<MapTiles> {
 
                     MarkerLayerOptions(markers: [
                       Marker(
-                        width: 45.0,
-                        height: 45.0,
+                        width: 5.0,
+                        height: 5.0,
                         point: LatLng(20.196525, -87.517539),
                         builder: (context) => Container(
-                          child: Icon(Icons.location_on, size: 45, color: Theme.of(context).errorColor,),
+                          child: Icon(Icons.location_on, size: 5, color: Theme.of(context).errorColor,),
                         )
                       )
                     ])

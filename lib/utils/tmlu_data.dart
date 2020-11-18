@@ -23,6 +23,7 @@ class TmluData {
   List<ModelSegment> segments = [];
   List<List<LatLng>> polylines = [];
   LatLng startCoord;
+  List<String> sectionNames = [];
   
 
   //calculate coordinates for lines to define map size
@@ -31,31 +32,28 @@ class TmluData {
   void loadTmlu(BuildContext context) async {
     try {
       cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
-      //print("loaded tmlu $bones");
       tmlu = XmlDocument.parse(cave);
-      //final caveFile = tmlu.findElements('CaveFile');
-      //final data = caveFile.elementAt(0).findElements('Data');
-      // final Iterable data = tmlu.findAllElements("Data");
       srvd = tmlu.findAllElements(("SRVD"));
       print("SRVDs ${srvd.length}");
       srvd.forEach((item) {
-        //XmlElement az = segment.getElement("AZ");
         double az = double.parse(item.getElement("AZ").text);
         double dp = double.parse(item.getElement("DP").text);
         double lg = double.parse(item.getElement("LG").text);
         int id = int.parse(item.getElement("ID").text);
         int frid = int.parse(item.getElement("FRID").text);
-        segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg));
+        String sc = item.getElement("SC").text;  //section names
+        segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc));
+        if (!sectionNames.contains(sc)) sectionNames.add(sc); //create list of section names to identify line sections for polylines
       });
       addCoordinates();
       calculatePolylineCoord();
       //add data to bloc
       final tmluBloc = BlocProvider.of<TmluBloc>(context);
       if (segments == null || segments.length < 1 || polylines == null) return;
-      tmluBloc.add(LoadData(segments: segments));
-      tmluBloc.add(LoadData(polylines: polylines));
-      //segments.forEach((element) => print(element.toString()));
-      //polylines.forEach((element) => print(element.toString()));
+      tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
+      // tmluBloc.add(LoadData(polylines: polylines));
+      print(startCoord);
+      // tmluBloc.add(LoadData(startCoord: startCoord));
     } catch (err) {
       print('error loading tmlu data in utils: $err');
     }
@@ -86,24 +84,14 @@ class TmluData {
 
   void calculatePolylineCoord() {
     if (segments == null || segments.length < 1) return polylines = null;
-    List<LatLng> polyline = [];
-    //identify jumps and Ts >> check SC tag TODO
-    segments.forEach((seg) {
-      print(seg.frid);
-      print(seg.id);
-      if (seg.id < 155 && seg.id > 95) return;
-      if (seg.frid+1 != seg.id) {
-        if (seg.frid-1 == seg.id) polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
-        print(polyline);
+    //identify jumps and Ts >> check SC tags
+    sectionNames.forEach((name) { 
+      List<LatLng> polyline = [];
+      segments.forEach((seg) {
+        if (seg.sc == name) polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
         polylines.add(polyline);
-        polyline = [];
-      } 
-      polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
+      });
     });
-
-
-    //segments.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)) );
-
   }
 }
 

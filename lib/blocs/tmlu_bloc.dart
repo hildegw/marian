@@ -16,15 +16,14 @@ abstract class TmluEvent {}
 class LoadData extends TmluEvent {
   final List<ModelSegment> segments;
   final List<List<LatLng>> polylines;
-  LoadData({ this.segments, this.polylines });
+  final LatLng startCoord;
+  LoadData({ this.segments, this.polylines, this.startCoord });
 }
-// class SignupEvent extends UserDataEvent {
-//   final UserModel userData;
-//   SignupEvent({this.userData});
-// }
-// class GetHomesNearBy extends TmluEvent {
-//   GetHomesNearBy();
-// }
+
+class Zooming extends TmluEvent {
+  final double zoom;
+  Zooming({ this.zoom });
+}
 
 class TmluError extends TmluEvent {
   final String error;
@@ -41,22 +40,32 @@ class TmluState {
   final TmluStatus status;
   final List<ModelSegment> segments;
   final List<List<LatLng>> polylines;
+  final LatLng startCoord;
+  final double zoom;
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
     this.segments,
     this.polylines,
+    this.startCoord,
+    this.zoom,
     this.error,
   });
 
   TmluState copyWith({
     TmluStatus status,
     List<ModelSegment> segments,
+    List<List<LatLng>> polylines,
+    LatLng startCoord,
+    double zoom,
     String error,
   }) {
     return TmluState(
       status: status ?? this.status,
       segments: segments ?? this.segments,
+      polylines: polylines ?? this.polylines,
+      startCoord: startCoord ?? this.startCoord,
+      zoom: zoom?? this.zoom,
       error: error ?? this.error,
     );
   }
@@ -77,9 +86,15 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
         yield TmluState(
           segments: event.segments,
           polylines: event.polylines,
+          startCoord: event.startCoord,
           status: TmluStatus.hasTmlu,
+          zoom: 14.0,
           error: null,
         );
+    }
+
+    else if (event is Zooming) {
+        yield state.copyWith(zoom: event.zoom);
     }
 
     else if (event is TmluError) {
