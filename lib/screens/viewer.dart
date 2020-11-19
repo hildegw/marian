@@ -11,18 +11,28 @@ class Viewer extends StatefulWidget {
 }
 
 class _ViewerState extends State<Viewer> {
+
+  bool openMenu = false;
+
+  List <Widget> stackWidgets() {
+     List <Widget>  stackList = [MapTiles()];
+     if (openMenu) stackList.add(Menu());
+     return stackList;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title,),
         centerTitle: true,
-        leading: Menu(), 
+        leading: IconButton(
+          icon: Icon(Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
+          onPressed: () => setState(() => openMenu = !openMenu ),
+        ), 
       ),
       body: Stack(
-        children: <Widget>[
-          MapTiles(),
-        ]
+        children: stackWidgets(),
       )
       
     );
