@@ -13,6 +13,11 @@ import 'package:latlong/latlong.dart' as coord;
 import '../models/model_segment.dart';
 import '../blocs/tmlu_bloc.dart';
 
+
+//TODO Canvas controller to move and resize cave
+//https://blog.codemagic.io/multi-touch-canvas-with-flutter/
+//https://github.com/rodydavis/flutter_multi_touch_canvas
+
 class TmluView extends StatefulWidget {
   @override
   _TmluViewState createState() => _TmluViewState();

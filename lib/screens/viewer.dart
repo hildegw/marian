@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/map_tiles.dart';
+import '../widgets/menu.dart';
 
 
 class Viewer extends StatefulWidget {
@@ -13,7 +14,11 @@ class _ViewerState extends State<Viewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title,)),
+      appBar: AppBar(
+        title: Text(widget.title,),
+        centerTitle: true,
+        leading: Menu(), 
+      ),
       body: Stack(
         children: <Widget>[
           MapTiles(),
@@ -24,8 +29,6 @@ class _ViewerState extends State<Viewer> {
   }
 }
 
-//TODO Canvas controller to move and resize cave
-//https://blog.codemagic.io/multi-touch-canvas-with-flutter/
-//https://github.com/rodydavis/flutter_multi_touch_canvas
 
-//MobX https://circleci.com/blog/state-management-for-flutter-apps-with-mobx/
+
+

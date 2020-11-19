@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Marian',
       theme: ThemeData(
         primarySwatch: Colors.amber,
+        primaryColorDark: Colors.black,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MultiBlocProvider(
