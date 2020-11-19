@@ -40,7 +40,7 @@ class _MapTilesState extends State<MapTiles> {
   }
 
   void _handleTap(LatLng latlng) {
-    _mapController.move(LatLng(latlng.latitude, latlng.longitude), _mapController.zoom);
+    //_mapController.move(LatLng(latlng.latitude, latlng.longitude), _mapController.zoom);
     //setState(() { tappedPoints.add(latlng); });
   }
 
@@ -94,7 +94,6 @@ class _MapTilesState extends State<MapTiles> {
                     zoom: startZoom,
                     plugins: [ZoomButtonsPlugin(),],
                     //onTap: _handleTap,
-                    onLongPress: _handleTap,
                   ),
                   layers: [
                     TileLayerOptions(

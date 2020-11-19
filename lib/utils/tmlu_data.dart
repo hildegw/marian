@@ -56,7 +56,6 @@ class TmluData {
     }
   }
 
-  //TODO correct line for depth?
   void addCoordinates() {
     //get starting point coordinates
     XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("AZ").text != null);
@@ -69,9 +68,17 @@ class TmluData {
     segments.forEach((seg) { 
       if (seg.id == startId ) return;
       Distance distance =  Distance();
+      //check if from-station has coordinates to calculate offset/coordinates
       if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
-        LatLng prevCoord = segments[seg.frid].latlng;  //check if from-station has coordinates to calculate offset
-        LatLng currentCoord = distance.offset(prevCoord, seg.lg, seg.az );
+        //correct length for depth
+        double prevDepth = segments[seg.frid].dp;
+        double deltaDepth = prevDepth != null ? seg.dp - prevDepth : 0.0;  
+        double correctedLength = deltaDepth != 0.0 
+          ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2))
+          : seg.lg;
+        //calculate each station's coordinates for polyline
+        LatLng prevCoord = segments[seg.frid].latlng;  
+        LatLng currentCoord = distance.offset(prevCoord, correctedLength, seg.az );
         segments[seg.id].latlng = currentCoord.round();
       }
     });
