@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:latlong/latlong.dart';
 
 class ZoomButtonsPluginOption extends LayerOptions {
   final int minZoom;
@@ -12,18 +13,24 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final Color zoomOutColor;
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
+  final IconData resetIcon;
+  final double startZoom;
+  final LatLng startLatLng;
 
   ZoomButtonsPluginOption({
     Key key,
     this.minZoom = 1,
     this.maxZoom = 18,
     this.mini = true,
-    this.padding = 2.0,
-    this.alignment = Alignment.topRight,
+    this.padding = 10.0,
+    this.alignment = Alignment.bottomRight,
     this.zoomInColor,
     this.zoomInIcon = Icons.add, //zoom_in,
     this.zoomOutColor,
     this.zoomOutIcon = Icons.remove,  //zoom_out,
+    this.resetIcon = Icons.center_focus_weak,  
+    this.startZoom,
+    this.startLatLng,
     rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
@@ -48,8 +55,7 @@ class ZoomButtons extends StatelessWidget {
   final ZoomButtonsPluginOption zoomButtonsOpts;
   final MapState map;
   final Stream<Null> stream;
-  final FitBoundsOptions options =
-      const FitBoundsOptions(padding: EdgeInsets.all(12.0));
+  final FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
   ZoomButtons(this.zoomButtonsOpts, this.map, this.stream)
       : super(key: zoomButtonsOpts.key);
@@ -104,6 +110,19 @@ class ZoomButtons extends StatelessWidget {
               child: Icon(zoomButtonsOpts.zoomOutIcon),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.all(zoomButtonsOpts.padding),
+            child: FloatingActionButton(
+              heroTag: 'centerButton',
+              mini: zoomButtonsOpts.mini,
+              backgroundColor: zoomButtonsOpts.zoomOutColor ?? Theme.of(context).primaryColor,
+              onPressed: () {
+                double zoom = zoomButtonsOpts.startZoom ?? 14.0;
+                map.move(zoomButtonsOpts.startLatLng, zoom);
+              },
+              child: Icon(zoomButtonsOpts.resetIcon),
+            ),
+          )
         ],
       ),
     );
