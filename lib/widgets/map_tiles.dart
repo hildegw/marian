@@ -5,13 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
 import '../utils/tmlu_data.dart';
-
+import './zoom_buttons.dart';
 
 class MapTiles extends StatefulWidget {
 
@@ -22,10 +23,12 @@ class MapTiles extends StatefulWidget {
 
 class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
+  final double startIconSize = 15;
 
   List <Polyline> lines = [];
   LatLng start;
-
+  MapState map;
+  LatLngBounds bounds;
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _MapTilesState extends State<MapTiles> {
   @override
   Widget build(BuildContext context) {
     final Responsive _responsive = Responsive(context);
-
+    
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
     if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
@@ -57,6 +60,7 @@ class _MapTilesState extends State<MapTiles> {
       });
       start = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
     }
+
 
     return Stack(
         children: <Widget>[
@@ -79,7 +83,8 @@ class _MapTilesState extends State<MapTiles> {
                   options:  MapOptions(
                     //bounds: state.bounds,
                     center: start,
-                    zoom: 16.0
+                    zoom: 16.0,
+                    plugins: [ZoomButtonsPlugin(),],
                   ),
                   layers: [
                     TileLayerOptions(
@@ -100,14 +105,23 @@ class _MapTilesState extends State<MapTiles> {
 
                     MarkerLayerOptions(markers: [
                       Marker(
-                        width: 10.0,
-                        height: 10.0,
+                        width: startIconSize,
+                        height: startIconSize,
                         point: start,
                         builder: (context) => Container(
-                          child: Icon(Icons.location_on, size: 10, color: Theme.of(context).errorColor,),
+                          child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
                         )
                       )
-                    ])
+                    ]),
+
+                    ZoomButtonsPluginOption(
+                      minZoom: 4,
+                      maxZoom: 19,
+                      mini: true,
+                      padding: 10,
+                      alignment: Alignment.bottomRight),
+
+
                   ]) : Container(),
                 ),
 

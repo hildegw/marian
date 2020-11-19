@@ -26,8 +26,6 @@ class TmluData {
   List<String> sectionNames = [];
   
 
-  //calculate coordinates for lines to define map size
-
 
   void loadTmlu(BuildContext context) async {
     try {
@@ -47,16 +45,18 @@ class TmluData {
       });
       addCoordinates();
       calculatePolylineCoord();
+      //segments.forEach((element) => print(element.toString()));
+      //polylines.forEach((element) => print(element.toString()));
       //add data to bloc
       final tmluBloc = BlocProvider.of<TmluBloc>(context);
       if (segments == null || segments.length < 1 || polylines == null) return;
       tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
-      print(startCoord);
     } catch (err) {
       print('error loading tmlu data in utils: $err');
     }
   }
 
+  //TODO correct line for depth?
   void addCoordinates() {
     //get starting point coordinates
     XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("AZ").text != null);
@@ -74,12 +74,12 @@ class TmluData {
         LatLng currentCoord = distance.offset(prevCoord, seg.lg, seg.az );
         segments[seg.id].latlng = currentCoord.round();
       }
-      //print(currentCoord.round());
     });
     Iterable <ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
     if (missingCoordinates != null && missingCoordinates.length > 0) addCoordinates();
   }
 
+  //TODO add connecting lines between segments where necessary
   void calculatePolylineCoord() {
     if (segments == null || segments.length < 1) return polylines = null;
     //identify jumps and Ts >> check SC tags
