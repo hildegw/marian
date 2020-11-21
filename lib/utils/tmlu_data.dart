@@ -1,14 +1,15 @@
 //import 'dart:ffi';
-//import 'dart:html';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:xml/xml.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:xml/xml_events.dart';
+
+
 
 import '../models/model_segment.dart';
 import '../blocs/tmlu_bloc.dart';
@@ -16,22 +17,63 @@ import '../blocs/tmlu_bloc.dart';
 
 
 class TmluData {
+  //final client = HttpClient();
 
   String cave;
   XmlDocument tmlu;
-  Iterable srvd = [];
+  List<XmlElement> srvd = [];
   List<ModelSegment> segments = [];
   List<List<LatLng>> polylines = [];
   LatLng startCoord;
   List<String> sectionNames = [];
-  
+  List<List<XmlNode>> lines = [];
+
+  void loadFromGithub(BuildContext context) async {
+    final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
+    try {
+      final request = await HttpClient().getUrl(url);
+      final response = await request.close();
+      await response
+        .transform(utf8.decoder)
+        .toXmlEvents()
+        .selectSubtreeEvents((event) => event.name == 'SRVD')
+        .toXmlNodes()
+        .forEach((item) {
+          lines.add(item);
+        });
+      if (lines != null && lines.length > 0) lines.forEach((srvdItem) {
+        srvdItem.forEach((item) {
+          srvd.add(item);
+          double az = double.parse(item.getElement("AZ").text);
+          double dp = double.parse(item.getElement("DP").text);
+          double lg = double.parse(item.getElement("LG").text);
+          int id = int.parse(item.getElement("ID").text);
+          int frid = int.parse(item.getElement("FRID").text);
+          String sc = item.getElement("SC").text;  //section names
+          segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc));
+          if (!sectionNames.contains(sc)) sectionNames.add(sc); //create list of section names to identify line sections for polylines
+        });
+      });
+      else throw ("error parsing tmlu data stream");
+      addCoordinates();
+      calculatePolylineCoord();
+      segments.forEach((element) => print(element.toString()));
+      //polylines.forEach((element) => print(element.toString()));
+      //add data to bloc
+      final tmluBloc = BlocProvider.of<TmluBloc>(context);
+      if (segments == null || segments.length < 1 || polylines == null) return;
+      tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
+    } catch (err) {
+      print('error loading tmlu data in utils: $err');
+    }
+  }
 
 
   void loadTmlu(BuildContext context) async {
     try {
       cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
       tmlu = XmlDocument.parse(cave);
-      srvd = tmlu.findAllElements(("SRVD"));
+      srvd = tmlu.findAllElements(("SRVD")).toList();
       print("SRVDs ${srvd.length}");
       srvd.forEach((item) {
         double az = double.parse(item.getElement("AZ").text);

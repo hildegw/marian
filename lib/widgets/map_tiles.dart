@@ -34,7 +34,8 @@ class _MapTilesState extends State<MapTiles> {
 
   @override
   void initState() {
-    TmluData().loadTmlu(context);
+    TmluData().loadFromGithub(context);
+    //TmluData().loadTmlu(context);
     _mapController = MapController();
     super.initState();
   }
