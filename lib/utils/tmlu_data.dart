@@ -31,8 +31,8 @@ class TmluData {
 
 
   void loadFromGithub(BuildContext context) async {
-   //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
-    final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
+   final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
+   //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
     try {
       final request = await HttpClient().getUrl(url);
       final response = await request.close();
@@ -45,15 +45,16 @@ class TmluData {
           lines.add(item);
         });
       if (lines != null && lines.length > 0) lines.forEach((srvdItem) {
-        //print(srvdItem);
+        print(srvdItem);
         srvdItem.forEach((item) {
+          if (item.getElement("EXC").text == "false") return;
           double az = double.parse(item.getElement("AZ").text);
           double dp = double.parse(item.getElement("DP").text);
           double lg = double.parse(item.getElement("LG").text);
           int id = int.parse(item.getElement("ID").text);
           int frid = int.parse(item.getElement("FRID").text);
           String sc = item.getElement("SC").text;  //section names
-          //if (az != 0.0 && lg != 0.0) {          //do not add lines where a new segmnet starts
+          //if (az != 0.0 && lg != 0.0) {          //do not add lines where a new segmnet starts >> TODO >> when does this happen?
             srvd.add(item);
             segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc));
             if (!sectionNames.contains(sc)) sectionNames.add(sc); //create list of section names to identify line sections for polylines
@@ -63,7 +64,7 @@ class TmluData {
       else throw ("error parsing tmlu data stream");
       addCoordinates();
       calculatePolylineCoord();
-      // segments.forEach((element) => print(element.toString()));
+      //segments.forEach((element) => print(element.toString()));
       // polylines.forEach((element) => print(element.toString()));
       //add data to bloc
       final tmluBloc = BlocProvider.of<TmluBloc>(context);
@@ -113,12 +114,10 @@ class TmluData {
     segments[startId].latlng = LatLng(lat, lon);
     startCoord = LatLng(lat, lon);
     //calculate other coordinates
-    print(segments.length); //574
     segments.forEach((seg) { 
       //issue with connecting to zero point in hatzutz, need to filter out connections to where new lines start 
               //>> TODO check id = 436, frid = 415
       if (seg.id == startId || seg.id >= segments.length) return; //TODO verify these limits!!!
-      //if ((seg.az == 0.0 && seg.lg == 0.0) || seg.id >= segments.length) return;
       Distance distance =  Distance();
       //check if from-station has coordinates to calculate offset/coordinates
       if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
@@ -128,19 +127,10 @@ class TmluData {
         double correctedLength = deltaDepth != 0.0 
           ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2))
           : seg.lg;
-        // if (seg.id == 111) {
-        //   print(seg.lg);
-        //   print(math.pow(seg.lg, 2));
-        //   print(deltaDepth);
-        //   print(math.pow(deltaDepth, 2));
-        //   print(correctedLength);
-        //   print(correctedLength.isNaN);
-        // }
-        //calculate each station's coordinates for polyline
+        //calculate each station's coordinates for polyline, needs to include connections between segments that are not lines
         LatLng prevCoord = segments[seg.frid].latlng;  
         LatLng currentCoord = !correctedLength.isNaN ? distance.offset(prevCoord, correctedLength, seg.az) : distance.offset(prevCoord, seg.lg, seg.az);
         segments[seg.id].latlng = currentCoord.round();
-         //if (seg.id == 111) print(currentCoord.round());
       }
     });
     Iterable <ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
@@ -152,13 +142,21 @@ class TmluData {
   }
 
   //TODO add connecting lines between segments where necessary
+        //if ((seg.az == 0.0 && seg.lg == 0.0) || seg.id >= segments.length) return; >>> not sure, does not help
+        //>> need to add frid segment with other line name!!!
   void calculatePolylineCoord() {
     if (segments == null || segments.length < 1) return polylines = null;
     //identify jumps and Ts >> check SC tags
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
       segments.forEach((seg) {
-        if (seg.sc == name && seg.latlng != null) polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
+        if (seg.frid == -1 || seg.id >= segments.length) return; //TODO ????
+        if (seg.sc == name && seg.latlng != null) { //&& seg.id <= segments.length && seg.frid != -1 && segments[seg.frid].lg != 0.0) 
+            //TODO add frid station from other line-name, check that name is different
+            if (segments[seg.frid] != null && segments[seg.frid].latlng != null && segments[seg.frid].sc != name) 
+                  polyline.add(LatLng(segments[seg.frid].latlng.latitude, segments[seg.frid].latlng.longitude));
+            polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
+        }
         polylines.add(polyline);
       });
     });

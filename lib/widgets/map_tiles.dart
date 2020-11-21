@@ -23,7 +23,7 @@ class MapTiles extends StatefulWidget {
 class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
   final double startIconSize = 15;
-  final double startZoom = 14.0;
+  final double startZoom = 18.0;
 
   List <Polyline> lines = [];
   LatLng startLatLng;
