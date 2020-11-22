@@ -10,12 +10,13 @@ class ModelSegment {
   double lg;
   LatLng latlng;
   String sc;
+  bool exc;
    
   ModelSegment({
-    this.id, this.frid, this.az, this.dp, this.lg, this.latlng, this.sc,
+    this.id, this.frid, this.az, this.dp, this.lg, this.latlng, this.sc, this.exc,
   });
 
-  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}, $sc';
+  toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}, $sc, show ? $exc   ';
 }
 
 //not in use, just for drawing lines

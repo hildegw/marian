@@ -45,23 +45,27 @@ class TmluData {
           lines.add(item);
         });
       if (lines != null && lines.length > 0) lines.forEach((srvdItem) {
-        print(srvdItem);
+        //print(srvdItem);
         srvdItem.forEach((item) {
-          if (item.getElement("EXC").text == "false") return;
+          bool exc = item.getElement("EXC").text == "true";
           double az = double.parse(item.getElement("AZ").text);
           double dp = double.parse(item.getElement("DP").text);
           double lg = double.parse(item.getElement("LG").text);
           int id = int.parse(item.getElement("ID").text);
           int frid = int.parse(item.getElement("FRID").text);
           String sc = item.getElement("SC").text;  //section names
-          //if (az != 0.0 && lg != 0.0) {          //do not add lines where a new segmnet starts >> TODO >> when does this happen?
+          //if (az != 0.0 && lg != 0.0) {          //do not add lines where a new segmnet starts >> TODO >> when does this happen? Filtered when calculating LatLng
             srvd.add(item);
-            segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc));
+            segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc, exc: exc));
             if (!sectionNames.contains(sc)) sectionNames.add(sc); //create list of section names to identify line sections for polylines
           //}
         });
       });
       else throw ("error parsing tmlu data stream");
+      print(srvd.length);
+      print(segments.length);
+      segments.where((segment) => segment.exc); //filter out lines that were deselected in Ariane TODO check
+      print(segments.length);
       addCoordinates();
       calculatePolylineCoord();
       //segments.forEach((element) => print(element.toString()));
