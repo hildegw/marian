@@ -64,8 +64,9 @@ class TmluData {
           });
         });
         else throw ("error parsing tmlu data stream");
-        //filter out lines that were deselected in Ariane, then sort list by id
+        //filter out lines that were deselected in Ariane, then sort list for polylines
         segments = segments.where((segment) => !segment.exc).toList(); 
+        segments.sort((a, b) => a.compareTo(b));
         print("loaded segments");
         print(segments.length);
         getStartCoordinates(); 
@@ -167,17 +168,28 @@ class TmluData {
   }
 
   void calculatePolylineCoord() {
-//TODO sort data correctly
-    segments.sort((a, b) => a.id.compareTo(b.id));
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
     print("sections");
     print(sectionNames.length);
     if (segments == null || segments.length < 1) return polylines = null;
-    //identify jumps and Ts >> check SC tags
+    //identify jumps and Ts to split into separate polylines
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
-      Iterable<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null); 
+      //create section list with all segments that have the same name
+      List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
+      //find previous segment and add (has different name), need to find frid that has different line name!!!! TODO
+      ModelSegment prevSeg;
+      if (section != null && section.length > 0) section.forEach((sectionSeg) {
+        if (sectionSeg.frid == -1) return prevSeg = null;
+        try {
+          prevSeg = segments.firstWhere((anySeg) {
+            return anySeg.id == sectionSeg.frid && anySeg.sc != name;
+          }); 
+        } catch (err) { prevSeg = null; };
+      });
+      if (prevSeg != null && prevSeg.latlng != null) polyline.add(prevSeg.latlng);
+      //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
     });

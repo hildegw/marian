@@ -2,7 +2,7 @@
 
 import 'package:latlong/latlong.dart';
 
-class ModelSegment {
+class ModelSegment implements Comparable {
   int id;
   int frid;
   double az;
@@ -28,6 +28,13 @@ class ModelSegment {
         "longitude": latlng != null ? latlng.longitude : 0.0,
       }
     };
+
+    @override
+    int compareTo(other) {
+      if (this.id <= other.frid) return -1;
+      else return 1;
+    }
+
 }
 
 //not in use, just for drawing lines
