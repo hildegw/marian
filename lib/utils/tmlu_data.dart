@@ -61,7 +61,6 @@ class TmluData {
             String sc = item.getElement("SC").text;  //section names
             srvd.add(item);
             segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc, exc: exc));
-            //if (!sectionNames.contains(sc)) sectionNames.add(sc); //create list of section names to identify line sections for polylines
           });
         });
         else throw ("error parsing tmlu data stream");
@@ -77,11 +76,15 @@ class TmluData {
       }
     } else { //segments retrieved from storage
       print("local data");
-      segments.forEach((element) => print(element));
+      //segments.forEach((element) => print(element));
       //identify start coordinates
       int segIndex = segments.indexWhere((currentSeg) => currentSeg.frid == -1); //find start segment
-      if (segIndex > -1) startCoord = segments[segIndex].latlng;
-      print(startCoord);
+      if (segIndex > -1) {
+        startCoord = segments[segIndex].latlng;
+        startId = segIndex;
+      } else throw ("error finding start segment in segments retrieved from storage");
+      print("start $startId ");
+      print(segments[segIndex]);
       //calculate polyline
       calculatePolylineCoord();
       //coordinates are already in list
@@ -92,6 +95,7 @@ class TmluData {
   }
 
 
+  //loading tmlu from assets - old
   // void loadTmlu(BuildContext context) async {
   //   try {
   //     cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
@@ -124,6 +128,7 @@ class TmluData {
     //get starting point coordinates
     XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("FRID").text == "-1" ); //&& item.getElement("EXC") == "false" ??? TODO
     startId = int.parse(startSrvd.getElement("ID").text);
+    print("found start ID: $startId");
     double lat = double.parse(startSrvd.getElement("LT").text);
     double lon = double.parse(startSrvd.getElement("LGT").text);
     startCoord = LatLng(lat, lon);
@@ -165,15 +170,15 @@ class TmluData {
   void calculatePolylineCoord() {
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
-    print(sectionNames);
+    print("sections");
     print(sectionNames.length);
     if (segments == null || segments.length < 1) return polylines = null;
     //identify jumps and Ts >> check SC tags
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
       Iterable<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null); 
-      print(name);
-      print(section.length);
+      // print(name);
+      // print(section.length);
       //print(section);
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       // segments.forEach((seg) {
