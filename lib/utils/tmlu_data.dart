@@ -122,10 +122,13 @@ class TmluData {
     segments.forEach((seg) { 
       //issue with connecting to zero point in hatzutz, need to filter out connections to where new lines start 
               //>> TODO check id = 436, frid = 415
-      if (seg.id == startId || seg.id >= segments.length) return; //TODO verify these limits!!!
+      if (seg.id == startId) return; //start coordinates are known
       Distance distance =  Distance();
       //check if from-station has coordinates to calculate offset/coordinates
-      if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
+      //if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
+      //get previous segment for frid
+      ModelSegment prevSeg = segments.where((prevSeg) => seg.frid == prevSeg.id).length > 0 ? segments.where((prevSeg) => seg.frid == prevSeg.id).first : null;
+      if (prevSeg != null && prevSeg.latlng != null) {
         //correct length for depth
         double prevDepth = segments[seg.frid].dp;
         double deltaDepth = prevDepth != null ? seg.dp - prevDepth : 0.0;  
@@ -159,7 +162,7 @@ class TmluData {
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
       //Iterable<ModelSegment> section = segments.where((seg) => seg.frid > -1 && seg.id < segments.length && seg.sc == name && seg.latlng != null);
-      Iterable<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null);
+      Iterable<ModelSegment> section = segments.where((seg) => seg.sc == name); //&& seg.latlng != null);
       print(name);
       print(section.length);
       print(section);
