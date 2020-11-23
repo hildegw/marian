@@ -64,7 +64,8 @@ class TmluData {
           });
         });
         else throw ("error parsing tmlu data stream");
-        segments = segments.where((segment) => !segment.exc).toList(); //filter out lines that were deselected in Ariane 
+        //filter out lines that were deselected in Ariane, then sort list by id
+        segments = segments.where((segment) => !segment.exc).toList(); 
         print("loaded segments");
         print(segments.length);
         getStartCoordinates(); 
@@ -92,6 +93,7 @@ class TmluData {
     //add data to bloc
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
+    //segments.forEach((element) => print(element));
   }
 
 
@@ -153,7 +155,7 @@ class TmluData {
         //calculate each station's coordinates for polyline, needs to include connections between segments that are not lines
         LatLng currentCoord = !correctedLength.isNaN ? distance.offset(prevSeg.latlng, correctedLength, seg.az) : distance.offset(prevSeg.latlng, seg.lg, seg.az);
         int segIndex = segments.indexWhere((currentSeg) => seg.id == currentSeg.id);
-        if (segIndex > -1) segments[segIndex].latlng = currentCoord.round();
+        if (segIndex > -1) segments[segIndex].latlng = currentCoord;  //.round();
       }
     });
     Iterable<ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
@@ -164,10 +166,9 @@ class TmluData {
     }
   }
 
-  //TODO add connecting lines between segments where necessary
-        //if ((seg.az == 0.0 && seg.lg == 0.0) || seg.id >= segments.length) return; >>> not sure, does not help
-        //>> need to add frid segment with other line name!!!
   void calculatePolylineCoord() {
+//TODO sort data correctly
+    segments.sort((a, b) => a.id.compareTo(b.id));
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
     print("sections");
@@ -177,17 +178,7 @@ class TmluData {
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
       Iterable<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null); 
-      // print(name);
-      // print(section.length);
-      //print(section);
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
-      // segments.forEach((seg) {
-      //   if (seg.frid > -1 && seg.id < segments.length && seg.sc == name && seg.latlng != null) { //&& seg.id <= segments.length && seg.frid != -1 && segments[seg.frid].lg != 0.0) 
-      //       //TODO add frid station from other line-name, check that name is different
-      //       // if (segments[seg.frid] != null && segments[seg.frid].latlng != null && segments[seg.frid].sc != name) 
-      //       //       polyline.add(LatLng(segments[seg.frid].latlng.latitude, segments[seg.frid].latlng.longitude));
-      //       polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude));
-      //   }
       polylines.add(polyline);
     });
     print("polylines");
