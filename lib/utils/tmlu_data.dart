@@ -128,17 +128,18 @@ class TmluData {
       //if (segments[seg.frid] != null && segments[seg.frid].latlng != null) {
       //get previous segment for frid
       ModelSegment prevSeg = segments.where((prevSeg) => seg.frid == prevSeg.id).length > 0 ? segments.where((prevSeg) => seg.frid == prevSeg.id).first : null;
+      print(prevSeg); 
       if (prevSeg != null && prevSeg.latlng != null) {
         //correct length for depth
-        double prevDepth = segments[seg.frid].dp;
+        double prevDepth = prevSeg.dp;
         double deltaDepth = prevDepth != null ? seg.dp - prevDepth : 0.0;  
         double correctedLength = deltaDepth != 0.0 
           ? math.sqrt(math.pow(seg.lg, 2)-math.pow(deltaDepth, 2))
           : seg.lg;
         //calculate each station's coordinates for polyline, needs to include connections between segments that are not lines
-        LatLng prevCoord = segments[seg.frid].latlng;  
-        LatLng currentCoord = !correctedLength.isNaN ? distance.offset(prevCoord, correctedLength, seg.az) : distance.offset(prevCoord, seg.lg, seg.az);
-        segments[seg.id].latlng = currentCoord.round();
+        LatLng currentCoord = !correctedLength.isNaN ? distance.offset(prevSeg.latlng, correctedLength, seg.az) : distance.offset(prevSeg.latlng, seg.lg, seg.az);
+        int segIndex = segments.indexWhere((currentSeg) => seg.id == currentSeg.id);
+        segments[segIndex].latlng = currentCoord.round();
       }
     });
     Iterable<ModelSegment> missingCoordinates = segments.where((seg) => seg.latlng == null);
