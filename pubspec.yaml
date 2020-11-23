@@ -20,6 +20,7 @@ dependencies:
   flutter_map: ^0.10.1+1
   latlong: ^0.6.1
   path_provider: ^1.6.24
+  shared_preferences: ^0.5.12+4
 
 
 dev_dependencies:

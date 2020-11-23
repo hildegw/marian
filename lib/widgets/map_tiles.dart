@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart'; //https://github.com/fleaflet/flutter_map/tree/master/example/lib/pages
 import 'package:flutter_map/plugin_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
@@ -24,7 +26,9 @@ class _MapTilesState extends State<MapTiles> {
   final _houseAddressKey = GlobalKey<FormState>();
   final double startIconSize = 15;
   final double startZoom = 18.0;
-
+  
+  List<ModelSegment> segments = [];
+  String caveName = "test"; //TODO set cave name
   List <Polyline> lines = [];
   LatLng startLatLng;
   MapState map;
@@ -33,12 +37,41 @@ class _MapTilesState extends State<MapTiles> {
   MapController _mapController;
 
   @override
-  void initState() {
-    TmluData().loadFromGithub(context);
+  void initState() { //TODO make cave to load selectable, set cave name globally
+    getSavedSegments(caveName); //check if data is available in storage, if not, load from github
+    if (segments == null || segments.length < 1) {
+      TmluData().loadFromGithub(context);
+      saveSegments(caveName);
+    }
     //TmluData().loadTmlu(context);
     _mapController = MapController();
     super.initState();
   }
+
+
+  saveSegments(String caveName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> jsonList;
+    segments.forEach((seg) => jsonList.add(jsonEncode(seg)) );
+    await prefs.setStringList(caveName, jsonList); //TODO seg Json parse instead to read data
+  }
+
+  getSavedSegments(String caveName) async {
+    segments = [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> jsonList = prefs.getStringList(caveName); 
+      if (jsonList != null) {
+        jsonList.forEach((seg) {
+          Map segString = jsonDecode(seg);
+          segments.add(ModelSegment.fromJson(segString));
+        });
+      }
+      else segments = null;
+    } catch(err) { print("error fetching cave from storage: $err");}
+  }
+
+
 
   void _handleTap(LatLng latlng) {
     //_mapController.move(LatLng(latlng.latitude, latlng.longitude), _mapController.zoom);
