@@ -3,6 +3,8 @@ import "package:flutter/material.dart";
 
 import '../utils/responsive.dart';
 import '../utils/validations.dart';
+import '../utils/git_search_api.dart';
+
 
 class MenuSearch extends StatefulWidget {
   @override
@@ -33,11 +35,10 @@ class _MenuSearchState extends State<MenuSearch> {
     super.dispose();
   }
 
-  void searchGithub() {
+  void searchGithub() async {
     print('submit search? ${searchFormKey.currentState.validate()} with ${userC.text} and ${searchC.text}');
     if (searchFormKey.currentState.validate()) {
-      print("searching");
-      //setState(() { showSpinner = true; });
+      await GitSearchApi().getListOfFiles(userC.text, searchC.text);
     };
   }
 
