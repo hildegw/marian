@@ -178,17 +178,22 @@ class TmluData {
       List<LatLng> polyline = [];
       //create section list with all segments that have the same name
       List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
-      //find previous segment and add (has different name), need to find frid that has different line name!!!! TODO
-      ModelSegment prevSeg;
+      //find previous segment with different name and add as first item to polyline
+      Iterable<ModelSegment> prevSegs = [];
       if (section != null && section.length > 0) section.forEach((sectionSeg) {
-        if (sectionSeg.frid == -1) return prevSeg = null;
-        try {
-          prevSeg = segments.firstWhere((anySeg) {
-            return anySeg.id == sectionSeg.frid && anySeg.sc != name;
-          }); 
-        } catch (err) { prevSeg = null; };
+        if (sectionSeg.frid == -1) return prevSegs = null;
+        prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name);
+        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { 
+          if (seg.latlng != null) polyline.add(seg.latlng);
+          print("adding"); 
+          print(seg);
+        });
+        // try {
+        //   prevSeg = segments.firstWhere((anySeg) {
+        //     return anySeg.id == sectionSeg.frid && anySeg.sc != name;
+        //   }); 
+        // } catch (err) { prevSeg = null; };
       });
-      if (prevSeg != null && prevSeg.latlng != null) polyline.add(prevSeg.latlng);
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
