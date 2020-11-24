@@ -17,7 +17,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
         primaryColorDark: Colors.black,
-        dividerColor: Color(0xDD222222),
+        backgroundColor: Color(0xDD222222), //transparent
+        dividerColor: Colors.amber,
         primaryColorLight: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
 
@@ -29,16 +30,10 @@ class MyApp extends StatelessWidget {
           //share header
           headline3: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Colors.white,
             height: 1.5 ),
-          //house overview headline
-          subtitle1: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: Colors.white,
-            height:  1.5),
-          //login text input, button text, house overview info
-          subtitle2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white,),
-          //icon bar text
-          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.white),
-          //login input hint text
-          bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Color(0xFFB7A3DC)),
-          //error text form fields
+          //search input text
+          subtitle1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white,),
+          //search hint text
+          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.amber),
           overline: TextStyle(fontSize: 12.0, color: Color(0xFFFD6F8D)),
 
         ),

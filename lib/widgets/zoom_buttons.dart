@@ -35,6 +35,8 @@ class ZoomButtonsPluginOption extends LayerOptions {
   }) : super(key: key, rebuild: rebuild);
 }
 
+//TODO set global zoom factor, debug zoom jumps
+
 class ZoomButtonsPlugin implements MapPlugin {
   @override
   Widget createLayer(

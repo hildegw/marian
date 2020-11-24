@@ -67,7 +67,7 @@ class _MapTilesState extends State<MapTiles> {
         lines.add(    
           Polyline(
             points: lineSegment,
-            strokeWidth: count == 0 ? 3.0 : 1.0,
+            strokeWidth: count == 0 ? 1.5 : 1.5,
             color: Colors.white
           ));
           count++;

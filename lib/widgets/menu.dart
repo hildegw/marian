@@ -2,7 +2,7 @@
 import "package:flutter/material.dart";
 
 import '../utils/responsive.dart';
-
+import './menu_search.dart';
 
 class Menu extends StatefulWidget {
   @override
@@ -18,7 +18,7 @@ class _MenuState extends State<Menu> {
     final Responsive resp = Responsive(context);
 
     return Container(
-      color: Theme.of(context).dividerColor, 
+      color: Theme.of(context).backgroundColor, 
       //height: resp.hp(80), 
       width: resp.wp(100),
       child: ListView.builder(
@@ -30,13 +30,7 @@ class _MenuState extends State<Menu> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               index == 0 
-                ? Padding(
-                  padding: const EdgeInsets.only(top: 20.0, left: 20),
-                  child: IconButton(
-                    icon: Icon(Icons.add_circle_outline, size: 40, color: Theme.of(context).primaryColor,),
-                    onPressed: () => setState(() => addLine = !addLine ),
-                  ),
-                )
+                ? MenuSearch()
                 : Container(
                   height: 50,
                   child: Text(
@@ -44,7 +38,7 @@ class _MenuState extends State<Menu> {
                     style: Theme.of(context).textTheme.headline2,
                     ),
                   ),
-              Divider(),
+              Divider(indent: 10, endIndent: 10, height: 5,),
             ],
           );
         }
