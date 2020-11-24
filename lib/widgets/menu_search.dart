@@ -11,28 +11,33 @@ class MenuSearch extends StatefulWidget {
 
 class _MenuSearchState extends State<MenuSearch> {
   bool addLine = false;
+  final userC = TextEditingController();
   final searchC = TextEditingController();
   bool showSpinner = false;
   final validate = FormValidations();
   final searchFormKey = GlobalKey<FormState>();
-
+  FocusNode addSearchFn;
 
   @override
   void initState() {
+    addSearchFn = FocusNode(); //focus for text input fields
+    userC.text = "arosl";
     super.initState();
   }
 
-    @override
+  @override
   void dispose() {
-    searchC.dispose();   
+    userC.dispose();
+    searchC.dispose(); 
+    addSearchFn.dispose();  
     super.dispose();
   }
 
-  void searchGithub(String value) {
-    print('submit search? ${searchFormKey.currentState.validate()} with $value');
+  void searchGithub() {
+    print('submit search? ${searchFormKey.currentState.validate()} with ${userC.text} and ${searchC.text}');
     if (searchFormKey.currentState.validate()) {
       print("searching");
-      setState(() { showSpinner = true; });
+      //setState(() { showSpinner = true; });
     };
   }
 
@@ -51,47 +56,100 @@ class _MenuSearchState extends State<MenuSearch> {
           Form(
             key: searchFormKey,
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextFormField(
-                textAlign: TextAlign.center,
-                maxLength: 300,
-                keyboardType: TextInputType.text,
-                textCapitalization: TextCapitalization.none,
-                style: Theme.of(context).textTheme.subtitle1,                
-                decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.add_circle_outline, size: 30, color: Theme.of(context).primaryColor,),
-                    onPressed: () => searchGithub(searchC.text), //setState(() => addLine = !addLine ),
+              padding: const EdgeInsets.only(top: 12.0, bottom: 12, left: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: resp.wp(40),
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      maxLength: 50,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.none,
+                      style: Theme.of(context).textTheme.subtitle1,                
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10.0),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                        ),
+                        errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).errorColor)
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).errorColor)
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).primaryColorDark,
+                        labelText: "git user",
+                        labelStyle: Theme.of(context).textTheme.bodyText1,
+                        errorStyle: Theme.of(context).textTheme.overline,
+                        counterText: "", //counting characters
+                      ),
+                      controller: userC,
+                      validator: (value) { return validate.checkGitUser(value);},
+                      onFieldSubmitted: (value) => addSearchFn.requestFocus(),
+                      
+                    ),
                   ),
-                  contentPadding: EdgeInsets.all(10.0),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                      borderSide: BorderSide(color: Theme.of(context).backgroundColor)
+
+                  SizedBox(
+                    width: resp.wp(40),
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      maxLength: 50,
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.none,
+                      style: Theme.of(context).textTheme.subtitle1,                
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10.0),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                        ),
+                        errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).errorColor)
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderSide: BorderSide(color: Theme.of(context).errorColor)
+                        ),
+                        filled: true,
+                        fillColor: Theme.of(context).primaryColorDark,
+                        labelText: "optional search term",
+                        labelStyle: Theme.of(context).textTheme.bodyText1,
+                        errorStyle: Theme.of(context).textTheme.overline,
+                        counterText: "", //counting characters
+                      ),
+                      focusNode: addSearchFn,
+                      controller: searchC,
+                      validator: (value) { return null ;}, //optional search string
+                      onFieldSubmitted: (value) => searchGithub(),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                      borderSide: BorderSide(color: Theme.of(context).backgroundColor)
+                  
+                  IconButton(
+                    icon: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor,),
+                    onPressed: () => searchGithub(), //setState(() => addLine = !addLine ),
                   ),
-                  errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                      borderSide: BorderSide(color: Theme.of(context).errorColor)
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
-                      borderSide: BorderSide(color: Theme.of(context).errorColor)
-                  ),
-                  filled: true,
-                  fillColor: Theme.of(context).primaryColorDark,
-                  hintText: "Search Github",
-                  hintStyle: Theme.of(context).textTheme.bodyText1,
-                  errorStyle: Theme.of(context).textTheme.overline,
+
+                ],
               ),
-              controller: searchC,
-              validator: (value) { return validate.checkSearch(value);},
-              onFieldSubmitted: (value) => searchGithub(value),
-            ),
-        ),
           ),
+        ),
 
         showSpinner 
           ? Positioned(

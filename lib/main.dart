@@ -16,27 +16,24 @@ class MyApp extends StatelessWidget {
       title: 'Marian',
       theme: ThemeData(
         primarySwatch: Colors.amber,
+        primaryColor: Colors.amber[300],
         primaryColorDark: Colors.black,
         backgroundColor: Color(0xDD222222), //transparent
-        dividerColor: Colors.amber,
+        dividerColor: Colors.amber[100],
         primaryColorLight: Colors.white,
         errorColor: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
 
         textTheme: TextTheme(
-          //Verification code
+          //tbd
           headline1: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.white,),
           //code input text
-          headline2: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500, color: Colors.white),
-          //share header
-          headline3: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Colors.white,
-            height: 1.5 ),
+          headline2: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500, color: Colors.amber[100]),
           //search input text
           subtitle1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white,),
           //search hint text
-          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.amber),
+          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.amber[100]),
           overline: TextStyle(fontSize: 12.0, color: Colors.amber),
-
         ),
 
       ),

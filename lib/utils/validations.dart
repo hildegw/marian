@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 
 class FormValidations {
 
-  String checkSearch(String searchString) {
+  String checkGitUser(String user) {
     print("checking search");
-    if (searchString == null || searchString.length < 5) return 'Please enter a cave name.';
+    if (user == null || user.length < 4) return 'Git user required.';
     RegExp r = RegExp(r"([a-zA-Z])");
-    bool hasSearchString = r.hasMatch(searchString);
-    return !hasSearchString ? 'Please enter a cave name.' : null;
+    bool hasUser = r.hasMatch(user);
+    return !hasUser ? 'Git user required.' : null;
   }
 
 
