@@ -34,7 +34,7 @@ class TmluData {
 
   void loadFromGithub(BuildContext context) async {
     await getSavedSegments(caveName); //check if data is available in storage, if not, load from github
-    if (segments == null || segments.length < 1) {
+    //if (segments == null || segments.length < 1) {
       segments = [];
       final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
       //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
@@ -73,24 +73,27 @@ class TmluData {
         addCoordinates();
         calculatePolylineCoord();
         saveSegments(caveName);
+              segments.forEach((el) {if (el.id < 35) print(el); });
+      polylines[0].forEach((el) {print(el); });
       } catch (err) {
         print('error loading tmlu data in utils: $err');
       }
-    } else { //segments retrieved from storage
-      print("local data");
-      //segments.forEach((element) => print(element));
-      //identify start coordinates
-      int segIndex = segments.indexWhere((currentSeg) => currentSeg.frid == -1); //find start segment
-      if (segIndex > -1) {
-        startCoord = segments[segIndex].latlng;
-        startId = segIndex;
-      } else throw ("error finding start segment in segments retrieved from storage");
-      print("start $startId ");
-      print(segments[segIndex]);
-      //calculate polyline
-      calculatePolylineCoord();
-      //coordinates are already in list
-    }
+    // } else { //segments retrieved from storage
+    //   print("local data");
+    //   //segments.forEach((element) => print(element));
+    //   //identify start coordinates
+    //   int segIndex = segments.indexWhere((currentSeg) => currentSeg.frid == -1); //find start segment
+    //   if (segIndex > -1) {
+    //     startCoord = segments[segIndex].latlng;
+    //     startId = segIndex;
+    //   } else throw ("error finding start segment in segments retrieved from storage");
+    //   print("start $startId ");
+    //   print(segments[segIndex]);
+    //   //calculate polyline  //coordinates are already in list, no need to calculate again
+    //   calculatePolylineCoord();
+    //   segments.forEach((el) {if (el.id < 35) print(el); });
+    //   polylines[0].forEach((el) {print(el); });
+    // }
     //add data to bloc
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
@@ -182,18 +185,14 @@ class TmluData {
       Iterable<ModelSegment> prevSegs = [];
       if (section != null && section.length > 0) section.forEach((sectionSeg) {
         if (sectionSeg.frid == -1) return prevSegs = null;
-        prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name);
-        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { 
+        prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
+        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { //add segment to poly-section 
           if (seg.latlng != null) polyline.add(seg.latlng);
-          print("adding"); 
-          print(seg);
         });
-        // try {
-        //   prevSeg = segments.firstWhere((anySeg) {
-        //     return anySeg.id == sectionSeg.frid && anySeg.sc != name;
-        //   }); 
-        // } catch (err) { prevSeg = null; };
       });
+      // //sort section based on frid, if necessary > survey out with frid > id
+      // section.sort((a, b) => a.compareTo(b));
+
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);

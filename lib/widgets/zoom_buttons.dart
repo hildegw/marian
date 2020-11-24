@@ -20,7 +20,7 @@ class ZoomButtonsPluginOption extends LayerOptions {
   ZoomButtonsPluginOption({
     Key key,
     this.minZoom = 1,
-    this.maxZoom = 18,
+    this.maxZoom = 19,
     this.mini = true,
     this.padding = 10.0,
     this.alignment = Alignment.bottomRight,

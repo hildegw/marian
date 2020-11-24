@@ -62,13 +62,15 @@ class _MapTilesState extends State<MapTiles> {
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
     if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
+      int count = 0;
       state.polylines.forEach((lineSegment) {
         lines.add(    
           Polyline(
             points: lineSegment,
-            strokeWidth: 1.0,
+            strokeWidth: count == 0 ? 3.0 : 1.0,
             color: Colors.white
           ));
+          count++;
       });
       startLatLng = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
     }

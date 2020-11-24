@@ -29,11 +29,13 @@ class ModelSegment implements Comparable {
       }
     };
 
-    @override
-    int compareTo(other) {
-      if (this.id <= other.frid) return -1;
-      else return 1;
-    }
+  @override
+  int compareTo(other) {
+    //if (this.id <= other.frid) return -1;
+    if (this.frid <= this.id && this.id <= other.id) return -1;
+    else if (this.frid > this.id && this.frid <= other.frid) return -1;
+    else return 1;
+  }
 
 }
 
