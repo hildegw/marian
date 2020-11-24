@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
         backgroundColor: Color(0xDD222222), //transparent
         dividerColor: Colors.amber,
         primaryColorLight: Colors.white,
+        errorColor: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
 
         textTheme: TextTheme(
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
           subtitle1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white,),
           //search hint text
           bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.amber),
-          overline: TextStyle(fontSize: 12.0, color: Color(0xFFFD6F8D)),
+          overline: TextStyle(fontSize: 12.0, color: Colors.amber),
 
         ),
 
