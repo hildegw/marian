@@ -1,6 +1,9 @@
 
 import "package:flutter/material.dart";
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:marian/models/model_git_search_response.dart';
 
+import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import './menu_search.dart';
 
@@ -11,39 +14,46 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   bool addLine = false;
+  List<ModelGitFile> files = [];
 
 
   @override
   Widget build(BuildContext context) {
     final Responsive resp = Responsive(context);
 
-    return Container(
-      color: Theme.of(context).backgroundColor, 
-      //height: resp.hp(80), 
-      width: resp.wp(100),
-      child: ListView.builder(
-        itemCount: 6,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              index == 0 
-                ? MenuSearch()
-                : Container(
-                  height: 50,
-                  child: Text(
-                    "TEXT",
-                    style: Theme.of(context).textTheme.headline2,
-                    ),
-                  ),
-              Divider(indent: 10, endIndent: 10, height: 5,),
-            ],
-          );
-        }
-      ),
-    );
+    return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
+    
+    if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
+      files = state.files;
+    }
 
+      return Container(
+        color: Theme.of(context).backgroundColor, 
+        //height: resp.hp(80), 
+        width: resp.wp(100),
+        child: ListView.builder(
+          itemCount: files.length + 1,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                index == 0 
+                  ? MenuSearch()
+                  : Container(
+                    height: 50,
+                    child: Text(
+                      files[index-1].filename + " " + files[index-1].path,
+                      style: Theme.of(context).textTheme.bodyText2,
+                      ),
+                    ),
+                Divider(indent: 10, endIndent: 10, height: 5,),
+              ],
+            );
+          }
+        ),
+      );
+    });
   }
 }

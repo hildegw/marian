@@ -1,9 +1,11 @@
 
 import "package:flutter/material.dart";
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../utils/responsive.dart';
 import '../utils/validations.dart';
 import '../utils/git_search_api.dart';
+import '../blocs/tmlu_files_bloc.dart';
 
 
 class MenuSearch extends StatefulWidget {
@@ -47,126 +49,132 @@ class _MenuSearchState extends State<MenuSearch> {
   Widget build(BuildContext context) {
     final Responsive resp = Responsive(context);
 
-    return Container(
-      //color: Theme.of(context).dividerColor, 
-      //height: 50, 
-      width: resp.wp(100),
-      child: Stack(
+    return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
+    
+    if (state.status == TmluFilesStatus.hasTmluFiles && (state.files == null || state.files.length < 1)) {
+          //TODO add error message if 
+    }
 
-        children: [
-          Form(
-            key: searchFormKey,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 12.0, bottom: 12, left: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: resp.wp(40),
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      maxLength: 50,
-                      keyboardType: TextInputType.text,
-                      textCapitalization: TextCapitalization.none,
-                      style: Theme.of(context).textTheme.subtitle1,                
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10.0),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+      return Container(
+        //color: Theme.of(context).dividerColor, 
+        //height: 50, 
+        width: resp.wp(100),
+        child: Stack(
+
+          children: [
+            Form(
+              key: searchFormKey,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 12.0, bottom: 12, left: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: resp.wp(40),
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        maxLength: 50,
+                        keyboardType: TextInputType.text,
+                        textCapitalization: TextCapitalization.none,
+                        style: Theme.of(context).textTheme.subtitle1,                
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                          ),
+                          errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).errorColor)
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).errorColor)
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).primaryColorDark,
+                          labelText: "git user",
+                          labelStyle: Theme.of(context).textTheme.bodyText1,
+                          errorStyle: Theme.of(context).textTheme.overline,
+                          counterText: "", //counting characters
                         ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
-                        ),
-                        errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).errorColor)
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).errorColor)
-                        ),
-                        filled: true,
-                        fillColor: Theme.of(context).primaryColorDark,
-                        labelText: "git user",
-                        labelStyle: Theme.of(context).textTheme.bodyText1,
-                        errorStyle: Theme.of(context).textTheme.overline,
-                        counterText: "", //counting characters
+                        controller: userC,
+                        validator: (value) { return validate.checkGitUser(value);},
+                        onFieldSubmitted: (value) => addSearchFn.requestFocus(),
+                        
                       ),
-                      controller: userC,
-                      validator: (value) { return validate.checkGitUser(value);},
-                      onFieldSubmitted: (value) => addSearchFn.requestFocus(),
-                      
                     ),
-                  ),
 
-                  SizedBox(
-                    width: resp.wp(40),
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      maxLength: 50,
-                      keyboardType: TextInputType.text,
-                      textCapitalization: TextCapitalization.none,
-                      style: Theme.of(context).textTheme.subtitle1,                
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10.0),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                    SizedBox(
+                      width: resp.wp(40),
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        maxLength: 50,
+                        keyboardType: TextInputType.text,
+                        textCapitalization: TextCapitalization.none,
+                        style: Theme.of(context).textTheme.subtitle1,                
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.all(10.0),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).dividerColor)
+                          ),
+                          errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).errorColor)
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5)),
+                              borderSide: BorderSide(color: Theme.of(context).errorColor)
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).primaryColorDark,
+                          labelText: "optional search term",
+                          labelStyle: Theme.of(context).textTheme.bodyText1,
+                          errorStyle: Theme.of(context).textTheme.overline,
+                          counterText: "", //counting characters
                         ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).dividerColor)
-                        ),
-                        errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).errorColor)
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                            borderSide: BorderSide(color: Theme.of(context).errorColor)
-                        ),
-                        filled: true,
-                        fillColor: Theme.of(context).primaryColorDark,
-                        labelText: "optional search term",
-                        labelStyle: Theme.of(context).textTheme.bodyText1,
-                        errorStyle: Theme.of(context).textTheme.overline,
-                        counterText: "", //counting characters
+                        focusNode: addSearchFn,
+                        controller: searchC,
+                        validator: (value) { return null ;}, //optional search string
+                        onFieldSubmitted: (value) => searchGithub(context),
                       ),
-                      focusNode: addSearchFn,
-                      controller: searchC,
-                      validator: (value) { return null ;}, //optional search string
-                      onFieldSubmitted: (value) => searchGithub(context),
                     ),
-                  ),
-                  
-                  IconButton(
-                    icon: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor,),
-                    onPressed: () => searchGithub(context), //setState(() => addLine = !addLine ),
-                  ),
+                    
+                    IconButton(
+                      icon: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor,),
+                      onPressed: () => searchGithub(context), //setState(() => addLine = !addLine ),
+                    ),
 
-                ],
-              ),
+                  ],
+                ),
+            ),
           ),
-        ),
 
-        showSpinner 
-          ? Positioned(
-            top: 20,
-            left: resp.wp(48),
-              child: SizedBox(
-                width: 25,
-                height: 25,
-                child: CircularProgressIndicator(backgroundColor: Theme.of(context).primaryColorLight,)
-              ),
-          ) 
-          : Container(),
+          showSpinner 
+            ? Positioned(
+              top: 20,
+              left: resp.wp(48),
+                child: SizedBox(
+                  width: 25,
+                  height: 25,
+                  child: CircularProgressIndicator(backgroundColor: Theme.of(context).primaryColorLight,)
+                ),
+            ) 
+            : Container(),
 
-        ],
-      )
-    );
-
+          ],
+        )
+      );
+    });
   }
 }
