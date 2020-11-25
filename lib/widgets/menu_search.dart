@@ -65,7 +65,7 @@ class _MenuSearchState extends State<MenuSearch> {
             Form(
               key: searchFormKey,
               child: Padding(
-                padding: const EdgeInsets.only(top: 12.0, bottom: 12, left: 12),
+                padding: const EdgeInsets.only(top: 12.0, bottom: 12, left: 12, right: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,9 +150,13 @@ class _MenuSearchState extends State<MenuSearch> {
                       ),
                     ),
                     
-                    IconButton(
-                      icon: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor,),
-                      onPressed: () => searchGithub(context), //setState(() => addLine = !addLine ),
+                    Container(
+                      width: 25,
+                      child: FlatButton(
+                        padding: EdgeInsets.all(0.0),
+                        onPressed: () => searchGithub(context), //setState(() => addLine = !addLine ),
+                        child: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor),
+                      ),
                     ),
 
                   ],

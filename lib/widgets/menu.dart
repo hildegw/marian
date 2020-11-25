@@ -34,12 +34,17 @@ class _MenuState extends State<Menu> {
           itemCount: repoFiles.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            return MenuCaveItem(file: repoFiles[index]);
+            return MenuCaveItem(file: repoFiles[index], onSelected: () => onSelected(files[index]),);
           }
         ),
       );
     });
   }
+
+  void onSelected(ModelGitFile file) {
+    print(file.filename);
+  }
+
 
   @override
   Widget build(BuildContext context) {

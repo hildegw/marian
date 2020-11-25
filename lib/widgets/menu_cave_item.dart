@@ -8,10 +8,22 @@ import '../utils/responsive.dart';
 import '../models/model_git_search_response.dart';
 
 
-class MenuCaveItem extends StatelessWidget {
+class MenuCaveItem extends StatefulWidget {
   final ModelGitFile file;
   final String repo;
-  MenuCaveItem({ this.file, this.repo });
+  final Function onSelected;
+  MenuCaveItem({ this.file, this.repo, this.onSelected });
+
+  @override
+  _MenuCaveItemState createState() => _MenuCaveItemState();
+}
+
+class _MenuCaveItemState extends State<MenuCaveItem> {
+  bool selected = false;
+
+  void saveSelected() {
+    if (!selected) return;
+  }
 
 
   @override
@@ -20,14 +32,31 @@ class MenuCaveItem extends StatelessWidget {
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: repo == null ? CrossAxisAlignment.start : CrossAxisAlignment.center,        
+      crossAxisAlignment: widget.repo == null ? CrossAxisAlignment.start : CrossAxisAlignment.center,        
       children: [
-        repo == null
+        widget.repo == null
         ? Padding(
-          padding: EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
-          child: Container(   //cave name
-            //height: 50,
-            child: Text( file.path, style: Theme.of(context).textTheme.bodyText2),
+          padding: EdgeInsets.only(left: 10.0, right:  15, top: 0, bottom: 0),
+          child: Row(
+            children: [
+              Container(
+                width: 25,
+                child: FlatButton(
+                  padding: EdgeInsets.all(0.0),
+                  onPressed: () {
+                    setState(() => selected = !selected );
+                    if (selected) widget.onSelected();
+                  },
+                  child: Icon(
+                    selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, 
+                    size: 20, color: Theme.of(context).dividerColor),
+                ),
+              ),
+              SizedBox(width: 10,),
+              Expanded(   //cave name
+                child: Text(widget.file.path, overflow: TextOverflow.visible , style: Theme.of(context).textTheme.bodyText2),
+              ),
+            ],
           ),
         )
         
@@ -35,7 +64,7 @@ class MenuCaveItem extends StatelessWidget {
           padding: EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
           child: Container(  //repo name
             //height: 50,
-            child: Text( repo + " search results", style: Theme.of(context).textTheme.bodyText1), 
+            child: Text( widget.repo + " search results", style: Theme.of(context).textTheme.bodyText1), 
           ),
         ),
         

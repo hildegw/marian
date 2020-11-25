@@ -27,7 +27,7 @@ class _ViewerState extends State<Viewer> {
         title: Text(widget.title,),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
+          icon: Icon(openMenu ? Icons.close : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
           onPressed: () => setState(() => openMenu = !openMenu ),
         ), 
       ),

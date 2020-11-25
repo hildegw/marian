@@ -19,11 +19,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.amber,
         primaryColor: Colors.amber[300],
         primaryColorDark: Colors.black,
-        backgroundColor: Color(0xDD222222), //transparent
+        backgroundColor: Color(0xEE222222), //transparent
         dividerColor: Colors.amber[100],
         primaryColorLight: Colors.white,
         errorColor: Colors.amber,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        //splash
+        //highlightColor: Color(0xAA222222),
+        splashColor: Color(0xAA555555),
 
         textTheme: TextTheme(
           //search input text
