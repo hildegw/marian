@@ -35,10 +35,10 @@ class _MenuSearchState extends State<MenuSearch> {
     super.dispose();
   }
 
-  void searchGithub() async {
+  void searchGithub(BuildContext context) async {
     print('submit search? ${searchFormKey.currentState.validate()} with ${userC.text} and ${searchC.text}');
     if (searchFormKey.currentState.validate()) {
-      await GitSearchApi().getListOfFiles(userC.text, searchC.text);
+      await GitSearchApi().getListOfFiles(userC.text, searchC.text, context);
     };
   }
 
@@ -138,13 +138,13 @@ class _MenuSearchState extends State<MenuSearch> {
                       focusNode: addSearchFn,
                       controller: searchC,
                       validator: (value) { return null ;}, //optional search string
-                      onFieldSubmitted: (value) => searchGithub(),
+                      onFieldSubmitted: (value) => searchGithub(context),
                     ),
                   ),
                   
                   IconButton(
                     icon: Icon(Icons.search, size: 25, color: Theme.of(context).dividerColor,),
-                    onPressed: () => searchGithub(), //setState(() => addLine = !addLine ),
+                    onPressed: () => searchGithub(context), //setState(() => addLine = !addLine ),
                   ),
 
                 ],

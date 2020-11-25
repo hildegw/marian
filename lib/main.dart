@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import './screens/viewer.dart';
 import './blocs/tmlu_bloc.dart';
+import './blocs/tmlu_files_bloc copy.dart';
 
 void main() {
   runApp(MyApp());
@@ -41,6 +42,9 @@ class MyApp extends StatelessWidget {
         providers: [
           BlocProvider<TmluBloc>(
             create: (BuildContext context) => TmluBloc("_myRepository"),  //TODO is just a dummy string
+          ),
+          BlocProvider<TmluFilesBloc>(
+            create: (BuildContext context) => TmluFilesBloc(),  //TODO is just a dummy string
           ),
         ],
         child: Viewer(title: 'Viewer')

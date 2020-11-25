@@ -13,7 +13,7 @@ import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
-import '../utils/tmlu_data.dart';
+import '../utils/tmlu_data_api.dart';
 import './zoom_buttons.dart';
 
 

@@ -1,7 +1,6 @@
-//import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:xml/xml.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show rootBundle; //for loading assets
 import 'dart:math' as math;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong/latlong.dart';
