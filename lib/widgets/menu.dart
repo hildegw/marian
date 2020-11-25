@@ -7,6 +7,7 @@ import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import './menu_search.dart';
 import './menu_cave_item.dart';
+import '../utils/tmlu_data_api.dart';
 
 
 class Menu extends StatefulWidget {
@@ -43,6 +44,7 @@ class _MenuState extends State<Menu> {
 
   void onSelected(ModelGitFile file) {
     print(file.filename);
+    TmluData().loadFromGithub(file, context);
   }
 
 

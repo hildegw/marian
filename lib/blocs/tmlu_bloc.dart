@@ -79,15 +79,15 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
     if (event is LoadData) {
-        //print('tmlu bloc has data ${event.polylines} ');
-        yield TmluState(
-          segments: event.segments,
-          polylines: event.polylines,
-          startCoord: event.startCoord,
-          status: TmluStatus.hasTmlu,
-          zoom: 14.0,
-          error: null,
-        );
+      print('tmlu bloc has data ${event.polylines} ');
+      yield TmluState(
+        segments: event.segments,
+        polylines: event.polylines,
+        startCoord: event.startCoord,
+        status: TmluStatus.hasTmlu,
+        zoom: 14.0,
+        error: null,
+      );
     }
 
     else if (event is Zooming) {

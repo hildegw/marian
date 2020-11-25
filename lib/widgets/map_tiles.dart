@@ -37,7 +37,6 @@ class _MapTilesState extends State<MapTiles> {
 
   @override
   void initState() { //TODO make cave to load selectable, set cave name globally
-    TmluData().loadFromGithub(context);
     //TmluData().loadTmlu(context);
     _mapController = MapController();
     super.initState();
@@ -58,19 +57,18 @@ class _MapTilesState extends State<MapTiles> {
   @override
   Widget build(BuildContext context) {
     final Responsive _responsive = Responsive(context);
-    
+    print("building map");
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
     if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
-      int count = 0;
       state.polylines.forEach((lineSegment) {
+        print("adding lines");
         lines.add(    
           Polyline(
             points: lineSegment,
-            strokeWidth: count == 0 ? 1.5 : 1.5,
+            strokeWidth: 1.5,
             color: Colors.white
           ));
-          count++;
       });
       startLatLng = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
     }

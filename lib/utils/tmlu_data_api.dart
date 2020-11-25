@@ -12,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/model_segment.dart';
 import '../blocs/tmlu_bloc.dart';
-
+import '../models/model_git_search_response.dart';
 
 
 class TmluData {
@@ -28,15 +28,17 @@ class TmluData {
   List<List<XmlNode>> lines = [];
   int missedCoord;
   int startId = 0;
-  String caveName = "test"; //TODO set cave name
 
 
-  void loadFromGithub(BuildContext context) async {
-    await getSavedSegments(caveName); //check if data is available in storage, if not, load from github
+  void loadFromGithub(ModelGitFile file, BuildContext context) async {
+    await getSavedSegments(file.filename); //check if data is available in storage, if not, load from github
+    segments.forEach((el) {if (el.id < 35) print(el); });
     if (segments == null || segments.length < 1) {
       segments = [];
-      final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
+      final url = Uri.parse("https://raw.githubusercontent.com/" + file.fullName + "/master/" + file.path);
+      //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
       //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
+      print(url);
       try {
         final request = await HttpClient().getUrl(url);
         final response = await request.close();
@@ -71,7 +73,7 @@ class TmluData {
         getStartCoordinates(); 
         addCoordinates();
         calculatePolylineCoord();
-        saveSegments(caveName);
+        saveSegments(file.filename);
       } catch (err) {
         print('error loading tmlu data in utils: $err');
       }
@@ -88,10 +90,10 @@ class TmluData {
       print(segments[segIndex]);
       //calculate polyline  //coordinates are already in list, no need to calculate again
       calculatePolylineCoord();
-      // segments.forEach((el) {if (el.id < 35) print(el); });
       // polylines[0].forEach((el) {print(el); });
     }
     //add data to bloc
+    print("adding to bloc");
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
     //segments.forEach((element) => print(element));
