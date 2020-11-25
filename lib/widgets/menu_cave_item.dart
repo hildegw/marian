@@ -18,12 +18,13 @@ class MenuCaveItem extends StatelessWidget {
     final Responsive resp = Responsive(context);
 
       return Container(
-                    height: 50,
-                    child: Text(
-                      file.filename + " " + file.path,
-                      style: Theme.of(context).textTheme.bodyText2,
-                      ),
-                    );
+        //height: 50,
+        child: 
+        Text(
+          file.path,
+          style: Theme.of(context).textTheme.bodyText2,
+          ),
+      );
 
   }
 }
