@@ -39,27 +39,13 @@ class _MenuState extends State<Menu> {
         menuList.add(MenuSearch()); //search box
         fullNames.forEach((repo) {  //repo info / full name
           List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-          menuList.add(Container(
-                  //height: 50,
-                  child: 
-                  Text(
-                    "repo: " + repo,
-                    style: Theme.of(context).textTheme.bodyText2,
-                    ),
-                ));
+          menuList.add(MenuCaveItem(repo: repo));
           menuList.add(          //list of caves per repo
             ListView.builder(
               itemCount: repoFiles.length,
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                      MenuCaveItem(file: repoFiles[index]),
-                    Divider(indent: 10, endIndent: 10, height: 5,),
-                  ],
-                );
+                return MenuCaveItem(file: repoFiles[index]);
               }
             ),
           );
