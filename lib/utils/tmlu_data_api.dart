@@ -32,7 +32,6 @@ class TmluData {
 
   void loadFromGithub(ModelGitFile file, BuildContext context) async {
     await getSavedSegments(file.filename); //check if data is available in storage, if not, load from github
-    segments.forEach((el) {if (el.id < 35) print(el); });
     if (segments == null || segments.length < 1) {
       segments = [];
       final url = Uri.parse("https://raw.githubusercontent.com/" + file.fullName + "/master/" + file.path);
