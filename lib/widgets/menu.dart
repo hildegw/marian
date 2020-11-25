@@ -6,6 +6,8 @@ import 'package:marian/models/model_git_search_response.dart';
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import './menu_search.dart';
+import './menu_cave_item.dart';
+
 
 class Menu extends StatefulWidget {
   @override
@@ -41,13 +43,7 @@ class _MenuState extends State<Menu> {
               children: [
                 index == 0 
                   ? MenuSearch()
-                  : Container(
-                    height: 50,
-                    child: Text(
-                      files[index-1].filename + " " + files[index-1].path,
-                      style: Theme.of(context).textTheme.bodyText2,
-                      ),
-                    ),
+                  : MenuCaveItem(file: files[index-1]),
                 Divider(indent: 10, endIndent: 10, height: 5,),
               ],
             );

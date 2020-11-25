@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           //search input text
           subtitle1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.white,),
           //search input hint text
-          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.amber[100]),
+          bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.amber[100]),
           //list of search results
           bodyText2: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400, color: Colors.white,),
           //search input error text
