@@ -17,15 +17,14 @@ class MenuCaveItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Responsive resp = Responsive(context);
-    print("file $file");
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,        
+      crossAxisAlignment: repo == null ? CrossAxisAlignment.start : CrossAxisAlignment.center,        
       children: [
         repo == null
         ? Padding(
-          padding: const EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
+          padding: EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
           child: Container(   //cave name
             //height: 50,
             child: Text( file.path, style: Theme.of(context).textTheme.bodyText2),
@@ -33,10 +32,10 @@ class MenuCaveItem extends StatelessWidget {
         )
         
         : Padding(
-          padding: const EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
+          padding: EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
           child: Container(  //repo name
             //height: 50,
-            child: Text( repo, style: Theme.of(context).textTheme.bodyText1), 
+            child: Text( repo + " search results", style: Theme.of(context).textTheme.bodyText1), 
           ),
         ),
         

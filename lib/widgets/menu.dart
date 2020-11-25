@@ -27,16 +27,13 @@ class _MenuState extends State<Menu> {
     //add list widgets to menu list 
     fullNames.forEach((repo) {  //repo info / full name
       List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-      print("repo $repo");
-      print(repoFiles);
       caveList.add(MenuCaveItem(repo: repo));
       caveList.add(          //list of caves per repo
         ListView.builder(
-          //physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          physics: ClampingScrollPhysics(),
           itemCount: repoFiles.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            print("building items $index");
             return MenuCaveItem(file: repoFiles[index]);
           }
         ),
@@ -63,9 +60,9 @@ class _MenuState extends State<Menu> {
         color: Theme.of(context).backgroundColor, 
         //height: resp.hp(80), 
         width: resp.wp(100),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          // crossAxisAlignment: CrossAxisAlignment.start,
           children: 
           [
             MenuSearch(),
