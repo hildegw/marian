@@ -27,6 +27,7 @@ class GitSearchApi {
         String reply = await utf8.decoder.bind(response).join();
         searchResp = ModelGitSearchResponse.fromJson(jsonDecode(reply));
         files = searchResp.createFiles(searchResp.items);
+        print("git search API result:");
         files.forEach((fil) => print(fil));
             //add data to bloc
         final filesBloc = BlocProvider.of<TmluFilesBloc>(context); //files

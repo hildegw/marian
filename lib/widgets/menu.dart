@@ -18,38 +18,45 @@ class _MenuState extends State<Menu> {
   bool addLine = false;
   List<ModelGitFile> files = [];
   List<String> fullNames = [];
-  List<Widget> menuList = [];
+  // List<Widget> menuList = [];
+  List<Widget> caveList = [];
+
+  void createCaveList() {
+    //reset list 
+    caveList = [];
+    //add list widgets to menu list 
+    fullNames.forEach((repo) {  //repo info / full name
+      List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
+      print("repo $repo");
+      print(repoFiles);
+      caveList.add(MenuCaveItem(repo: repo));
+      caveList.add(          //list of caves per repo
+        ListView.builder(
+          //physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          itemCount: repoFiles.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            print("building items $index");
+            return MenuCaveItem(file: repoFiles[index]);
+          }
+        ),
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final Responsive resp = Responsive(context);
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
-    
+
       if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
         //get file data for menu list
         files = state.files;
         files.forEach((file) { 
           if (!fullNames.contains(file.fullName)) fullNames.add(file.fullName);
-          print(fullNames);
         });
-        //reset menuList if builder is called again
-        menuList = [];
-        //add all widgets to menu list 
-        menuList.add(MenuSearch()); //search box
-        fullNames.forEach((repo) {  //repo info / full name
-          List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-          menuList.add(MenuCaveItem(repo: repo));
-          menuList.add(          //list of caves per repo
-            ListView.builder(
-              itemCount: repoFiles.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return MenuCaveItem(file: repoFiles[index]);
-              }
-            ),
-          );
-        });
+        createCaveList();
       }
 
       return Container(
@@ -59,7 +66,13 @@ class _MenuState extends State<Menu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: menuList,
+          children: 
+          [
+            MenuSearch(),
+            Divider(indent: 10, endIndent: 10, height: 5,),
+            ...caveList
+          ]
+          //List.from(menuList)..addAll(caveList),
         ),
       );
     });
