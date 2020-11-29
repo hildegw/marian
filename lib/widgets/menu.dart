@@ -56,9 +56,9 @@ class _MenuState extends State<Menu> {
 
   void onSelectionDone() { //send selected files to bloc for saving them locally
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
-    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
+    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected, context: context));
     //load first selected file
-    TmluData().loadFromGithub(filesSelected[0], context);
+    print("menu show map ${filesSelected[0]}");
   }
 
 
@@ -68,6 +68,8 @@ class _MenuState extends State<Menu> {
     final Responsive resp = Responsive(context);
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
+
+      print("menu state ${state.status } ");
 
       //once search result has loaded:
       if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
@@ -81,6 +83,7 @@ class _MenuState extends State<Menu> {
 
       //upon closing the list of caves
       if (state.status == TmluFilesStatus.filesSelected && filesSelected != null && filesSelected.length > 0) {
+        print("menu selection is done");
         onSelectionDone();
       }
 

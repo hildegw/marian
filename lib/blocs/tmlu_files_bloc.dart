@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
 import 'dart:async';
@@ -6,6 +7,7 @@ import 'package:latlong/latlong.dart';
 
 import '../models/model_segment.dart';
 import '../models/model_git_search_response.dart';
+import '../utils/tmlu_data_api.dart';
 
 
 abstract class TmluFilesEvent {}
@@ -22,7 +24,8 @@ class TmluSelectionDone extends TmluFilesEvent {
 
 class TmluFilesSelected extends TmluFilesEvent {
   final List<ModelGitFile> filesSelected;
-  TmluFilesSelected({this.filesSelected});
+  final BuildContext context;
+  TmluFilesSelected({this.filesSelected, this.context});
 }
 
 class TmluFilesError extends TmluFilesEvent {
@@ -42,12 +45,14 @@ class TmluFilesState {
   final List<ModelGitFile> files;
   final bool selectionDone;
   final List<ModelGitFile> filesSelected;
+  final BuildContext context;
   final String error;
   TmluFilesState({
     this.status = TmluFilesStatus.loading,
     this.files,
     this.selectionDone,
     this.filesSelected,
+    this.context,
     this.error,
   });
 
@@ -93,6 +98,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
 
     else if (event is TmluFilesSelected) {
         print('tmlu files bloc event files were selected ${event.filesSelected} ');
+        TmluData().loadFromGithub(event.filesSelected[0], event.context);
         yield state.copyWith(
           filesSelected: event.filesSelected,
           status: TmluFilesStatus.filesSelected,
