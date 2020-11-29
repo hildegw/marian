@@ -35,6 +35,8 @@ class MyApp extends StatelessWidget {
           bodyText1: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.amber[100]),
           //list of search results
           bodyText2: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400, color: Colors.white,),
+          //button
+          button: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.black,),
           //search input error text
           overline: TextStyle(fontSize: 12.0, color: Colors.amber),
         ),

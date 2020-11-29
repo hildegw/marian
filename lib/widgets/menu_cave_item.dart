@@ -21,10 +21,6 @@ class MenuCaveItem extends StatefulWidget {
 class _MenuCaveItemState extends State<MenuCaveItem> {
   bool selected = false;
 
-  void saveSelected() {
-    if (!selected) return;
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +41,10 @@ class _MenuCaveItemState extends State<MenuCaveItem> {
                   padding: EdgeInsets.all(0.0),
                   onPressed: () {
                     setState(() => selected = !selected );
-                    if (selected) widget.onSelected();
+                    widget.onSelected(selected);
                   },
                   child: Icon(
-                    selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, 
+                    selected ? Icons.check_box : Icons.check_box_outline_blank, 
                     size: 20, color: Theme.of(context).dividerColor),
                 ),
               ),
@@ -61,9 +57,8 @@ class _MenuCaveItemState extends State<MenuCaveItem> {
         )
         
         : Padding(
-          padding: EdgeInsets.only(left: 15.0, right:  15, top: 5, bottom: 5),
+          padding: EdgeInsets.only(left: 10.0, right:  15, top: 5, bottom: 5),
           child: Container(  //repo name
-            //height: 50,
             child: Text( widget.repo + " search results", style: Theme.of(context).textTheme.bodyText1), 
           ),
         ),

@@ -25,7 +25,8 @@ class _ViewerState extends State<Viewer> {
 
   @override
   Widget build(BuildContext context) {
-    
+    final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
+
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
 
       return Scaffold(
@@ -33,8 +34,11 @@ class _ViewerState extends State<Viewer> {
           title: state.files != null && state.files.length > 0 ? Text(state.files[0].filename) : Text(widget.title,),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(openMenu ? Icons.close : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
-            onPressed: () => setState(() => openMenu = !openMenu ),
+            icon: Icon(openMenu ? Icons.done_all : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
+            onPressed: () { 
+              setState(() => openMenu = !openMenu);
+              tmluFilesBloc.add(TmluSelectionDone(selectionDone: !openMenu));
+            },
           ), 
         ),
         body: Stack(

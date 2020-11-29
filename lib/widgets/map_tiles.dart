@@ -72,7 +72,8 @@ class _MapTilesState extends State<MapTiles> {
       });
       startLatLng = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
-      _mapController?? _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);
+      print(_mapController.ready);
+      if (_mapController.ready)  _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);
    }
 
 

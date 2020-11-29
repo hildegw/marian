@@ -21,6 +21,8 @@ class _MenuState extends State<Menu> {
   List<String> fullNames = [];
   // List<Widget> menuList = [];
   List<Widget> caveList = [];
+  List<ModelGitFile> filesSelected = [];
+
 
   void createCaveList() {
     //reset list 
@@ -35,17 +37,30 @@ class _MenuState extends State<Menu> {
           itemCount: repoFiles.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            return MenuCaveItem(file: repoFiles[index], onSelected: () => onSelected(files[index]),);
+            return MenuCaveItem(
+              file: repoFiles[index], 
+              onSelected: (selected) => onSelected(selected, files[index]),
+            );
           }
         ),
       );
     });
   }
 
-  void onSelected(ModelGitFile file) {
-    print(file.filename);
-    TmluData().loadFromGithub(file, context);
+  void onSelected(bool selected, ModelGitFile file) {
+    print("selected file in menu {$file.filename} : $selected");
+    if (selected) filesSelected.add(file);
+    else filesSelected.remove(file);
+    print(filesSelected);
   }
+
+  void onSelectionDone() { //send selected files to bloc for saving them locally
+    final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
+    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
+    //load first selected file
+    TmluData().loadFromGithub(filesSelected[0], context);
+  }
+
 
 
   @override
@@ -54,6 +69,7 @@ class _MenuState extends State<Menu> {
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
 
+      //once search result has loaded:
       if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
         //get file data for menu list
         files = state.files;
@@ -62,6 +78,12 @@ class _MenuState extends State<Menu> {
         });
         createCaveList();
       }
+
+      //upon closing the list of caves
+      if (state.status == TmluFilesStatus.filesSelected && filesSelected != null && filesSelected.length > 0) {
+        onSelectionDone();
+      }
+
 
       return Container(
         color: Theme.of(context).backgroundColor, 
