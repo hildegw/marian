@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
 import 'dart:async';
 import 'package:latlong/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'dart:io';
 
 import '../models/model_segment.dart';
 import '../models/model_cave.dart';
@@ -80,6 +83,34 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   final String _myRepository;  //just in case TODO
 
   List<ModelCave> selectedCaves = [];
+
+
+  saveSegments(String path) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> jsonList = [];
+    selectedCaves.forEach((cave) => jsonList.add(jsonEncode(cave.toJson())) );
+    await prefs.setStringList(path, jsonList); //TODO seg Json parse instead to read data
+  }
+
+  getSavedSegments(String path) async {
+    selectedCaves = [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> jsonList = prefs.getStringList(path); 
+      if (jsonList != null) {
+        jsonList.forEach((cave) {
+          Map caveString = jsonDecode(cave);
+          selectedCaves.add(ModelCave.fromJson(caveString));
+        });
+      }
+      else selectedCaves = null;
+    } catch(err) { 
+      print("error fetching cave from storage: $err");
+      selectedCaves = null;
+    }
+  }
+
+
 
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
