@@ -20,18 +20,44 @@ class _MenuState extends State<Menu> {
   List<ModelGitFile> files = [];
   List<String> fullNames = [];
   // List<Widget> menuList = [];
-  List<Widget> caveList = [];
+  List<Widget> githubList = [];
+  List<Widget> localList = [];
   List<ModelGitFile> filesSelected = [];
 
 
-  void createCaveList() {
+  void createLocalList() {
     //reset list 
-    caveList = [];
+    localList = [];
+    //fetch list of caves from local storage
     //add list widgets to menu list 
     fullNames.forEach((repo) {  //repo info / full name
       List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-      caveList.add(MenuCaveItem(repo: repo));
-      caveList.add(          //list of caves per repo
+      githubList.add(MenuCaveItem(repo: repo));
+      githubList.add(          //list of caves per repo
+        ListView.builder(
+          physics: ClampingScrollPhysics(),
+          itemCount: repoFiles.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            return MenuCaveItem(
+              file: repoFiles[index], 
+              onSelected: (selected) => onSelected(selected, files[index]),
+            );
+          }
+        ),
+      );
+    });
+  }
+
+
+  void createGithubList() {
+    //reset list 
+    githubList = [];
+    //add list widgets to menu list 
+    fullNames.forEach((repo) {  //repo info / full name
+      List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
+      githubList.add(MenuCaveItem(repo: repo));
+      githubList.add(          //list of caves per repo
         ListView.builder(
           physics: ClampingScrollPhysics(),
           itemCount: repoFiles.length,
@@ -77,7 +103,7 @@ class _MenuState extends State<Menu> {
         files.forEach((file) { 
           if (!fullNames.contains(file.fullName)) fullNames.add(file.fullName);
         });
-        createCaveList();
+        createGithubList();
       }
 
    //TODO move closing info into this component, so that onDone gets called before closing!
@@ -99,9 +125,8 @@ class _MenuState extends State<Menu> {
           [
             MenuSearch(),
             Divider(indent: 10, endIndent: 10, height: 5,),
-            ...caveList
+            ...githubList
           ]
-          //List.from(menuList)..addAll(caveList),
         ),
       );
     });

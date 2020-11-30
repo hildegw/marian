@@ -76,22 +76,23 @@ class TmluState {
 
 class TmluBloc extends Bloc<TmluEvent, TmluState> {
 
-
   TmluBloc(this._myRepository) : super(TmluState(status: TmluStatus.loading));
   final String _myRepository;  //just in case TODO
 
+  List<ModelCave> selectedCaves = [];
 
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
     if (event is LoadData) {
       print('tmlu bloc has data ${event.cave} ');
+      selectedCaves.add(event.cave);
       yield TmluState(
         // segments: event.segments,
         // polylines: event.polylines,
         // startCoord: event.startCoord,
         status: TmluStatus.hasTmlu,
-        cave: event.cave,
+        cave: selectedCaves[0],   //TODO show more than one cave
         zoom: 14.0,
         error: null,
       );
