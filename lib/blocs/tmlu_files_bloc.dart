@@ -36,6 +36,7 @@ class TmluFilesError extends TmluFilesEvent {
 enum TmluFilesStatus {
   loading,
   hasTmluFiles,
+  selectionDone,
   filesSelected,
   error
 }
@@ -92,13 +93,14 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
         print('tmlu files bloc event file selection is done ${event.selectionDone} ');
         yield state.copyWith(
           selectionDone: event.selectionDone,
-          status: TmluFilesStatus.filesSelected,
+          status: TmluFilesStatus.selectionDone,
         );
     }
 
     else if (event is TmluFilesSelected) {
         print('tmlu files bloc event files were selected ${event.filesSelected} ');
-        TmluData().loadFromGithub(event.filesSelected[0], event.context);
+        if (event.filesSelected != null && event.filesSelected.length > 0) 
+            TmluData().loadFromGithub(event.filesSelected[0], event.context);
         yield state.copyWith(
           filesSelected: event.filesSelected,
           status: TmluFilesStatus.filesSelected,

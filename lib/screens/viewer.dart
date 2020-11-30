@@ -36,8 +36,9 @@ class _ViewerState extends State<Viewer> {
           leading: IconButton(
             icon: Icon(openMenu ? Icons.done_all : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
             onPressed: () { 
-              setState(() => openMenu = !openMenu);
-              tmluFilesBloc.add(TmluSelectionDone(selectionDone: !openMenu));
+              tmluFilesBloc.add(TmluSelectionDone(selectionDone: openMenu)); //set state so that menu can send off selected files to bloc
+              if (openMenu) Future.delayed(Duration(milliseconds: 100), () => setState(() => openMenu = false));
+              else setState(() => openMenu = true);
             },
           ), 
         ),

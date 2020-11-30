@@ -58,7 +58,7 @@ class _MenuState extends State<Menu> {
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected, context: context));
     //load first selected file
-    print("menu show map ${filesSelected[0]}");
+    if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 
 
@@ -81,8 +81,9 @@ class _MenuState extends State<Menu> {
         createCaveList();
       }
 
+   //TODO move closing info into this component, so that onDone gets called before closing!
       //upon closing the list of caves
-      if (state.status == TmluFilesStatus.filesSelected && filesSelected != null && filesSelected.length > 0) {
+      if (state.status == TmluFilesStatus.selectionDone){ //&& filesSelected != null && filesSelected.length > 0) {
         print("menu selection is done");
         onSelectionDone();
       }
