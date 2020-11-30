@@ -15,6 +15,7 @@ import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
 import '../utils/tmlu_data_api.dart';
 import './zoom_buttons.dart';
+import '../models/model_cave.dart';
 
 
 class MapTiles extends StatefulWidget {
@@ -34,6 +35,7 @@ class _MapTilesState extends State<MapTiles> {
   LatLngBounds bounds;
   List<LatLng> tappedPoints = []; //for later use?
   MapController _mapController;
+  ModelCave cave;
 
   @override
   void initState() { //TODO make cave to load selectable, set cave name globally
@@ -60,8 +62,8 @@ class _MapTilesState extends State<MapTiles> {
     print("building map");
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
     
-    if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
-      state.polylines.forEach((lineSegment) {
+    if (state.status == TmluStatus.hasTmlu && state.cave.polylines != null && state.cave.startCoord != null) {
+      state.cave.polylines.forEach((lineSegment) {
         lines.add(    
           Polyline(
             points: lineSegment,
@@ -69,7 +71,7 @@ class _MapTilesState extends State<MapTiles> {
             color: Colors.white
           ));
       });
-      startLatLng = LatLng(state.startCoord.latitude, state.startCoord.longitude); //LatLng(20.196525, -87.517539)
+      startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
       print(_mapController.ready);
       if (_mapController.ready)  _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);

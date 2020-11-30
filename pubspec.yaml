@@ -21,6 +21,7 @@ dependencies:
   latlong: ^0.6.1
   path_provider: ^1.6.24
   shared_preferences: ^0.5.12+4
+  equatable: ^1.2.5
 
 
 dev_dependencies:

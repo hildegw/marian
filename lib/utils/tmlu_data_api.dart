@@ -13,12 +13,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/model_segment.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_git_search_response.dart';
+import '../models/model_cave.dart';
 
 
 class TmluData {
   //final client = HttpClient();
 
-  String cave;
+  //String cave;
   XmlDocument tmlu;
   List<XmlElement> srvd = [];
   List<ModelSegment> segments = [];
@@ -28,6 +29,7 @@ class TmluData {
   List<List<XmlNode>> lines = [];
   int missedCoord;
   int startId = 0;
+  ModelCave cave;
 
 
   void loadFromGithub(ModelGitFile file, BuildContext context) async {
@@ -89,8 +91,10 @@ class TmluData {
     }
     //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
     print("adding to bloc");
+    cave = ModelCave(fullName: file.fullName, path: file.path, segments: segments, polylines: polylines, startCoord: startCoord);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
+    tmluBloc.add(LoadData(cave: cave));
+    //tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
     //segments.forEach((element) => print(element));
   }
 
