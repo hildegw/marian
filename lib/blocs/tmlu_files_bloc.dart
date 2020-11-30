@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bloc/bloc.dart';
 import 'dart:async';
 import 'package:latlong/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/model_segment.dart';
 import '../models/model_git_search_response.dart';
@@ -38,6 +39,7 @@ enum TmluFilesStatus {
   hasTmluFiles,
   selectionDone,
   filesSelected,
+  noSelectedFiles,
   error
 }
 
@@ -77,6 +79,16 @@ class TmluFilesState {
 class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
   TmluFilesBloc() : super(TmluFilesState(status: TmluFilesStatus.loading));
 
+  void saveSelectedFiles(List<ModelGitFile> files, BuildContext context) {
+    try {
+      Future.forEach(files, (file) => TmluData().loadFromGithub(file, context) );
+    } catch (err) { print("Error saving selected files in files bloc: $err");}
+        //load first selected file - TODO
+            //TmluData().loadFromGithub(files[0], context);
+
+  }
+
+
   @override
   Stream<TmluFilesState> mapEventToState(TmluFilesEvent event) async* {
   
@@ -89,6 +101,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
         );
     }
 
+    //this event is not really necessary any more, called when menu is closed by viewer screen
     else if (event is TmluSelectionDone) { //called from main view when menu bar is clicked
         print('tmlu files bloc event file selection is done ${event.selectionDone} ');
         yield state.copyWith(
@@ -96,15 +109,22 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
           status: TmluFilesStatus.selectionDone,
         );
     }
-
+    //called when menu is closed, but menu component, once selectionDone is set
     else if (event is TmluFilesSelected) {
         print('tmlu files bloc event files were selected ${event.filesSelected} ');
-        if (event.filesSelected != null && event.filesSelected.length > 0) 
-            TmluData().loadFromGithub(event.filesSelected[0], event.context);
-        yield state.copyWith(
-          filesSelected: event.filesSelected,
-          status: TmluFilesStatus.filesSelected,
-        );
+        //save all selected files locally, then show first selected file
+        if (event.filesSelected != null && event.filesSelected.length > 0) {
+          saveSelectedFiles(event.filesSelected, event.context);
+          yield state.copyWith(
+            filesSelected: event.filesSelected,
+            status: TmluFilesStatus.filesSelected,
+          );
+        } else {
+          yield state.copyWith(
+            filesSelected: null,
+            status: TmluFilesStatus.noSelectedFiles,
+          );
+        }
     }
 
     else if (event is TmluFilesError) {

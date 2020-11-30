@@ -62,7 +62,6 @@ class _MapTilesState extends State<MapTiles> {
     
     if (state.status == TmluStatus.hasTmlu && state.polylines != null && state.startCoord != null) {
       state.polylines.forEach((lineSegment) {
-        print("adding lines");
         lines.add(    
           Polyline(
             points: lineSegment,

@@ -57,8 +57,7 @@ class _MenuState extends State<Menu> {
   void onSelectionDone() { //send selected files to bloc for saving them locally
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected, context: context));
-    //load first selected file
-    if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
+    //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 
 

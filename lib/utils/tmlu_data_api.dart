@@ -37,7 +37,7 @@ class TmluData {
       final url = Uri.parse("https://raw.githubusercontent.com/" + file.fullName + "/master/" + file.path);
       //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
       //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/hatzutz/hatzutz.tmlu');
-      print(url);
+      //print(url);
       try {
         final request = await HttpClient().getUrl(url);
         final response = await request.close();
@@ -67,8 +67,6 @@ class TmluData {
         //filter out lines that were deselected in Ariane, then sort list for polylines
         segments = segments.where((segment) => !segment.exc).toList(); 
         segments.sort((a, b) => a.compareTo(b));
-        print("loaded segments");
-        print(segments.length);
         getStartCoordinates(); 
         addCoordinates();
         calculatePolylineCoord();
@@ -85,13 +83,11 @@ class TmluData {
         startCoord = segments[segIndex].latlng;
         startId = segIndex;
       } else throw ("error finding start segment in segments retrieved from storage");
-      print("start $startId ");
-      print(segments[segIndex]);
       //calculate polyline  //coordinates are already in list, no need to calculate again
       calculatePolylineCoord();
       // polylines[0].forEach((el) {print(el); });
     }
-    //add data to bloc
+    //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
     print("adding to bloc");
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
@@ -132,7 +128,6 @@ class TmluData {
     //get starting point coordinates
     XmlElement startSrvd = srvd.firstWhere((item) => item.getElement("FRID").text == "-1" ); //&& item.getElement("EXC") == "false" ??? TODO
     startId = int.parse(startSrvd.getElement("ID").text);
-    print("found start ID: $startId");
     double lat = double.parse(startSrvd.getElement("LT").text);
     double lon = double.parse(startSrvd.getElement("LGT").text);
     startCoord = LatLng(lat, lon);
@@ -171,8 +166,6 @@ class TmluData {
   void calculatePolylineCoord() {
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
-    print("sections");
-    print(sectionNames.length);
     if (segments == null || segments.length < 1) return polylines = null;
     //identify jumps and Ts to split into separate polylines
     sectionNames.forEach((name) { 
