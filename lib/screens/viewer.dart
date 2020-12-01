@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../blocs/tmlu_files_bloc.dart';
 import '../widgets/map_tiles.dart';
 import '../widgets/menu.dart';
+import '../blocs/tmlu_bloc.dart';
 
 
 class Viewer extends StatefulWidget {
@@ -22,6 +23,15 @@ class _ViewerState extends State<Viewer> {
      if (openMenu) stackList.add(Menu());
      return stackList;
   }
+
+  @override
+  void initState() { 
+    final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
+    //tmluFilesBloc.add(LoadFavorites());
+    super.initState();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {

@@ -15,9 +15,6 @@ import '../models/model_cave.dart';
 abstract class TmluEvent {}
 
 class LoadCave extends TmluEvent {
-  // final List<ModelSegment> segments;
-  // final List<List<LatLng>> polylines;
-  // final LatLng startCoord;
   final ModelCave cave;
   LoadCave({ this.cave });
 }
@@ -40,17 +37,11 @@ enum TmluStatus {
 
 class TmluState {
   final TmluStatus status;
-  // final List<ModelSegment> segments;
-  // final List<List<LatLng>> polylines;
-  // final LatLng startCoord;
   final ModelCave cave;
   final double zoom;
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
-    // this.segments,
-    // this.polylines,
-    // this.startCoord,
     this.cave,
     this.zoom,
     this.error,
@@ -58,18 +49,12 @@ class TmluState {
 
   TmluState copyWith({
     TmluStatus status,
-    // List<ModelSegment> segments,
-    // List<List<LatLng>> polylines,
-    // LatLng startCoord,
     ModelCave cave,
     double zoom,
     String error,
   }) {
     return TmluState(
       status: status ?? this.status,
-      // segments: segments ?? this.segments,
-      // polylines: polylines ?? this.polylines,
-      // startCoord: startCoord ?? this.startCoord,
       cave: cave ?? this.cave,
       zoom: zoom?? this.zoom,
       error: error ?? this.error,
@@ -88,29 +73,8 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   saveCave(ModelCave cave) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String json = jsonEncode(cave.toJson());
-    print(json);
     await prefs.setString(cave.path, json); 
   }
-
-  getSavedCaves(String path) async {
-    selectedCaves = [];
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = prefs.getStringList(path); 
-      if (jsonList != null) {
-        jsonList.forEach((cave) {
-          Map caveString = jsonDecode(cave);
-          selectedCaves.add(ModelCave.fromJson(caveString));
-        });
-      }
-      else selectedCaves = null;
-    } catch(err) { 
-      print("error fetching cave from storage: $err");
-      selectedCaves = null;
-    }
-  }
-
-
 
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
@@ -120,9 +84,6 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
       selectedCaves.add(event.cave);
       saveCave(event.cave);
       yield TmluState(
-        // segments: event.segments,
-        // polylines: event.polylines,
-        // startCoord: event.startCoord,
         status: TmluStatus.hasTmlu,
         cave: selectedCaves[0],   //TODO show more than one cave
         zoom: 14.0,

@@ -15,6 +15,8 @@ ModelCave _$ModelCaveFromJson(Map<String, dynamic> json) {
             e == null ? null : ModelSegment.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     startCoord: _latlngFromJson(json['startCoord'] as Map<String, double>),
+    polylines:
+        _polyFromJson(json['polylines'] as List<List<Map<String, double>>>),
   );
 }
 
@@ -22,5 +24,6 @@ Map<String, dynamic> _$ModelCaveToJson(ModelCave instance) => <String, dynamic>{
       'fullName': instance.fullName,
       'path': instance.path,
       'segments': instance.segments?.map((e) => e?.toJson())?.toList(),
+      'polylines': _polyToJson(instance.polylines),
       'startCoord': _latlngToJson(instance.startCoord),
     };
