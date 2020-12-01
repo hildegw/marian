@@ -8,7 +8,8 @@ import '../utils/responsive.dart';
 import './menu_search.dart';
 import './menu_cave_item.dart';
 import '../utils/tmlu_data_api.dart';
-
+import '../models/model_cave.dart';
+import '../blocs/tmlu_bloc.dart';
 
 class Menu extends StatefulWidget {
   @override
@@ -82,7 +83,17 @@ class _MenuState extends State<Menu> {
 
   void onSelectionDone() { //send selected files to bloc for saving them locally
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
-    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected, context: context));
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
+    //need to call api to save files from here, to be able to add to tmlu bloc with context
+    try {
+      Future.forEach(files, (file) async* {
+        ModelCave cave = await TmluData().loadFromGithub(file); 
+        tmluBloc.add(LoadCave(cave: cave));
+      });
+    } catch (err) { print("Error saving selected files in files bloc: $err");}
+        //load first selected file - TODO
+            //TmluData().loadFromGithub(files[0], context);
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 

@@ -38,7 +38,7 @@ class _ViewerState extends State<Viewer> {
             onPressed: () { 
               tmluFilesBloc.add(TmluSelectionDone(selectionDone: openMenu)); //not really needed
               //delay menu closing, so that menu comkponent can send off selected data to bloc
-              if (openMenu) Future.delayed(Duration(milliseconds: 100), () => setState(() => openMenu = false));
+              if (openMenu) Future.delayed(Duration(milliseconds: 500), () => setState(() => openMenu = false));
               else setState(() => openMenu = true);
             },
           ), 

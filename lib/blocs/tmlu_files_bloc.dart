@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/model_segment.dart';
 import '../models/model_git_search_response.dart';
-import '../utils/tmlu_data_api.dart';
+
 
 
 abstract class TmluFilesEvent {}
@@ -25,8 +25,7 @@ class TmluSelectionDone extends TmluFilesEvent {
 
 class TmluFilesSelected extends TmluFilesEvent {
   final List<ModelGitFile> filesSelected;
-  final BuildContext context;
-  TmluFilesSelected({this.filesSelected, this.context});
+  TmluFilesSelected({this.filesSelected});
 }
 
 class TmluFilesError extends TmluFilesEvent {
@@ -48,14 +47,12 @@ class TmluFilesState {
   final List<ModelGitFile> files;
   final bool selectionDone;
   final List<ModelGitFile> filesSelected;
-  final BuildContext context;
   final String error;
   TmluFilesState({
     this.status = TmluFilesStatus.loading,
     this.files,
     this.selectionDone,
     this.filesSelected,
-    this.context,
     this.error,
   });
 
@@ -79,14 +76,20 @@ class TmluFilesState {
 class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
   TmluFilesBloc() : super(TmluFilesState(status: TmluFilesStatus.loading));
 
-  void saveSelectedFiles(List<ModelGitFile> files, BuildContext context) {
-    try {
-      Future.forEach(files, (file) => TmluData().loadFromGithub(file, context) );
-    } catch (err) { print("Error saving selected files in files bloc: $err");}
-        //load first selected file - TODO
-            //TmluData().loadFromGithub(files[0], context);
+//called from menu directly, so that tmlu bloc can be accessed
+  // void saveSelectedFiles(List<ModelGitFile> files) {
+  //   try {
+  //     Future.forEach(files, (file) async* {
+  //       ModelCave cave = await TmluData().loadFromGithub(file); 
+  //   final tmluBloc = BlocProvider.of<TmluBloc>(context);
+  //   tmluBloc.add(LoadData(cave: cave));
 
-  }
+  //     });
+  //   } catch (err) { print("Error saving selected files in files bloc: $err");}
+  //       //load first selected file - TODO
+  //           //TmluData().loadFromGithub(files[0], context);
+
+  // }
 
 
   @override
@@ -114,7 +117,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
         print('tmlu files bloc event files were selected ${event.filesSelected} ');
         //save all selected files locally, then show first selected file
         if (event.filesSelected != null && event.filesSelected.length > 0) {
-          saveSelectedFiles(event.filesSelected, event.context);
+          //saveSelectedFiles(event.filesSelected);
           yield state.copyWith(
             filesSelected: event.filesSelected,
             status: TmluFilesStatus.filesSelected,

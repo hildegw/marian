@@ -3,7 +3,6 @@
 import 'package:latlong/latlong.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:json_serializable/json_serializable.dart';
 
 import './model_segment.dart';
 part 'model_cave.g.dart';
@@ -18,13 +17,14 @@ class ModelCave extends Equatable {
   final String fullName;
   final String path;
   final List<ModelSegment> segments;
-  //final List<List<LatLng>> polylines;
-  //@JsonKey(fromJson: LatLng.fromJson, toJson: jsonEncode)
+  @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
+  final List<List<LatLng>> polylines;
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
   final LatLng startCoord;
+  //@JsonKey(fromJson: LatLng.fromJson, toJson: jsonEncode)
    
   ModelCave({
-    this.fullName, this.path, this.segments, this.startCoord, //this.polylines
+    this.fullName, this.path, this.segments, this.startCoord, this.polylines
   });
 
   //to check if cave is equal, just check path > Equitable package

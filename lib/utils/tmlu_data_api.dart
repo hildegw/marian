@@ -32,7 +32,7 @@ class TmluData {
   ModelCave cave;
 
 
-  void loadFromGithub(ModelGitFile file, BuildContext context) async {
+  Future loadFromGithub(ModelGitFile file) async {
     await getSavedSegments(file.filename); //check if data is available in storage, if not, load from github
     if (segments == null || segments.length < 1) {
       segments = [];
@@ -90,10 +90,12 @@ class TmluData {
       // polylines[0].forEach((el) {print(el); });
     }
     //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
-    print("adding to bloc");
+    print("adding to tmlu bloc");
     cave = ModelCave(fullName: file.fullName, path: file.path, segments: segments, polylines: polylines, startCoord: startCoord);
-    final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    tmluBloc.add(LoadData(cave: cave));
+    return cave;
+    //need to add data from files bloc to tmlu bloc
+    // final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    // tmluBloc.add(LoadData(cave: cave));
     //tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
     //segments.forEach((element) => print(element));
   }

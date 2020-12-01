@@ -14,12 +14,12 @@ import '../models/model_cave.dart';
 
 abstract class TmluEvent {}
 
-class LoadData extends TmluEvent {
+class LoadCave extends TmluEvent {
   // final List<ModelSegment> segments;
   // final List<List<LatLng>> polylines;
   // final LatLng startCoord;
   final ModelCave cave;
-  LoadData({ this.cave });
+  LoadCave({ this.cave });
 }
 
 class Zooming extends TmluEvent {
@@ -85,14 +85,14 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   List<ModelCave> selectedCaves = [];
 
 
-  saveSegments(String path) async {
+  saveCave(ModelCave cave) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> jsonList = [];
-    selectedCaves.forEach((cave) => jsonList.add(jsonEncode(cave.toJson())) );
-    await prefs.setStringList(path, jsonList); //TODO seg Json parse instead to read data
+    String json = jsonEncode(cave.toJson());
+    print(json);
+    await prefs.setString(cave.path, json); 
   }
 
-  getSavedSegments(String path) async {
+  getSavedCaves(String path) async {
     selectedCaves = [];
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -115,9 +115,10 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
-    if (event is LoadData) {
+    if (event is LoadCave) {
       print('tmlu bloc has data ${event.cave} ');
       selectedCaves.add(event.cave);
+      saveCave(event.cave);
       yield TmluState(
         // segments: event.segments,
         // polylines: event.polylines,
