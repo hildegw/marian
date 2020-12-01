@@ -81,15 +81,17 @@ class _MenuState extends State<Menu> {
     print(filesSelected);
   }
 
-  void onSelectionDone() { //send selected files to bloc for saving them locally
+  void onSelectionDone() async { //send selected files to bloc for saving them locally
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
-    //need to call api to save files from here, to be able to add to tmlu bloc with context
+    print("onSelectionDone");
     try {
-      Future.forEach(files, (file) async* {
+      Future.forEach(filesSelected, (file) async {
+        print("future for each");
         ModelCave cave = await TmluData().loadFromGithub(file); 
         tmluBloc.add(LoadCave(cave: cave));
+        print("received data in menu for cave, added to tmlu bloc");
       });
     } catch (err) { print("Error saving selected files in files bloc: $err");}
         //load first selected file - TODO

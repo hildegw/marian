@@ -17,11 +17,10 @@ class ModelCave extends Equatable {
   final String fullName;
   final String path;
   final List<ModelSegment> segments;
-  @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
+  @JsonKey(fromJson: _polyFromJson, toJson: _polyToJson)
   final List<List<LatLng>> polylines;
-  @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
+  @JsonKey(fromJson: _latlngFromJson, toJson: _latlngToJson)
   final LatLng startCoord;
-  //@JsonKey(fromJson: LatLng.fromJson, toJson: jsonEncode)
    
   ModelCave({
     this.fullName, this.path, this.segments, this.startCoord, this.polylines
@@ -32,18 +31,45 @@ class ModelCave extends Equatable {
   List<Object> get props => [path];
   @override
   bool get stringify => true;
-  //toString() => 'Cave Model $path:: $fullName starts: $startCoord';
 
   factory ModelCave.fromJson(Map<String, dynamic> json) => _$ModelCaveFromJson(json);
   Map<String, dynamic> toJson() => _$ModelCaveToJson(this);
+
 
   // ModelCave.fromJson(Map<String, dynamic> json) : fullName = json["fullName"], path = json["path"], 
   //   segments = json["segments"], polylines = json["polylines"], startCoord = json["startCoord"];
 
 }
 
-T _dataFromJson<T, S, U>(Map<String, dynamic> input, [S other1, U other2]) =>
-    input['value'] as T;
+// T _dataFromJson<T, S, U>(Map<String, dynamic> input, [S other1, U other2]) =>
+//     input['value'] as T;
 
-Map<String, dynamic> _dataToJson<T, S, U>(T input, [S other1, U other2]) =>
-    {'value': input};
+// Map<String, dynamic> _dataToJson<T, S, U>(T input, [S other1, U other2]) =>
+//     {'value': input};
+
+LatLng _latlngFromJson(Map<String, double> json) => LatLng(json["latitude"], json["longitude"] ); 
+Map<String, double> _latlngToJson(LatLng latlng) => {"latitude": latlng.latitude, "longitude": latlng.longitude};
+
+List<LatLng> _listLatlngFromJson(List<Map<String, double>> jsonList) {
+  List<LatLng> latlngList = [];
+  jsonList.forEach((json) => latlngList.add(_latlngFromJson(json)));
+  return latlngList;
+}
+
+List<Map<String, double>> _listLatlngToJson(List<LatLng> latlngList) {
+  List<Map<String, double>> jsonList = [];
+  latlngList.forEach((latlng) => jsonList.add(_latlngToJson(latlng)));
+  return jsonList;
+}
+
+List<List<LatLng>> _polyFromJson(List<List<Map<String, double>>> jsonList) {
+  List<List<LatLng>> polys = [];
+  jsonList.forEach((json) => polys.add(_listLatlngFromJson(json)));
+  return polys;
+}
+
+List<List<Map<String, double>>> _polyToJson(List<List<LatLng>> polys){
+  List<List<Map<String, double>>> jsonList = [];
+  polys.forEach((poly) => jsonList.add(_listLatlngToJson(poly)));
+  return jsonList;
+}
