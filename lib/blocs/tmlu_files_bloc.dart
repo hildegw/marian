@@ -101,8 +101,9 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       List<String> jsonList = prefs.getStringList("cavePaths"); 
       if (jsonList != null) {
         jsonList.forEach((json) {
-          String oldPath = jsonDecode(json);
-          cavePaths.add(oldPath);
+          print("getSavedCavePaths $json ");
+          //String oldPath = jsonDecode(json);
+          cavePaths.add(json);
         });
       }
     } catch(err) { 
@@ -116,7 +117,8 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       final prefs = await SharedPreferences.getInstance();
       String json = prefs.getString(cavePaths[0]); //TODO more than 1 cave
       if (json != null) {
-        selectedCaves = jsonDecode(json);
+        print("getSavedCave $json ");
+        selectedCaves.add(ModelCave.fromJson(jsonDecode(json))); //TODO json decoder is not working!!!
         // jsonList.forEach((cave) {
         //   Map caveString = jsonDecode(cave);
         //   selectedCaves.add(ModelCave.fromJson(caveString));
