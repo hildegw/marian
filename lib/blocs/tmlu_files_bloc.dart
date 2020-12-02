@@ -19,8 +19,10 @@ class LoadData extends TmluFilesEvent {
   LoadData({ this.files });
 }
 
-class LoadLocalCaves extends TmluFilesEvent { 
-  LoadLocalCaves(); 
+
+class LoadLocalCaves extends TmluFilesEvent {
+  final bool selectionDone;
+  LoadLocalCaves({this.selectionDone});
 }
 
 class TmluSelectionDone extends TmluFilesEvent {
@@ -50,14 +52,16 @@ enum TmluFilesStatus {
 class TmluFilesState {
   final TmluFilesStatus status;
   final List<ModelGitFile> files;
-  final List<ModelCave> localCaves;
+  final List<ModelCave> selectedCaves;
+  final List<String> cavePaths;
   final bool selectionDone;
   final List<ModelGitFile> filesSelected;
   final String error;
   TmluFilesState({
     this.status = TmluFilesStatus.loading,
     this.files,
-    this.localCaves,
+    this.selectedCaves,
+    this.cavePaths,
     this.selectionDone,
     this.filesSelected,
     this.error,
@@ -66,7 +70,8 @@ class TmluFilesState {
   TmluFilesState copyWith({
     TmluFilesStatus status,
     List<ModelGitFile> files,
-    List<ModelCave> localCaves,
+    List<ModelCave> selectedCaves,
+    List<String> cavePaths,
     bool selectionDone,
     List<ModelGitFile> filesSelected,
     String error,
@@ -74,7 +79,8 @@ class TmluFilesState {
     return TmluFilesState(
       status: status ?? this.status,
       files: files ?? this.files,
-      localCaves: localCaves ?? this.localCaves,
+      selectedCaves: selectedCaves ?? this.selectedCaves,
+      cavePaths: cavePaths ?? this.cavePaths,
       selectionDone: selectionDone ?? this.selectionDone,
       filesSelected: filesSelected ?? this.filesSelected,
       error: error ?? this.error,
@@ -85,26 +91,44 @@ class TmluFilesState {
 class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
   TmluFilesBloc() : super(TmluFilesState(status: TmluFilesStatus.loading));
 
-  List<ModelCave> localCaves = [];
+  List<ModelCave> selectedCaves = [];
+  List<String> cavePaths = [];
 
-  getSavedCaves() async {
-    List<String> paths = []; //TODO save and load paths
-    localCaves = [];
-    try {
+
+  getSavedCavePaths() async {
+    try {     //get list of saved paths from storage
       final prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = prefs.getStringList(paths[0]); 
+      List<String> jsonList = prefs.getStringList("cavePaths"); 
       if (jsonList != null) {
-        jsonList.forEach((cave) {
-          Map caveString = jsonDecode(cave);
-          localCaves.add(ModelCave.fromJson(caveString));
+        jsonList.forEach((json) {
+          String oldPath = jsonDecode(json);
+          cavePaths.add(oldPath);
         });
       }
-      else localCaves = null;
     } catch(err) { 
-      print("error fetching cave from storage: $err");
-      localCaves = null;
+      print("tmlu files bloc: error fetching list of cave paths from storage: $err");
+      cavePaths = null;
     }
   }
+
+  getSavedCave() async {  //TODO need function to fetch selected caves only
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String json = prefs.getString(cavePaths[0]); //TODO more than 1 cave
+      if (json != null) {
+        selectedCaves = jsonDecode(json);
+        // jsonList.forEach((cave) {
+        //   Map caveString = jsonDecode(cave);
+        //   selectedCaves.add(ModelCave.fromJson(caveString));
+        // });
+      }
+      else selectedCaves = null;
+    } catch(err) { 
+      print("tmlu files bloc: error fetching cave from storage: $err");
+      selectedCaves = null;
+    }
+  }
+
 
   @override
   Stream<TmluFilesState> mapEventToState(TmluFilesEvent event) async* {
@@ -114,16 +138,19 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       yield TmluFilesState(
         files: event.files,
         status: TmluFilesStatus.hasTmluFiles,
-        localCaves: [],
+        selectedCaves: [],
+        cavePaths: [],
         error: null,
       );
     }
 
-    else if (event is LoadLocalCaves) {
-      print('tmlu bloc checking storage for caves} ');
-      getSavedCaves();
+    else if (event is LoadLocalCaves) { //called when app opens
+      print('tmlu files bloc checking storage for caves');
+      await getSavedCavePaths();
+      await getSavedCave(); //TODO here show all caves from last session, not just one
       yield state.copyWith(
-        localCaves: localCaves,   //TODO show more than one cave
+        selectedCaves: selectedCaves,   //TODO show more than one cave, set to caves from last session here
+        cavePaths: cavePaths,
       );
     }
 
@@ -145,6 +172,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
         yield state.copyWith(
           filesSelected: event.filesSelected,
           status: TmluFilesStatus.filesSelected,
+          //TODO should update selectedCaves list
         );
       } else {
         yield state.copyWith(

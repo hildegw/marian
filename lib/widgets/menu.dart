@@ -24,34 +24,34 @@ class _MenuState extends State<Menu> {
   List<Widget> githubList = [];
   List<Widget> localList = [];
   List<ModelGitFile> filesSelected = [];
+  List<String> paths = [];
 
 
-  void createLocalList() {
-    //reset list 
-    localList = [];
-    //fetch list of caves from local storage
-    //add list widgets to menu list 
-    fullNames.forEach((repo) {  //repo info / full name
-      List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-      githubList.add(MenuCaveItem(repo: repo));
-      githubList.add(          //list of caves per repo
-        ListView.builder(
-          physics: ClampingScrollPhysics(),
-          itemCount: repoFiles.length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return MenuCaveItem(
-              file: repoFiles[index], 
-              onSelected: (selected) => onSelected(selected, files[index]),
-            );
-          }
-        ),
-      );
-    });
-  }
+  // void createLocalList() {
+  //   //reset list 
+  //   localList = [];
+  //   //fetch list of caves from local storage
+  //   //add list widgets to menu list 
+  //   fullNames.forEach((repo) {  //repo info / full name
+  //     List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
+  //     githubList.add(MenuCaveItem(repo: repo));
+  //     githubList.add(          //list of caves per repo
+  //       ListView.builder(
+  //         physics: ClampingScrollPhysics(),
+  //         itemCount: repoFiles.length,
+  //         shrinkWrap: true,
+  //         itemBuilder: (context, index) {
+  //           return MenuCaveItem(
+  //             file: repoFiles[index], 
+  //             onSelected: (selected) => onSelected(selected, files[index]),
+  //           );
+  //         }
+  //       ),
+  //     );
+  //   });
+  // }
 
-
-  void createGithubList() {
+  void createGithubList() { //creates list of all available caves from search
     //reset list 
     githubList = [];
     //add list widgets to menu list 
@@ -74,14 +74,14 @@ class _MenuState extends State<Menu> {
     });
   }
 
-  void onSelected(bool selected, ModelGitFile file) {
+  void onSelected(bool selected, ModelGitFile file) { //just keeps track of files de/selected
     print("selected file in menu {$file.filename} : $selected");
     if (selected) filesSelected.add(file);
     else filesSelected.remove(file);
     print(filesSelected);
   }
 
-  void onSelectionDone() async { //send selected files to bloc for saving them locally
+  void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
@@ -90,7 +90,7 @@ class _MenuState extends State<Menu> {
       Future.forEach(filesSelected, (file) async {
         print("future for each");
         ModelCave cave = await TmluData().loadFromGithub(file); 
-        tmluBloc.add(LoadCave(cave: cave));
+        tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
         print("received data in menu for cave, added to tmlu bloc");
       });
     } catch (err) { print("Error saving selected files in files bloc: $err");}
@@ -98,7 +98,6 @@ class _MenuState extends State<Menu> {
             //TmluData().loadFromGithub(files[0], context);
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
-
 
 
   @override

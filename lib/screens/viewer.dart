@@ -27,7 +27,8 @@ class _ViewerState extends State<Viewer> {
   @override
   void initState() { 
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
-    //tmluFilesBloc.add(LoadFavorites());
+    tmluFilesBloc.add(LoadLocalCaves());
+    tmluFilesBloc.add(TmluFilesSelected(filesSelected: []));
     super.initState();
   }
 
@@ -38,6 +39,7 @@ class _ViewerState extends State<Viewer> {
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
+      print("viewer has cave paths: ${state.cavePaths} ");
 
       return Scaffold(
         appBar: AppBar(       //TODO set file name in header
