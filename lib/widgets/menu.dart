@@ -7,6 +7,7 @@ import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import './menu_search.dart';
 import './menu_cave_item.dart';
+import './menu_path_item.dart';
 import '../utils/tmlu_data_api.dart';
 import '../models/model_cave.dart';
 import '../blocs/tmlu_bloc.dart';
@@ -27,29 +28,25 @@ class _MenuState extends State<Menu> {
   List<String> paths = [];
 
 
-  // void createLocalList() {
-  //   //reset list 
-  //   localList = [];
-  //   //fetch list of caves from local storage
-  //   //add list widgets to menu list 
-  //   fullNames.forEach((repo) {  //repo info / full name
-  //     List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-  //     githubList.add(MenuCaveItem(repo: repo));
-  //     githubList.add(          //list of caves per repo
-  //       ListView.builder(
-  //         physics: ClampingScrollPhysics(),
-  //         itemCount: repoFiles.length,
-  //         shrinkWrap: true,
-  //         itemBuilder: (context, index) {
-  //           return MenuCaveItem(
-  //             file: repoFiles[index], 
-  //             onSelected: (selected) => onSelected(selected, files[index]),
-  //           );
-  //         }
-  //       ),
-  //     );
-  //   });
-  // }
+  void createLocalList(List<String> cavePaths) {
+    //resetn Widget list 
+    localList = [];
+    localList.add(MenuPathItem(title: "local files")); //header
+    //add list widgets to menu list 
+      localList.add(          //list of caves per repo
+        ListView.builder(
+          physics: ClampingScrollPhysics(),
+          itemCount: cavePaths.length,
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            return MenuPathItem(
+              path: cavePaths[index], 
+              onSelected: (selected) => onSelected(selected, files[index]),
+            );
+          }
+        ),
+      );
+  }
 
   void createGithubList() { //creates list of all available caves from search
     //reset list 
@@ -107,6 +104,7 @@ class _MenuState extends State<Menu> {
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
 
       print("menu state ${state.status } ");
+      print("menu state has cave paths: ${state.cavePaths} ");
 
       //once search result has loaded:
       if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
@@ -117,6 +115,9 @@ class _MenuState extends State<Menu> {
         });
         createGithubList();
       }
+
+      if (state.cavePaths != null && state.cavePaths.length > 0) 
+          createLocalList(state.cavePaths);
 
    //TODO move closing info into this component, so that onDone gets called before closing!
       //upon closing the list of caves
@@ -135,6 +136,7 @@ class _MenuState extends State<Menu> {
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: 
           [
+            ...localList,
             MenuSearch(),
             Divider(indent: 10, endIndent: 10, height: 5,),
             ...githubList

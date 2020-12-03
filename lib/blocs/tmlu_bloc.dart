@@ -81,18 +81,13 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
     List<String> cavePaths = [];
     try {     //get list of saved paths from storage
       final prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = prefs.getStringList("cavePaths"); 
-      if (jsonList != null) {
-        jsonList.forEach((json) {
-          String oldPath = jsonDecode(json);
-          cavePaths.add(oldPath);
-        });
-        //if new cave is't in existing list, add to list
-        if (!cavePaths.contains(newPath)) cavePaths.add(newPath);
-      }
-      else cavePaths.add(newPath);     
+      cavePaths = prefs.getStringList("cavePaths"); 
+      if (cavePaths != null && cavePaths.length > 0 && !cavePaths.contains(newPath))
+           cavePaths.add(newPath);
+      if (cavePaths == null || cavePaths.length == 0) cavePaths.add(newPath);     
       //save list of paths back to storage
       await prefs.setStringList("cavePaths", cavePaths);
+      print("tmlu bloc saveToListOfCavePaths paths final list $cavePaths");
     } catch(err) { 
       print("tmlu bloc: error updating list of cave paths in storage: $err");
       cavePaths = null;

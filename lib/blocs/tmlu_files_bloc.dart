@@ -101,8 +101,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       List<String> jsonList = prefs.getStringList("cavePaths"); 
       if (jsonList != null) {
         jsonList.forEach((json) {
-          print("getSavedCavePaths $json ");
-          //String oldPath = jsonDecode(json);
+          //print("tmlu files bloc getSavedCavePaths $json ");
           cavePaths.add(json);
         });
       }
@@ -118,7 +117,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       String json = prefs.getString(cavePaths[0]); //TODO more than 1 cave
       if (json != null) {
         print("getSavedCave $json ");
-        selectedCaves.add(ModelCave.fromJson(jsonDecode(json))); //TODO json decoder is not working!!!
+        selectedCaves.add(ModelCave.fromJson(jsonDecode(json))); 
         // jsonList.forEach((cave) {
         //   Map caveString = jsonDecode(cave);
         //   selectedCaves.add(ModelCave.fromJson(caveString));
@@ -147,7 +146,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
     }
 
     else if (event is LoadLocalCaves) { //called when app opens
-      print('tmlu files bloc checking storage for caves');
+      print('tmlu files bloc event LoadLocalCaves from storage');
       await getSavedCavePaths();
       await getSavedCave(); //TODO here show all caves from last session, not just one
       yield state.copyWith(
