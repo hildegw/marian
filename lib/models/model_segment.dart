@@ -33,11 +33,27 @@ class ModelSegment implements Comparable {
 //TODO segments.sort((a, b) => a.compareTo(b));
   @override
   int compareTo(other) {
-    if (this.frid == other.id) return 1; //this line comes after other line
-    else if (this.frid > this.id && this.id > other.id) return -1;
-    else if (this.frid < this.id && this.id > other.id) return 1;
-    //else if (this.frid > this.id && this.frid <= other.frid) return -1;
-    else return -1;
+    //if (this.id == other.frid) return -1; //this line comes before other line
+    if (this.frid < this.id && this.id > other.id) {
+      print("case 1 1  ${this.id}   ${other.id}" );
+      return 1;
+    }
+    else if (this.frid < this.id && this.id < other.id) {
+      print("case 2 -1  ${this.id}  ${other.id}");
+      return -1;
+    }
+    else if (this.frid > this.id && this.id > other.id) {
+      print("case 3 -1  ${this.id}  ${other.id}");
+      return -1;
+    }
+    else if (this.frid > this.id && this.id < other.id) {
+      print("case 4 1  ${this.id}  ${other.id}");
+      return 1;
+    }
+    else {
+      print("case else 1 ");
+      return 1;
+    }
   }
 
     // if (this.frid <= this.id && this.id <= other.id) return -1;

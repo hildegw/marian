@@ -127,12 +127,15 @@ class _MenuState extends State<Menu> {
       if (section != null && section.length > 0) section.forEach((sectionSeg) {
         if (sectionSeg.frid == -1) return prevSegs = null;
         prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
-        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { //add segment to poly-section 
-          if (seg.latlng != null) polyline.add(seg.latlng);
+        if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
+        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
+          if (prevseg.latlng != null) section.insert(0, prevseg); //add segment to section rather than polyline
+          //polyline.add(seg.latlng);
         });
       });
       // //sort section based on frid, if necessary > survey out with frid > id
-      // section.sort((a, b) => a.compareTo(b));
+      print(name);
+      section.sort((a, b) => a.compareTo(b));
 
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
@@ -154,7 +157,7 @@ class _MenuState extends State<Menu> {
       if (json != null) {
         ModelCave cave = ModelCave.fromJson(jsonDecode(json));
         print("menu: getSavedCave $cave} ");
-cave.segments.sort((a, b) => a.compareTo(b));
+//cave.segments.sort((a, b) => a.compareTo(b));
 cave.polylines = calculatePolylineCoord(cave.segments);
         tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
         // jsonList.forEach((cave) {
