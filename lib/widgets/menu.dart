@@ -2,8 +2,10 @@
 import "package:flutter/material.dart";
 import 'package:marian/models/model_git_search_response.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:marian/models/model_segment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:latlong/latlong.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
@@ -108,15 +110,53 @@ class _MenuState extends State<Menu> {
   }
 
 
+//just for testing
+  List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
+    List<List<LatLng>> polylines = [];
+    List<String> sectionNames = [];
+    //create list of section names to identify line sections for polylines
+    segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
+    if (segments == null || segments.length < 1) return polylines = null;
+    //identify jumps and Ts to split into separate polylines
+    sectionNames.forEach((name) { 
+      List<LatLng> polyline = [];
+      //create section list with all segments that have the same name
+      List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
+      //find previous segment with different name and add as first item to polyline
+      Iterable<ModelSegment> prevSegs = [];
+      if (section != null && section.length > 0) section.forEach((sectionSeg) {
+        if (sectionSeg.frid == -1) return prevSegs = null;
+        prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
+        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { //add segment to poly-section 
+          if (seg.latlng != null) polyline.add(seg.latlng);
+        });
+      });
+      // //sort section based on frid, if necessary > survey out with frid > id
+      // section.sort((a, b) => a.compareTo(b));
+
+      //add line section as polyline
+      section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
+      polylines.add(polyline);
+    });
+    print("polylines");
+    print(polylines.length);
+    return polylines;
+    //polylines.forEach((element) => print(element.toString()));
+  }
+
+
+
   //get selected local caves TODO more than one
   getSavedCave(TmluBloc tmluBloc) async {  
     try {
       final prefs = await SharedPreferences.getInstance();
       String json = prefs.getString(localFilesSelected[0]); //TODO more than 1 cave
       if (json != null) {
-        ModelCave test = ModelCave.fromJson(jsonDecode(json));
-        print("menu: getSavedCave $test} ");
-        tmluBloc.add(LoadCave(cave: test));  //saves each cave to local storage in bloc
+        ModelCave cave = ModelCave.fromJson(jsonDecode(json));
+        print("menu: getSavedCave $cave} ");
+cave.segments.sort((a, b) => a.compareTo(b));
+cave.polylines = calculatePolylineCoord(cave.segments);
+        tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
         // jsonList.forEach((cave) {
         //   Map caveString = jsonDecode(cave);
         //   selectedCaves.add(ModelCave.fromJson(caveString));

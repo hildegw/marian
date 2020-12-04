@@ -30,10 +30,12 @@ class ModelSegment implements Comparable {
     };
 
 
-//TODO
+//TODO segments.sort((a, b) => a.compareTo(b));
   @override
   int compareTo(other) {
-    if (this.frid == other.id) return 1;
+    if (this.frid == other.id) return 1; //this line comes after other line
+    else if (this.frid > this.id && this.id > other.id) return -1;
+    else if (this.frid < this.id && this.id > other.id) return 1;
     //else if (this.frid > this.id && this.frid <= other.frid) return -1;
     else return -1;
   }

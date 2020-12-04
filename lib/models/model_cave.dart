@@ -16,9 +16,9 @@ import './model_segment.dart';
 class ModelCave extends Equatable {
   final String fullName;
   final String path;
-  final List<ModelSegment> segments;
+  List<ModelSegment> segments;
   //@JsonKey(fromJson: _polyFromJson, toJson: _polyToJson)
-  final List<List<LatLng>> polylines;
+  List<List<LatLng>> polylines;
   //@JsonKey(fromJson: _latlngFromJson, toJson: _latlngToJson)
   final LatLng startCoord;
    
