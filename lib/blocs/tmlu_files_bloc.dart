@@ -31,8 +31,8 @@ class TmluSelectionDone extends TmluFilesEvent {
 }
 
 class TmluFilesSelected extends TmluFilesEvent {
-  final List<ModelGitFile> filesSelected;
-  TmluFilesSelected({this.filesSelected});
+  final List<ModelGitFile> gitFilesSelected;
+  TmluFilesSelected({this.gitFilesSelected});
 }
 
 class TmluFilesError extends TmluFilesEvent {
@@ -44,7 +44,7 @@ enum TmluFilesStatus {
   loading,
   hasTmluFiles,
   selectionDone,
-  filesSelected,
+  gitFilesSelected,
   noSelectedFiles,
   error
 }
@@ -55,7 +55,7 @@ class TmluFilesState {
   final List<ModelCave> selectedCaves;
   final List<String> cavePaths;
   final bool selectionDone;
-  final List<ModelGitFile> filesSelected;
+  final List<ModelGitFile> gitFilesSelected;
   final String error;
   TmluFilesState({
     this.status = TmluFilesStatus.loading,
@@ -63,7 +63,7 @@ class TmluFilesState {
     this.selectedCaves,
     this.cavePaths,
     this.selectionDone,
-    this.filesSelected,
+    this.gitFilesSelected,
     this.error,
   });
 
@@ -73,7 +73,7 @@ class TmluFilesState {
     List<ModelCave> selectedCaves,
     List<String> cavePaths,
     bool selectionDone,
-    List<ModelGitFile> filesSelected,
+    List<ModelGitFile> gitFilesSelected,
     String error,
   }) {
     return TmluFilesState(
@@ -82,7 +82,7 @@ class TmluFilesState {
       selectedCaves: selectedCaves ?? this.selectedCaves,
       cavePaths: cavePaths ?? this.cavePaths,
       selectionDone: selectionDone ?? this.selectionDone,
-      filesSelected: filesSelected ?? this.filesSelected,
+      gitFilesSelected: gitFilesSelected ?? this.gitFilesSelected,
       error: error ?? this.error,
     );
   }
@@ -166,18 +166,18 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
 
     //called when menu is closed, but menu component, once selectionDone is set
     else if (event is TmluFilesSelected) {
-      print('tmlu files bloc event files were selected ${event.filesSelected} ');
+      print('tmlu files bloc event files were selected ${event.gitFilesSelected} ');
       //save all selected files locally, then show first selected file
-      if (event.filesSelected != null && event.filesSelected.length > 0) {
+      if (event.gitFilesSelected != null && event.gitFilesSelected.length > 0) {
         //saveSelectedFiles(event.filesSelected);
         yield state.copyWith(
-          filesSelected: event.filesSelected,
-          status: TmluFilesStatus.filesSelected,
+          gitFilesSelected: event.gitFilesSelected,
+          status: TmluFilesStatus.gitFilesSelected,
           //TODO should update selectedCaves list
         );
       } else {
         yield state.copyWith(
-          filesSelected: null,
+          gitFilesSelected: null,
           status: TmluFilesStatus.noSelectedFiles,
         );
       }

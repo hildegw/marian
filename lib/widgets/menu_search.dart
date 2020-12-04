@@ -70,6 +70,7 @@ class _MenuSearchState extends State<MenuSearch> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+
                     SizedBox(
                       width: resp.wp(40),
                       child: TextFormField(

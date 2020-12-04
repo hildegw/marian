@@ -24,7 +24,8 @@ class _MenuState extends State<Menu> {
   // List<Widget> menuList = [];
   List<Widget> githubList = [];
   List<Widget> localList = [];
-  List<ModelGitFile> filesSelected = [];
+  List<ModelGitFile> gitFilesSelected = [];
+  List<String> localFilesSelected = [];
   List<String> paths = [];
 
 
@@ -33,19 +34,25 @@ class _MenuState extends State<Menu> {
     localList = [];
     localList.add(MenuPathItem(title: "local files")); //header
     //add list widgets to menu list 
-      localList.add(          //list of caves per repo
-        ListView.builder(
-          physics: ClampingScrollPhysics(),
-          itemCount: cavePaths.length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return MenuPathItem(
-              path: cavePaths[index], 
-              onSelected: (selected) => onSelected(selected, files[index]),
-            );
-          }
-        ),
-      );
+    localList.add(          //list of caves per repo
+      ListView.builder(
+        physics: ClampingScrollPhysics(),
+        itemCount: cavePaths.length,
+        shrinkWrap: true,
+        itemBuilder: (context, index) {
+          return MenuPathItem(
+            path: cavePaths[index], 
+            onSelected: (selected) => onLocalSelected(selected, cavePaths[index]),
+          );
+        }
+      ),
+    );
+  }
+
+  void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
+    if (selected) localFilesSelected.add(path);
+    else localFilesSelected.remove(path);
+    print(localFilesSelected);
   }
 
   void createGithubList() { //creates list of all available caves from search
@@ -63,7 +70,7 @@ class _MenuState extends State<Menu> {
           itemBuilder: (context, index) {
             return MenuCaveItem(
               file: repoFiles[index], 
-              onSelected: (selected) => onSelected(selected, files[index]),
+              onSelected: (selected) => onGitSelected(selected, files[index]),
             );
           }
         ),
@@ -71,20 +78,20 @@ class _MenuState extends State<Menu> {
     });
   }
 
-  void onSelected(bool selected, ModelGitFile file) { //just keeps track of files de/selected
+  void onGitSelected(bool selected, ModelGitFile file) { //just keeps track of files de/selected
     print("selected file in menu {$file.filename} : $selected");
-    if (selected) filesSelected.add(file);
-    else filesSelected.remove(file);
-    print(filesSelected);
+    if (selected) gitFilesSelected.add(file);
+    else gitFilesSelected.remove(file);
+    print(gitFilesSelected);
   }
 
   void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    tmluFilesBloc.add(TmluFilesSelected(filesSelected: filesSelected));
+    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected));
     print("onSelectionDone");
     try {
-      Future.forEach(filesSelected, (file) async {
+      Future.forEach(gitFilesSelected, (file) async {
         print("future for each");
         ModelCave cave = await TmluData().loadFromGithub(file); 
         tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
@@ -132,11 +139,16 @@ class _MenuState extends State<Menu> {
         //height: resp.hp(80), 
         width: resp.wp(100),
         child: ListView(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: 
           [
             ...localList,
+            Padding(
+              padding: EdgeInsets.only(left: 10.0, right:  15, top: 10, bottom: 5),
+              child: Container(  //repo name
+                child: Text(" search github", textAlign: TextAlign.left, style: Theme.of(context).textTheme.bodyText1), 
+              ),
+            ),
+            //Divider(indent: 10, endIndent: 10, height: 5,),
             MenuSearch(),
             Divider(indent: 10, endIndent: 10, height: 5,),
             ...githubList

@@ -28,7 +28,7 @@ class _ViewerState extends State<Viewer> {
   void initState() { 
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     tmluFilesBloc.add(LoadLocalCaves());  //fetch list of caves saved locally
-    tmluFilesBloc.add(TmluFilesSelected(filesSelected: []));
+    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: []));
     super.initState();
   }
 

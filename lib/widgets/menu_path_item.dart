@@ -59,7 +59,7 @@ class _MenuPathItemState extends State<MenuPathItem> {
         : Padding(
           padding: EdgeInsets.only(left: 10.0, right:  15, top: 5, bottom: 5),
           child: Container(  //repo name
-            child: Text( widget.title + " search results", style: Theme.of(context).textTheme.bodyText1), 
+            child: Text( widget.title , style: Theme.of(context).textTheme.bodyText1), 
           ),
         ),
         
