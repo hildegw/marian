@@ -26,13 +26,13 @@ class LoadLocalCaves extends TmluFilesEvent {
 }
 
 class TmluSelectionDone extends TmluFilesEvent {
-  final bool selectionDone;
-  TmluSelectionDone({this.selectionDone});
+  TmluSelectionDone();
 }
 
 class TmluFilesSelected extends TmluFilesEvent {
   final List<ModelGitFile> gitFilesSelected;
-  TmluFilesSelected({this.gitFilesSelected});
+  final List<String> localFilesSelected;
+  TmluFilesSelected({this.gitFilesSelected, this.localFilesSelected});
 }
 
 class TmluFilesError extends TmluFilesEvent {
@@ -45,44 +45,44 @@ enum TmluFilesStatus {
   hasTmluFiles,
   selectionDone,
   gitFilesSelected,
-  noSelectedFiles,
+  localFilesSelected,
   error
 }
 
 class TmluFilesState {
   final TmluFilesStatus status;
   final List<ModelGitFile> files;
-  final List<ModelCave> selectedCaves;
   final List<String> cavePaths;
   final bool selectionDone;
   final List<ModelGitFile> gitFilesSelected;
+  final List <String> localFilesSelected;
   final String error;
   TmluFilesState({
     this.status = TmluFilesStatus.loading,
     this.files,
-    this.selectedCaves,
     this.cavePaths,
     this.selectionDone,
     this.gitFilesSelected,
+    this.localFilesSelected,
     this.error,
   });
 
   TmluFilesState copyWith({
     TmluFilesStatus status,
     List<ModelGitFile> files,
-    List<ModelCave> selectedCaves,
     List<String> cavePaths,
     bool selectionDone,
     List<ModelGitFile> gitFilesSelected,
+    List<String> localFilesSelected,
     String error,
   }) {
     return TmluFilesState(
       status: status ?? this.status,
       files: files ?? this.files,
-      selectedCaves: selectedCaves ?? this.selectedCaves,
       cavePaths: cavePaths ?? this.cavePaths,
       selectionDone: selectionDone ?? this.selectionDone,
       gitFilesSelected: gitFilesSelected ?? this.gitFilesSelected,
+      localFilesSelected: localFilesSelected ?? this.localFilesSelected,
       error: error ?? this.error,
     );
   }
@@ -91,7 +91,6 @@ class TmluFilesState {
 class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
   TmluFilesBloc() : super(TmluFilesState(status: TmluFilesStatus.loading));
 
-  List<ModelCave> selectedCaves = [];
   List<String> cavePaths = [];
 
 
@@ -111,24 +110,6 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
     }
   }
 
-  getSavedCave() async {  //TODO need function to fetch selected caves only
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      String json = prefs.getString(cavePaths[0]); //TODO more than 1 cave
-      if (json != null) {
-        print("getSavedCave $json ");
-        selectedCaves.add(ModelCave.fromJson(jsonDecode(json))); 
-        // jsonList.forEach((cave) {
-        //   Map caveString = jsonDecode(cave);
-        //   selectedCaves.add(ModelCave.fromJson(caveString));
-        // });
-      }
-      else selectedCaves = null;
-    } catch(err) { 
-      print("tmlu files bloc: error fetching cave from storage: $err");
-      selectedCaves = null;
-    }
-  }
 
 
   @override
@@ -139,7 +120,6 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       yield TmluFilesState(
         files: event.files,
         status: TmluFilesStatus.hasTmluFiles,
-        selectedCaves: [],
         cavePaths: [],
         error: null,
       );
@@ -148,39 +128,29 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
     else if (event is LoadLocalCaves) { //called when app opens
       print('tmlu files bloc event LoadLocalCaves from storage');
       await getSavedCavePaths();
-      await getSavedCave(); //TODO here show all caves from last session, not just one
       yield state.copyWith(
-        selectedCaves: selectedCaves,   //TODO show more than one cave, set to caves from last session here
         cavePaths: cavePaths,
       );
     }
 
     //this event is not really necessary any more, called when menu is closed by viewer screen
     else if (event is TmluSelectionDone) { //called from main view when menu bar is clicked
-      print('tmlu files bloc event file selection is done ${event.selectionDone} ');
+      print('tmlu files bloc event file selection is done} ');
       yield state.copyWith(
-        selectionDone: event.selectionDone,
         status: TmluFilesStatus.selectionDone,
       );
     }
 
     //called when menu is closed, but menu component, once selectionDone is set
     else if (event is TmluFilesSelected) {
-      print('tmlu files bloc event files were selected ${event.gitFilesSelected} ');
-      //save all selected files locally, then show first selected file
-      if (event.gitFilesSelected != null && event.gitFilesSelected.length > 0) {
-        //saveSelectedFiles(event.filesSelected);
-        yield state.copyWith(
-          gitFilesSelected: event.gitFilesSelected,
-          status: TmluFilesStatus.gitFilesSelected,
-          //TODO should update selectedCaves list
-        );
-      } else {
-        yield state.copyWith(
-          gitFilesSelected: null,
-          status: TmluFilesStatus.noSelectedFiles,
-        );
-      }
+      print('tmlu files bloc event files were selected from git ${event.gitFilesSelected}, and locally ${event.localFilesSelected}');
+      //save all selected files locally, then show first selected file TODO ???
+      //saveSelectedFiles(event.filesSelected);
+      yield state.copyWith(
+        gitFilesSelected: event.gitFilesSelected,
+        localFilesSelected: event.localFilesSelected,
+        status: TmluFilesStatus.gitFilesSelected,
+      );
     }
 
     else if (event is TmluFilesError) {

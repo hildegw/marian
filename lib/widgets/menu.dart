@@ -2,6 +2,8 @@
 import "package:flutter/material.dart";
 import 'package:marian/models/model_git_search_response.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
@@ -24,9 +26,10 @@ class _MenuState extends State<Menu> {
   // List<Widget> menuList = [];
   List<Widget> githubList = [];
   List<Widget> localList = [];
+  List<String> paths = [];
   List<ModelGitFile> gitFilesSelected = [];
   List<String> localFilesSelected = [];
-  List<String> paths = [];
+  List<ModelCave> localCavesSelected = [];
 
 
   void createLocalList(List<String> cavePaths) {
@@ -88,7 +91,7 @@ class _MenuState extends State<Menu> {
   void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected));
+    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected, localFilesSelected: localFilesSelected));
     print("onSelectionDone");
     try {
       Future.forEach(gitFilesSelected, (file) async {
@@ -98,9 +101,32 @@ class _MenuState extends State<Menu> {
         print("received data in menu for cave, added to tmlu bloc");
       });
     } catch (err) { print("Error saving selected files in files bloc: $err");}
-        //load first selected file - TODO
+    //load first selected file - TODO load all selected
+    getSavedCaves(tmluBloc);
             //TmluData().loadFromGithub(files[0], context);
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
+  }
+
+
+  //get selected local caves TODO more than one
+  getSavedCaves(TmluBloc tmluBloc) async {  
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String json = prefs.getString(localFilesSelected[0]); //TODO more than 1 cave
+      if (json != null) {
+        print("menu: getSavedCave $json ");
+        localCavesSelected.add(ModelCave.fromJson(jsonDecode(json))); 
+        tmluBloc.add(LoadCave(cave: localCavesSelected[0]));  //saves each cave to local storage in bloc
+        // jsonList.forEach((cave) {
+        //   Map caveString = jsonDecode(cave);
+        //   selectedCaves.add(ModelCave.fromJson(caveString));
+        // });
+      }
+      else localCavesSelected = null;
+    } catch(err) { 
+      print("menu: error fetching cave from storage: $err");
+      localCavesSelected = null;
+    }
   }
 
 
@@ -126,9 +152,8 @@ class _MenuState extends State<Menu> {
       if (state.cavePaths != null && state.cavePaths.length > 0) 
           createLocalList(state.cavePaths);
 
-   //TODO move closing info into this component, so that onDone gets called before closing!
       //upon closing the list of caves
-      if (state.status == TmluFilesStatus.selectionDone){ //&& filesSelected != null && filesSelected.length > 0) {
+      if (state.status == TmluFilesStatus.selectionDone){ 
         print("menu selection is done");
         onSelectionDone();
       }

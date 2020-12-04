@@ -47,7 +47,7 @@ class _ViewerState extends State<Viewer> {
           leading: IconButton(
             icon: Icon(openMenu ? Icons.done_all : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
             onPressed: () { 
-              tmluFilesBloc.add(TmluSelectionDone(selectionDone: openMenu)); //not really needed
+              tmluFilesBloc.add(TmluSelectionDone()); //sets status to selectino done
               //delay menu closing, so that menu comkponent can send off selected data to bloc
               if (openMenu) Future.delayed(Duration(milliseconds: 500), () => setState(() => openMenu = false));
               else setState(() => openMenu = true);
