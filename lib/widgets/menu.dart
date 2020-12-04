@@ -102,21 +102,21 @@ class _MenuState extends State<Menu> {
       });
     } catch (err) { print("Error saving selected files in files bloc: $err");}
     //load first selected file - TODO load all selected
-    getSavedCaves(tmluBloc);
+    getSavedCave(tmluBloc);
             //TmluData().loadFromGithub(files[0], context);
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 
 
   //get selected local caves TODO more than one
-  getSavedCaves(TmluBloc tmluBloc) async {  
+  getSavedCave(TmluBloc tmluBloc) async {  
     try {
       final prefs = await SharedPreferences.getInstance();
       String json = prefs.getString(localFilesSelected[0]); //TODO more than 1 cave
       if (json != null) {
-        print("menu: getSavedCave $json ");
-        localCavesSelected.add(ModelCave.fromJson(jsonDecode(json))); 
-        tmluBloc.add(LoadCave(cave: localCavesSelected[0]));  //saves each cave to local storage in bloc
+        ModelCave test = ModelCave.fromJson(jsonDecode(json));
+        print("menu: getSavedCave $test} ");
+        tmluBloc.add(LoadCave(cave: test));  //saves each cave to local storage in bloc
         // jsonList.forEach((cave) {
         //   Map caveString = jsonDecode(cave);
         //   selectedCaves.add(ModelCave.fromJson(caveString));
