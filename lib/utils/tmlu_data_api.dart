@@ -66,12 +66,12 @@ class TmluData {
           });
         });
         else throw ("error parsing tmlu data stream");
-        //filter out lines that were deselected in Ariane, then sort list for polylines
+        //filter out lines that were deselected in Ariane
         segments = segments.where((segment) => !segment.exc).toList(); 
-        segments.sort((a, b) => a.compareTo(b));
+        //segments.sort((a, b) => a.compareTo(b)); >> sorting sections instead
         getStartCoordinates(); 
         addCoordinates();
-        calculatePolylineCoord();
+        calculatePolylineCoord(segments);
         saveSegments(file.filename);
       } catch (err) {
         print('error loading tmlu data in utils: $err');
@@ -86,7 +86,7 @@ class TmluData {
         startId = segIndex;
       } else throw ("error finding start segment in segments retrieved from storage");
       //calculate polyline  //coordinates are already in list, no need to calculate again
-      calculatePolylineCoord();
+      calculatePolylineCoord(segments);
       // polylines[0].forEach((el) {print(el); });
     }
     //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
@@ -169,7 +169,9 @@ class TmluData {
     }
   }
 
-  void calculatePolylineCoord() {
+  List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
+    List<List<LatLng>> polylines = [];
+    List<String> sectionNames = [];
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
     if (segments == null || segments.length < 1) return polylines = null;
@@ -178,26 +180,34 @@ class TmluData {
       List<LatLng> polyline = [];
       //create section list with all segments that have the same name
       List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
+      //sort section based on frid, see compare method in model segment
+      section.sort((a, b) => a.compareTo(b));
       //find previous segment with different name and add as first item to polyline
       Iterable<ModelSegment> prevSegs = [];
+      ModelSegment prevSegToAdd;
       if (section != null && section.length > 0) section.forEach((sectionSeg) {
         if (sectionSeg.frid == -1) return prevSegs = null;
         prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
-        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((seg) { //add segment to poly-section 
-          if (seg.latlng != null) polyline.add(seg.latlng);
+        //if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
+        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
+          if (prevseg.latlng != null) prevSegToAdd = prevseg; //add segment to section rather than polyline        
+          else prevSegToAdd = null; 
+               //polyline.add(prevseg.latlng);
         });
       });
-      // //sort section based on frid, if necessary > survey out with frid > id
-      // section.sort((a, b) => a.compareTo(b));
-
+      //add previous segment at start of section
+      if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
+      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
     });
     print("polylines");
     print(polylines.length);
+    return polylines;
     //polylines.forEach((element) => print(element.toString()));
   }
+
 
   saveSegments(String caveName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -32,28 +32,40 @@ class ModelSegment implements Comparable {
 
 //TODO segments.sort((a, b) => a.compareTo(b));
   @override
-  int compareTo(other) {
-    //if (this.id == other.frid) return -1; //this line comes before other line
-    if (this.frid < this.id && this.id > other.id) {
-      print("case 1 1  ${this.id}   ${other.id}" );
-      return 1;
-    }
-    else if (this.frid < this.id && this.id < other.id) {
-      print("case 2 -1  ${this.id}  ${other.id}");
-      return -1;
-    }
-    else if (this.frid > this.id && this.id > other.id) {
-      print("case 3 -1  ${this.id}  ${other.id}");
-      return -1;
-    }
-    else if (this.frid > this.id && this.id < other.id) {
-      print("case 4 1  ${this.id}  ${other.id}");
-      return 1;
-    }
-    else {
-      print("case else 1 ");
-      return 1;
-    }
+  int compareTo(other) {  //sort: -1 to come first, 1 to come after
+   if (this.sc == "Kaan Ha Tree at Right to Line Start") 
+      print("sorting this ${this.frid} - ${this.id} and other  ${other.frid} - ${other.id}  ");
+    
+    if (this.frid == other.id) return 1; //this line comes after other line
+    else if (other.frid == this.id) return -1; 
+    else if (other.frid == -1) return 1;
+    else if (this.frid == 1) return -1;
+    else if (this.frid < this.id && this.frid > other.id) return 1;
+    else if (this.frid < this.id && this.frid < other.id) return -1;
+    else if (this.frid > this.id && this.frid > other.id) return -1;
+    else if (this.frid > this.id && this.frid < other.id) return 1;
+    
+    else return -1;
+    // if (this.frid < this.id && this.id > other.id) {
+    //   //print("case 1 1  ${this.id}   ${other.id}" );
+    //   return 1;
+    // }
+    // else if (this.frid < this.id && this.id < other.id) {
+    //   //print("case 2 -1  ${this.id}  ${other.id}");
+    //   return -1;
+    // }
+    // else if (this.frid > this.id && this.id > other.id) {
+    //   //print("case 3 -1  ${this.id}  ${other.id}");
+    //   return -1;
+    // }
+    // else if (this.frid > this.id && this.id < other.id) {
+    //   //print("case 4 1  ${this.id}  ${other.id}");
+    //   return 1;
+    // }
+    // else {
+    //   //print("case else 1 ");
+    //   return 1;
+    // }
   }
 
     // if (this.frid <= this.id && this.id <= other.id) return -1;

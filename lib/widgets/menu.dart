@@ -122,28 +122,27 @@ class _MenuState extends State<Menu> {
       List<LatLng> polyline = [];
       //create section list with all segments that have the same name
       List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
+      //sort section based on frid, see compare method in model segment
+      section.sort((a, b) => a.compareTo(b));
       //find previous segment with different name and add as first item to polyline
       Iterable<ModelSegment> prevSegs = [];
       ModelSegment prevSegToAdd;
       if (section != null && section.length > 0) section.forEach((sectionSeg) {
         if (sectionSeg.frid == -1) return prevSegs = null;
         prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
-        if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
+        //if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
         if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
           if (prevseg.latlng != null) prevSegToAdd = prevseg; //add segment to section rather than polyline        
           else prevSegToAdd = null; 
                //polyline.add(prevseg.latlng);
         });
       });
+      //add previous segment at start of section
       if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
-      // //sort section based on frid, if necessary > survey out with frid > id
-      print(name);
-      section.sort((a, b) => a.compareTo(b));
-
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
-      section.forEach((seg) => print("section after sorting $seg"));
+      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
     });
     print("polylines");
     print(polylines.length);
