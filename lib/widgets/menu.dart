@@ -3,8 +3,6 @@ import "package:flutter/material.dart";
 import 'package:marian/models/model_git_search_response.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:marian/models/model_segment.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'package:latlong/latlong.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
@@ -15,6 +13,8 @@ import './menu_path_item.dart';
 import '../utils/tmlu_data_api.dart';
 import '../models/model_cave.dart';
 import '../blocs/tmlu_bloc.dart';
+import '../utils/local_storage.dart';
+
 
 class Menu extends StatefulWidget {
   @override
@@ -22,6 +22,7 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  final LocalStorage localStorage = LocalStorage();
   bool addLine = false;
   List<ModelGitFile> files = [];
   List<String> fullNames = [];
@@ -48,6 +49,7 @@ class _MenuState extends State<Menu> {
           return MenuPathItem(
             path: cavePaths[index], 
             onSelected: (selected) => onLocalSelected(selected, cavePaths[index]),
+            onDelete: (deleteItem) => onLocalDelete(deleteItem, cavePaths[index]),
           );
         }
       ),
@@ -57,6 +59,12 @@ class _MenuState extends State<Menu> {
   void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
     if (selected) localFilesSelected.add(path);
     else localFilesSelected.remove(path);
+    print(localFilesSelected);
+  }
+
+  void onLocalDelete(bool deleteItem, String path) { //just keeps track of files de/selected
+    if (deleteItem)localFilesSelected.remove(path);
+    //tODO delete in storage
     print(localFilesSelected);
   }
 
@@ -110,7 +118,7 @@ class _MenuState extends State<Menu> {
   }
 
 
-//just for testing
+//just for testing, otherwise runs when fetching data from github
   List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
     List<List<LatLng>> polylines = [];
     List<String> sectionNames = [];
@@ -142,7 +150,8 @@ class _MenuState extends State<Menu> {
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
-      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
+      print(name);
+      section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
     });
     print("polylines");
     print(polylines.length);
@@ -155,23 +164,14 @@ class _MenuState extends State<Menu> {
   //get selected local caves TODO more than one
   getSavedCave(TmluBloc tmluBloc) async {  
     try {
-      final prefs = await SharedPreferences.getInstance();
-      String json = prefs.getString(localFilesSelected[0]); //TODO more than 1 cave
-      if (json != null) {
-        ModelCave cave = ModelCave.fromJson(jsonDecode(json));
-        print("menu: getSavedCave $cave} ");
+      ModelCave cave = await localStorage.getSavedCave(localFilesSelected[0]);
 //cave.segments.sort((a, b) => a.compareTo(b));
-cave.polylines = calculatePolylineCoord(cave.segments);
-        tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
-        // jsonList.forEach((cave) {
-        //   Map caveString = jsonDecode(cave);
-        //   selectedCaves.add(ModelCave.fromJson(caveString));
-        // });
-      }
-      else localCavesSelected = null;
+cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
+      tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
+      localCavesSelected.add(cave); //TODO not sure what to do with this yet
     } catch(err) { 
       print("menu: error fetching cave from storage: $err");
-      localCavesSelected = null;
+      localCavesSelected = null; //TODO ???
     }
   }
 
@@ -216,7 +216,7 @@ cave.polylines = calculatePolylineCoord(cave.segments);
             Padding(
               padding: EdgeInsets.only(left: 10.0, right:  15, top: 10, bottom: 5),
               child: Container(  //repo name
-                child: Text(" search github", textAlign: TextAlign.left, style: Theme.of(context).textTheme.bodyText1), 
+                child: Text(" search github and save files locally", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyText1), 
               ),
             ),
             //Divider(indent: 10, endIndent: 10, height: 5,),

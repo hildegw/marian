@@ -12,7 +12,8 @@ class MenuPathItem extends StatefulWidget {
   final String path;
   final String title;
   final Function onSelected;
-  MenuPathItem({ this.path, this.title, this.onSelected });
+  final Function onDelete;
+  MenuPathItem({ this.path, this.title, this.onSelected, this.onDelete });
 
   @override
   _MenuPathItemState createState() => _MenuPathItemState();
@@ -20,6 +21,7 @@ class MenuPathItem extends StatefulWidget {
 
 class _MenuPathItemState extends State<MenuPathItem> {
   bool selected = false;
+  bool deleteItem = false;
 
 
   @override
@@ -40,12 +42,32 @@ class _MenuPathItemState extends State<MenuPathItem> {
                 child: FlatButton(
                   padding: EdgeInsets.all(0.0),
                   onPressed: () {
-                    setState(() => selected = !selected );
+                    setState(() { 
+                      selected = !selected;
+                      deleteItem = false;
+                    } );
                     widget.onSelected(selected);
                   },
                   child: Icon(
                     selected ? Icons.check_box : Icons.check_box_outline_blank, 
                     size: 20, color: Theme.of(context).dividerColor),
+                ),
+              ),
+              SizedBox(width: 3,),
+              Container(
+                width: 25,
+                child: FlatButton(
+                  padding: EdgeInsets.all(0.0),
+                  onPressed: () {
+                    setState(() { 
+                      selected = false;
+                      deleteItem = !deleteItem;
+                    } );
+                    widget.onDelete(deleteItem);
+                  },
+                  child: Icon(
+                    deleteItem ? Icons.delete_sharp : Icons.delete_outline, 
+                    size: 23, color: Theme.of(context).dividerColor),
                 ),
               ),
               SizedBox(width: 10,),

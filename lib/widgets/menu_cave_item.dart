@@ -7,6 +7,7 @@ import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import '../models/model_git_search_response.dart';
 
+//github path and cave info returned from search
 
 class MenuCaveItem extends StatefulWidget {
   final ModelGitFile file;
@@ -44,7 +45,7 @@ class _MenuCaveItemState extends State<MenuCaveItem> {
                     widget.onSelected(selected);
                   },
                   child: Icon(
-                    selected ? Icons.check_box : Icons.check_box_outline_blank, 
+                    selected ? Icons.save_alt_rounded : Icons.check_box_outline_blank, 
                     size: 20, color: Theme.of(context).dividerColor),
                 ),
               ),
