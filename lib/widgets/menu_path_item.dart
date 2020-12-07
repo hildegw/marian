@@ -1,11 +1,9 @@
 
 import "package:flutter/material.dart";
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:marian/models/model_git_search_response.dart';
 
-import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
-import '../models/model_git_search_response.dart';
+import '../blocs/tmlu_bloc.dart';
 
 
 class MenuPathItem extends StatefulWidget {
@@ -23,6 +21,12 @@ class _MenuPathItemState extends State<MenuPathItem> {
   bool selected = false;
   bool deleteItem = false;
 
+  @override
+  void initState() { 
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    selected = tmluBloc.state.cave.path == widget.path; //TODO for all selected caves
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

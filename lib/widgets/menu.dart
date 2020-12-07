@@ -58,6 +58,20 @@ class _MenuState extends State<Menu> {
     );
   }
 
+  // bool isPathSelected(String cavePath) { //>> calls state.cave from item instead
+  //   // bool isLocalSelected = localFilesSelected != null && localFilesSelected.length > 0 
+  //   //         && localFilesSelected.contains(cavePath);
+  //   // bool isGithubSelected = gitFilesSelected != null && gitFilesSelected.length > 0 
+  //   //         && gitFilesSelected.indexWhere((file) => file.path == cavePath) > 0;
+  //   // print("local $localFilesSelected");
+   
+  //   // print("local $isLocalSelected");
+  //   // print("github $isGithubSelected");
+
+  //   // return isLocalSelected || isGithubSelected;
+
+  // }
+
   void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
     if (selected) localFilesSelected.add(path);
     else if (localFilesSelected != null && localFilesSelected.length > 0) localFilesSelected.remove(path);
