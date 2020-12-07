@@ -104,22 +104,24 @@ class _MenuState extends State<Menu> {
   void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected, localFilesSelected: localFilesSelected));
     print("onSelectionDone");
     //delete local files
     print("menu: to delete $localFilesToDelete");
     if (localFilesToDelete != null && localFilesToDelete.length > 0) {
-      Future.forEach(localFilesToDelete, (path) => localStorage.deleteCave(path));
-      tmluFilesBloc.add(LoadLocalCaves());  //fetch list of caves saved locally
+      await Future.forEach(localFilesToDelete, (path) => localStorage.deleteCave(path));
     }
+    //save selected files to state
+    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected, localFilesSelected: localFilesSelected));
     //load files from github
     try {
       Future.forEach(gitFilesSelected, (file) async {
         ModelCave cave = await TmluData().loadFromGithub(file); 
-        tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc
+        tmluBloc.add(LoadCave(cave: cave));  //saves each cave to local storage in bloc, adds name to list of paths
         print("received data in menu for cave, added to tmlu bloc");
       });
     } catch (err) { print("Menu: Error saving selected files in files bloc: $err");}
+    //update state with list of caves saved locally
+    tmluFilesBloc.add(LoadLocalCaves());  
     //load first selected file - TODO load all selected
     if (localFilesSelected != null && localFilesSelected.length > 0) getSavedCave(tmluBloc);
             //TmluData().loadFromGithub(files[0], context);

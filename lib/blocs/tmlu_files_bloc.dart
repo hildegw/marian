@@ -109,7 +109,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       );
     }
 
-    else if (event is LoadLocalCaves) { //called when app opens
+    else if (event is LoadLocalCaves) { //called to update list of local cave paths
       print('tmlu files bloc event LoadLocalCaves from storage');
       cavePaths = await localStorage.getCavePaths();
       yield state.copyWith(
@@ -119,7 +119,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
 
     //this event is not really necessary any more, called when menu is closed by viewer screen
     else if (event is TmluSelectionDone) { //called from main view when menu bar is clicked
-      print('tmlu files bloc event file selection is done} ');
+      print('tmlu files bloc event file selection is done');
       yield state.copyWith(
         status: TmluFilesStatus.selectionDone,
       );
