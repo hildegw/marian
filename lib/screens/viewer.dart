@@ -38,11 +38,17 @@ class _ViewerState extends State<Viewer> {
   Widget build(BuildContext context) {
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
 
-    return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
+    return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
 
       return Scaffold(
         appBar: AppBar(       //TODO set file name in header
-          title: state.files != null && state.files.length > 0 ? Text(state.files[0].filename) : Text(widget.title,),
+          title: state.cave != null 
+              ? Text(state.cave.path, 
+                     style: Theme.of(context).textTheme.button, 
+                     overflow: TextOverflow.visible,
+                     softWrap: true,
+                ) 
+              : Text(widget.title,),
           centerTitle: true,
           leading: IconButton(
             icon: Icon(openMenu ? Icons.done_all : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),

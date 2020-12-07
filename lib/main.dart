@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
             create: (BuildContext context) => TmluFilesBloc(),  //TODO is just a dummy string
           ),
         ],
-        child: Viewer(title: 'Viewer')
+        child: Viewer(title: 'CaveL')
       ),
       debugShowCheckedModeBanner: false,
     );

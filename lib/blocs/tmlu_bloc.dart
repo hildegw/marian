@@ -17,7 +17,8 @@ abstract class TmluEvent {}
 
 class LoadCave extends TmluEvent {
   final ModelCave cave;
-  LoadCave({ this.cave });
+  final bool isLocal;
+  LoadCave({ this.cave, this.isLocal });
 }
 
 class Zooming extends TmluEvent {
@@ -69,15 +70,15 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   final String _myRepository;  //just in case TODO
 
   final LocalStorage localStorage = LocalStorage();
-  List<ModelCave> selectedCaves = [];
+  List<ModelCave> selectedCaves = []; //both caves selected from github, and from local list
 
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
   
-    if (event is LoadCave) {
+    if (event is LoadCave) { //is called both for github and local selected caves
       print('tmlu bloc has data ${event.cave} ');
-      selectedCaves.add(event.cave);
-      localStorage.saveCave(event.cave); //saves cave locally and adds path to list of names, if necessary
+      selectedCaves.insert(0, event.cave);  
+      if (!event.isLocal) localStorage.saveCave(event.cave); //saves cave locally and adds path to list of names, if necessary
       yield TmluState(
         status: TmluStatus.hasTmlu,
         cave: selectedCaves[0],   //TODO show more than one cave
