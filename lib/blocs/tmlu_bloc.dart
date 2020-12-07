@@ -10,6 +10,7 @@ import 'dart:io';
 import '../models/model_segment.dart';
 import '../models/model_cave.dart';
 //import '../utils/tmlu_data.dart';
+import '../utils/local_storage.dart';
 
 
 abstract class TmluEvent {}
@@ -67,32 +68,8 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
   TmluBloc(this._myRepository) : super(TmluState(status: TmluStatus.loading));
   final String _myRepository;  //just in case TODO
 
+  final LocalStorage localStorage = LocalStorage();
   List<ModelCave> selectedCaves = [];
-
-
-  saveCave(ModelCave cave) async { //save each cave that was fetched from github
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String json = jsonEncode(cave.toJson());
-    await prefs.setString(cave.path, json); 
-    saveToListOfCavePaths(cave.path);
-  }
-
-  void saveToListOfCavePaths(String newPath) async { //keep a list with paths of all local caves in storage
-    List<String> cavePaths = [];
-    try {     //get list of saved paths from storage
-      final prefs = await SharedPreferences.getInstance();
-      cavePaths = prefs.getStringList("cavePaths"); 
-      if (cavePaths != null && cavePaths.length > 0 && !cavePaths.contains(newPath))
-           cavePaths.add(newPath);
-      if (cavePaths == null || cavePaths.length == 0) cavePaths.add(newPath);     
-      //save list of paths back to storage
-      await prefs.setStringList("cavePaths", cavePaths);
-      print("tmlu bloc saveToListOfCavePaths paths final list $cavePaths");
-    } catch(err) { 
-      print("tmlu bloc: error updating list of cave paths in storage: $err");
-      cavePaths = null;
-    }
-  }
 
   @override
   Stream<TmluState> mapEventToState(TmluEvent event) async* {
@@ -100,7 +77,7 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
     if (event is LoadCave) {
       print('tmlu bloc has data ${event.cave} ');
       selectedCaves.add(event.cave);
-      saveCave(event.cave);
+      localStorage.saveCave(event.cave); //saves cave locally and adds path to list of names, if necessary
       yield TmluState(
         status: TmluStatus.hasTmlu,
         cave: selectedCaves[0],   //TODO show more than one cave

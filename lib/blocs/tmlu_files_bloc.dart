@@ -10,6 +10,7 @@ import 'dart:convert';
 import '../models/model_segment.dart';
 import '../models/model_git_search_response.dart';
 import '../models/model_cave.dart';
+import '../utils/local_storage.dart';
 
 
 abstract class TmluFilesEvent {}
@@ -91,25 +92,8 @@ class TmluFilesState {
 class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
   TmluFilesBloc() : super(TmluFilesState(status: TmluFilesStatus.loading));
 
+  final LocalStorage localStorage = LocalStorage();
   List<String> cavePaths = [];
-
-
-  getSavedCavePaths() async {
-    try {     //get list of saved paths from storage
-      final prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = prefs.getStringList("cavePaths"); 
-      if (jsonList != null) {
-        jsonList.forEach((json) {
-          //print("tmlu files bloc getSavedCavePaths $json ");
-          cavePaths.add(json);
-        });
-      }
-    } catch(err) { 
-      print("tmlu files bloc: error fetching list of cave paths from storage: $err");
-      cavePaths = null;
-    }
-  }
-
 
 
   @override
@@ -120,14 +104,14 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       yield TmluFilesState(
         files: event.files,
         status: TmluFilesStatus.hasTmluFiles,
-        cavePaths: [],
+        cavePaths: cavePaths,
         error: null,
       );
     }
 
     else if (event is LoadLocalCaves) { //called when app opens
       print('tmlu files bloc event LoadLocalCaves from storage');
-      await getSavedCavePaths();
+      cavePaths = await localStorage.getCavePaths();
       yield state.copyWith(
         cavePaths: cavePaths,
       );
