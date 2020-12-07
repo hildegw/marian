@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 
 import '../models/model_cave.dart';
+import '../models/model_segment.dart';
 
 
 class LocalStorage {
@@ -47,7 +48,7 @@ class LocalStorage {
     }
   }
 
-  deleteCave(String cavePath) async {  
+  void deleteCave(String cavePath) async {  
     try {
       final prefs = await SharedPreferences.getInstance();
       bool isDeleted = await prefs.remove(cavePath); 
@@ -93,6 +94,34 @@ class LocalStorage {
       return null;
     }
   }
+
+  void saveSegments(String caveName, List<ModelSegment> segments) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> jsonList = [];
+    segments.forEach((seg) => jsonList.add(jsonEncode(seg.toJson())) );
+    await prefs.setStringList(caveName, jsonList); //TODO seg Json parse instead to read data
+  }
+
+  Future<List<ModelSegment>> getSegments(String caveName) async {
+    List<ModelSegment> segments = [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      List<String> jsonList = prefs.getStringList(caveName); 
+      if (jsonList != null) {
+        jsonList.forEach((seg) {
+          Map segString = jsonDecode(seg);
+          segments.add(ModelSegment.fromJson(segString));
+        });
+        return segments;
+      }
+      else throw("local storage util error: no segments in local storage"); 
+    } catch(err) { 
+      print("error fetching cave from storage: $err");
+      segments = null;
+    }
+  }
+
+
 
 
 }

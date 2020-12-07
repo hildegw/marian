@@ -14,12 +14,11 @@ import '../models/model_segment.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_git_search_response.dart';
 import '../models/model_cave.dart';
+import '../utils/local_storage.dart';
 
 
 class TmluData {
-  //final client = HttpClient();
-
-  //String cave;
+  final LocalStorage localStorage = LocalStorage();
   XmlDocument tmlu;
   List<XmlElement> srvd = [];
   List<ModelSegment> segments = [];
@@ -33,7 +32,7 @@ class TmluData {
 
 
   Future loadFromGithub(ModelGitFile file) async {
-    await getSavedSegments(file.filename); //check if data is available in storage, if not, load from github
+    await localStorage.getSegments(file.filename); //check if data is available in storage, if not, load from github
     if (segments == null || segments.length < 1) {
       segments = [];
       final url = Uri.parse("https://raw.githubusercontent.com/" + file.fullName + "/master/" + file.path);
@@ -72,7 +71,7 @@ class TmluData {
         getStartCoordinates(); 
         addCoordinates();
         calculatePolylineCoord(segments);
-        saveSegments(file.filename);
+        localStorage.saveSegments(file.filename, segments);
       } catch (err) {
         print('error loading tmlu data in utils: $err');
       }
@@ -99,36 +98,6 @@ class TmluData {
     //tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
     //segments.forEach((element) => print(element));
   }
-
-
-  //loading tmlu from assets - old
-  // void loadTmlu(BuildContext context) async {
-  //   try {
-  //     cave = await rootBundle.loadString('assets/tmlu/hatzutz.xml');
-  //     tmlu = XmlDocument.parse(cave);
-  //     srvd = tmlu.findAllElements(("SRVD")).toList();
-  //     srvd.forEach((item) {
-  //       bool exc = item.getElement("EXC").text == "true"; 
-  //       double az = double.parse(item.getElement("AZ").text);
-  //       double dp = double.parse(item.getElement("DP").text);
-  //       double lg = double.parse(item.getElement("LG").text);
-  //       int id = int.parse(item.getElement("ID").text);
-  //       int frid = int.parse(item.getElement("FRID").text);
-  //       String sc = item.getElement("SC").text;  //section names
-  //       segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc, exc: exc));
-  //     });
-  //     getStartCoordinates();
-  //     addCoordinates();
-  //     calculatePolylineCoord();
-  //     //segments.forEach((element) => print(element.toString()));
-  //     //add data to bloc
-  //     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-  //     //if (segments == null || segments.length < 1 || polylines == null) return;
-  //     tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
-  //   } catch (err) {
-  //     print('error loading tmlu data in utils: $err');
-  //   }
-  // }
 
   void getStartCoordinates() {
     //get starting point coordinates
@@ -209,30 +178,30 @@ class TmluData {
   }
 
 
-  saveSegments(String caveName) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> jsonList = [];
-    segments.forEach((seg) => jsonList.add(jsonEncode(seg.toJson())) );
-    await prefs.setStringList(caveName, jsonList); //TODO seg Json parse instead to read data
-  }
+  // saveSegments(String caveName) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> jsonList = [];
+  //   segments.forEach((seg) => jsonList.add(jsonEncode(seg.toJson())) );
+  //   await prefs.setStringList(caveName, jsonList); //TODO seg Json parse instead to read data
+  // }
 
-  getSavedSegments(String caveName) async {
-    segments = [];
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      List<String> jsonList = prefs.getStringList(caveName); 
-      if (jsonList != null) {
-        jsonList.forEach((seg) {
-          Map segString = jsonDecode(seg);
-          segments.add(ModelSegment.fromJson(segString));
-        });
-      }
-      else segments = null;
-    } catch(err) { 
-      print("error fetching cave from storage: $err");
-      segments = null;
-    }
-  }
+  // getSavedSegments(String caveName) async {
+  //   segments = [];
+  //   try {
+  //     final prefs = await SharedPreferences.getInstance();
+  //     List<String> jsonList = prefs.getStringList(caveName); 
+  //     if (jsonList != null) {
+  //       jsonList.forEach((seg) {
+  //         Map segString = jsonDecode(seg);
+  //         segments.add(ModelSegment.fromJson(segString));
+  //       });
+  //     }
+  //     else segments = null;
+  //   } catch(err) { 
+  //     print("error fetching cave from storage: $err");
+  //     segments = null;
+  //   }
+  // }
 
 
 } //class
