@@ -84,8 +84,9 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     //update state with list of caves saved locally
     tmluFilesBloc.add(LoadLocalCaves());  
     //load first selected file - TODO load all selected
-    if (localFilesSelected != null && localFilesSelected.length > 0) 
-        getSavedCaves(tmluBloc);
+    if (localFilesSelected != null && localFilesSelected.length > 0) {
+      getSavedCaves(tmluBloc);
+    }
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 
@@ -132,18 +133,18 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   }
 
   //get selected local caves
-  getSavedCaves(TmluBloc tmluBloc) async* {  
-    Future.forEach(localFilesSelected, (cave) async {
-      try {
-        ModelCave cave = await localStorage.getCave(localFilesSelected[0]);
-  //cave.segments.sort((a, b) => a.compareTo(b));
-  cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
-       localCavesSelected.add(cave); 
-      } catch(err) { 
-        print("menu: error fetching cave from storage: $err");
-        localCavesSelected = null; //TODO ???
-      }
-    });
+  getSavedCaves(TmluBloc tmluBloc) async {  
+    try {
+      Future.forEach(localFilesSelected, (path) async {
+        ModelCave cave = await localStorage.getCave(path);
+    //cave.segments.sort((a, b) => a.compareTo(b));
+    cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
+        localCavesSelected.add(cave); 
+      });
+    } catch(err) { 
+      print("menu: error fetching cave from storage: $err");
+      localCavesSelected = null; //TODO ???
+    }
     tmluBloc.add(LocalCavesSelected(localSelectedCaves: localCavesSelected));  //saves all selected caves fetched from storage to state
   }
 
@@ -154,15 +155,11 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
 
-      print("menu state ${state.status } ");
-      print("menu state has cave paths: ${state.cavePaths} ");
-
       if (state.cavePaths != null && state.cavePaths.length > 0) 
           createLocalList(state.cavePaths);
 
       //upon closing the list of caves
       if (state.status == TmluFilesStatus.localFileSelectionDone){ 
-        print("filter local files selection is done");
         onSelectionDone();
       }
 
