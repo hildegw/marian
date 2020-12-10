@@ -26,8 +26,12 @@ class LoadLocalCaves extends TmluFilesEvent {
   LoadLocalCaves({this.selectionDone});
 }
 
-class TmluSelectionDone extends TmluFilesEvent {
-  TmluSelectionDone();
+class TmluLocalCaveSelectionDone extends TmluFilesEvent {
+  TmluLocalCaveSelectionDone();
+}
+
+class TmluGithubSearchSelectionDone extends TmluFilesEvent {
+  TmluGithubSearchSelectionDone();
 }
 
 class TmluFilesSelected extends TmluFilesEvent {
@@ -44,7 +48,8 @@ class TmluFilesError extends TmluFilesEvent {
 enum TmluFilesStatus {
   loading,
   hasTmluFiles,
-  selectionDone,
+  localFileSelectionDone,
+  githubSearchSelectionDone,
   gitFilesSelected,
   localFilesSelected,
   error
@@ -72,7 +77,7 @@ class TmluFilesState {
     TmluFilesStatus status,
     List<ModelGitFile> files,
     List<String> cavePaths,
-    bool selectionDone,
+    bool selectionDone,  //currently not in use, status is used instead
     List<ModelGitFile> gitFilesSelected,
     List<String> localFilesSelected,
     String error,
@@ -117,11 +122,19 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       );
     }
 
-    //this event is not really necessary any more, called when menu is closed by viewer screen
-    else if (event is TmluSelectionDone) { //called from main view when menu bar is clicked
-      print('tmlu files bloc event file selection is done');
+    //event triggered by app bar when filter or search are closed, triggers filter/search component "on-done"
+    else if (event is TmluGithubSearchSelectionDone) { //called from main view when menu bar is clicked
+      print('tmlu files bloc event github selection is done');
       yield state.copyWith(
-        status: TmluFilesStatus.selectionDone,
+        status: TmluFilesStatus.githubSearchSelectionDone,
+      );
+    }
+
+     //event triggered by app bar when filter or search are closed, triggers filter/search component "on-done"
+    else if (event is TmluLocalCaveSelectionDone) { //called from main view when menu bar is clicked
+      print('tmlu files bloc event local file selection is done');
+      yield state.copyWith(
+        status: TmluFilesStatus.localFileSelectionDone,
       );
     }
 

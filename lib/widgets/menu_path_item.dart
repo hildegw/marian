@@ -24,7 +24,7 @@ class _MenuPathItemState extends State<MenuPathItem> {
   @override
   void initState() { 
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    selected = tmluBloc.state.cave.path == widget.path; //TODO for all selected caves
+    selected = tmluBloc.state.cave != null && tmluBloc.state.cave.path != null ? tmluBloc.state.cave.path == widget.path : false; //TODO for all selected caves
     super.initState();
   }
 

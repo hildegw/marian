@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
 import '../widgets/map_tiles.dart';
-import '../widgets/menu.dart';
+import '../widgets/filter_local_caves.dart';
+import '../widgets/github_search.dart';
 import '../blocs/tmlu_bloc.dart';
 
 
@@ -16,11 +17,13 @@ class Viewer extends StatefulWidget {
 
 class _ViewerState extends State<Viewer> {
 
-  bool openMenu = false;
+  bool openFilter = false;
+  bool openSearch = false;
 
   List <Widget> stackWidgets() {
      List <Widget>  stackList = [MapTiles()];
-     if (openMenu) stackList.add(Menu());
+     if (openFilter) stackList.add(FilterLocalCaves());
+     if (openSearch) stackList.add(GithubSearch());
      return stackList;
   }
 
@@ -41,27 +44,48 @@ class _ViewerState extends State<Viewer> {
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
 
       return Scaffold(
-        appBar: AppBar(       //TODO set file name in header
+        backgroundColor: Theme.of(context).primaryColorDark,
+        appBar: AppBar( 
+          titleSpacing: 0.0,
+          toolbarHeight: 40,
           title: state.cave != null 
               ? Text(state.cave.path, 
-                     style: Theme.of(context).textTheme.button, 
+                     style: Theme.of(context).textTheme.button.copyWith(fontSize: 12.0), 
                      overflow: TextOverflow.visible,
                      softWrap: true,
                 ) 
               : Text(widget.title,),
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(openMenu ? Icons.done_all : Icons.menu, size: 20, color: Theme.of(context).primaryColorDark,),
+            padding: EdgeInsets.all(0.0),
+            icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 25, color: Theme.of(context).primaryColorDark,),
             onPressed: () { 
               tmluFilesBloc.add(TmluSelectionDone()); //sets status to selectino done
-              //delay menu closing, so that menu comkponent can send off selected data to bloc
-              if (openMenu) Future.delayed(Duration(milliseconds: 500), () => setState(() => openMenu = false));
-              else setState(() => openMenu = true);
+              //delay menu closing, so that menu component can send off selected data to bloc
+              if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
+                else setState(() { openSearch = false; openFilter = true; });
             },
           ), 
+
+          actions: <Widget>[
+            IconButton(
+              padding: EdgeInsets.all(0.0),
+              icon: Icon(openSearch ? Icons.done_all : Icons.search, size: 25, color: Theme.of(context).primaryColorDark,),
+              onPressed: () { 
+                tmluFilesBloc.add(TmluSelectionDone()); //sets status to selectino done
+                if (openSearch) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSearch = false));
+                else setState(() { openSearch = true; openFilter = false; });
+              },
+            ), 
+
+          ],
+
+
         ),
-        body: Stack(
-          children: stackWidgets(),
+        body: SafeArea(
+                  child: Stack(
+            children: stackWidgets(),
+          ),
         )
         
       );

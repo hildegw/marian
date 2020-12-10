@@ -7,21 +7,21 @@ import 'package:latlong/latlong.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
-import './menu_search.dart';
-import './menu_cave_item.dart';
-import './menu_path_item.dart';
+import 'menu_search.dart';
+import 'menu_cave_item.dart';
+import 'menu_path_item.dart';
 import '../utils/tmlu_data_api.dart';
 import '../models/model_cave.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../utils/local_storage.dart';
 
 
-class Menu extends StatefulWidget {
+class FilterLocalCaves extends StatefulWidget {
   @override
-  _MenuState createState() => _MenuState();
+  _FilterLocalCavesState createState() => _FilterLocalCavesState();
 }
 
-class _MenuState extends State<Menu> {
+class _FilterLocalCavesState extends State<FilterLocalCaves> {
   final LocalStorage localStorage = LocalStorage();
   bool addLine = false;
   List<ModelGitFile> files = [];
@@ -58,19 +58,6 @@ class _MenuState extends State<Menu> {
     );
   }
 
-  // bool isPathSelected(String cavePath) { //>> calls state.cave from item instead
-  //   // bool isLocalSelected = localFilesSelected != null && localFilesSelected.length > 0 
-  //   //         && localFilesSelected.contains(cavePath);
-  //   // bool isGithubSelected = gitFilesSelected != null && gitFilesSelected.length > 0 
-  //   //         && gitFilesSelected.indexWhere((file) => file.path == cavePath) > 0;
-  //   // print("local $localFilesSelected");
-   
-  //   // print("local $isLocalSelected");
-  //   // print("github $isGithubSelected");
-
-  //   // return isLocalSelected || isGithubSelected;
-
-  // }
 
   void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
     if (selected) localFilesSelected.add(path);
@@ -228,7 +215,7 @@ cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
           createLocalList(state.cavePaths);
 
       //upon closing the list of caves
-      if (state.status == TmluFilesStatus.selectionDone){ 
+      if (state.status == TmluFilesStatus.localFileSelectionDone){ 
         print("menu selection is done");
         onSelectionDone();
       }
