@@ -24,10 +24,7 @@ class FilterLocalCaves extends StatefulWidget {
 class _FilterLocalCavesState extends State<FilterLocalCaves> {
   final LocalStorage localStorage = LocalStorage();
   bool addLine = false;
-  List<ModelGitFile> files = [];
   List<String> fullNames = [];
-  // List<Widget> menuList = [];
-  List<Widget> githubList = [];
   List<Widget> localList = [];
   List<String> paths = [];
   List<ModelGitFile> gitFilesSelected = [];
@@ -40,7 +37,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   void createLocalList(List<String> cavePaths) {
     //resetn Widget list 
     localList = [];
-    localList.add(MenuPathItem(title: "local files")); //header
+    //localList.add(MenuPathItem(title: "local files")); //header
     //add list widgets to menu list 
     localList.add(          //list of caves per repo
       ListView.builder(
@@ -73,50 +70,17 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     print("menu: deleted file $path");
   }
 
-  void createGithubList() { //creates list of all available caves from search
-    //reset list 
-    githubList = [];
-    //add list widgets to menu list 
-    fullNames.forEach((repo) {  //repo info / full name
-      List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-      githubList.add(MenuCaveItem(repo: repo));
-      githubList.add(          //list of caves per repo
-        ListView.builder(
-          physics: ClampingScrollPhysics(),
-          itemCount: repoFiles.length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return MenuCaveItem(
-              file: repoFiles[index], 
-              onSelected: (selected) => onGitSelected(selected, files[index]),
-            );
-          }
-        ),
-      );
-    });
-  }
-
-  void onGitSelected(bool selected, ModelGitFile file) { //just keeps track of files de/selected
-    print("selected file in menu {$file.filename} : $selected");
-    if (selected) gitFilesSelected.add(file);
-    else gitFilesSelected.remove(file);
-    print(gitFilesSelected);
-  }
-
   void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    print("onSelectionDone");
+    print("filter local files onSelectionDone");
     //delete local files
-    print("menu: to delete $localFilesToDelete");
+    print("filter local files: to delete $localFilesToDelete");
     if (localFilesToDelete != null && localFilesToDelete.length > 0) {
       await Future.forEach(localFilesToDelete, (path) => localStorage.deleteCave(path));
     }
     //save selected files to state
-    tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected, localFilesSelected: localFilesSelected));
-    //load files from github
-    if (gitFilesSelected != null && gitFilesSelected.length > 0) 
-        loadCavesFromGithub(tmluBloc);
+    tmluFilesBloc.add(TmluFilesSelected(localFilesSelected: localFilesSelected));
     //update state with list of caves saved locally
     tmluFilesBloc.add(LoadLocalCaves());  
     //load first selected file - TODO load all selected
@@ -201,22 +165,12 @@ cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
       print("menu state ${state.status } ");
       print("menu state has cave paths: ${state.cavePaths} ");
 
-      //once search result has loaded:
-      if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {
-        //get file data for menu list
-        files = state.files;
-        files.forEach((file) { 
-          if (!fullNames.contains(file.fullName)) fullNames.add(file.fullName);
-        });
-        createGithubList();
-      }
-
       if (state.cavePaths != null && state.cavePaths.length > 0) 
           createLocalList(state.cavePaths);
 
       //upon closing the list of caves
       if (state.status == TmluFilesStatus.localFileSelectionDone){ 
-        print("menu selection is done");
+        print("filter local files selection is done");
         onSelectionDone();
       }
 
@@ -229,16 +183,7 @@ cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
           children: 
           [
             ...localList,
-            Padding(
-              padding: EdgeInsets.only(left: 10.0, right:  15, top: 10, bottom: 5),
-              child: Container(  //repo name
-                child: Text(" search github and save files locally", textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyText1), 
-              ),
-            ),
-            //Divider(indent: 10, endIndent: 10, height: 5,),
-            MenuSearch(),
             Divider(indent: 10, endIndent: 10, height: 5,),
-            ...githubList
           ]
         ),
       );

@@ -48,19 +48,31 @@ class _ViewerState extends State<Viewer> {
         appBar: AppBar( 
           titleSpacing: 0.0,
           toolbarHeight: 40,
-          title: state.cave != null 
-              ? Text(state.cave.path, 
-                     style: Theme.of(context).textTheme.button.copyWith(fontSize: 12.0), 
-                     overflow: TextOverflow.visible,
-                     softWrap: true,
-                ) 
-              : Text(widget.title,),
           centerTitle: true,
+          title: 
+            //show filter or github search texts
+            openSearch
+            ? Text("search github", 
+                style: Theme.of(context).textTheme.button, 
+              ) 
+            : openFilter
+            ? Text("select saved caves", 
+                style: Theme.of(context).textTheme.button, 
+              ) 
+              
+             //show either title or cave name when menues are closed 
+            : state.cave != null 
+            ? Text(state.cave.path, 
+                  style: Theme.of(context).textTheme.button.copyWith(fontSize: 12.0), 
+                  overflow: TextOverflow.visible,
+                  softWrap: true,
+                ) 
+            : Text(widget.title,),
           leading: IconButton(
             padding: EdgeInsets.all(0.0),
             icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 25, color: Theme.of(context).primaryColorDark,),
             onPressed: () { 
-              tmluFilesBloc.add(TmluSelectionDone()); //sets status to selectino done
+              tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
               //delay menu closing, so that menu component can send off selected data to bloc
               if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
                 else setState(() { openSearch = false; openFilter = true; });
@@ -72,7 +84,7 @@ class _ViewerState extends State<Viewer> {
               padding: EdgeInsets.all(0.0),
               icon: Icon(openSearch ? Icons.done_all : Icons.search, size: 25, color: Theme.of(context).primaryColorDark,),
               onPressed: () { 
-                tmluFilesBloc.add(TmluSelectionDone()); //sets status to selectino done
+                tmluFilesBloc.add(TmluGithubSearchSelectionDone()); //sets status to selectino done
                 if (openSearch) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSearch = false));
                 else setState(() { openSearch = true; openFilter = false; });
               },
