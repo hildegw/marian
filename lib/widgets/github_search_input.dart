@@ -4,30 +4,41 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../utils/responsive.dart';
 import '../utils/validations.dart';
+import '../utils/local_storage.dart';
 import '../utils/git_search_api.dart';
 import '../blocs/tmlu_files_bloc.dart';
 
 
-class MenuSearch extends StatefulWidget {
+class GithubSearchInput extends StatefulWidget {
   @override
-  _MenuSearchState createState() => _MenuSearchState();
+  _GithubSearchInputState createState() => _GithubSearchInputState();
 }
 
-class _MenuSearchState extends State<MenuSearch> {
-  bool addLine = false;
+class _GithubSearchInputState extends State<GithubSearchInput> {
+  final localStorage = LocalStorage();
+  final validate = FormValidations();
+  final searchFormKey = GlobalKey<FormState>();
   final userC = TextEditingController();
   final searchC = TextEditingController();
   bool showSpinner = false;
-  final validate = FormValidations();
-  final searchFormKey = GlobalKey<FormState>();
+  bool addLine = false;
   FocusNode addSearchFn;
+  String gitUser;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async { await getGitUser();});
     addSearchFn = FocusNode(); //focus for text input fields
-    userC.text = "arosl";
+    print("gitUser init github search input $gitUser");
+    //userC.text = gitUser; 
     super.initState();
   }
+
+  Future<void> getGitUser() async {
+    String localGitUser = await localStorage.getGitUser();
+    setState(() => userC.text = localGitUser);
+  }
+
 
   @override
   void dispose() {
@@ -41,6 +52,7 @@ class _MenuSearchState extends State<MenuSearch> {
     print('submit search? ${searchFormKey.currentState.validate()} with ${userC.text} and ${searchC.text}');
     if (searchFormKey.currentState.validate()) {
       await GitSearchApi().getListOfFiles(userC.text, searchC.text, context);
+      localStorage.saveGitUser(userC.text);
     };
   }
 

@@ -10,7 +10,7 @@ class FormValidations {
     if (user == null || user.length < 4) return 'Git user required.';
     RegExp r = RegExp(r"([a-zA-Z])");
     bool hasUser = r.hasMatch(user);
-    return !hasUser ? 'Git user required.' : null;
+    return !hasUser ? 'Git user is required.' : null;
   }
 
 

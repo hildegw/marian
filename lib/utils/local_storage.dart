@@ -117,12 +117,20 @@ class LocalStorage {
       else throw("local storage util error: no segments in local storage"); 
     } catch(err) { 
       print("error fetching cave from storage: $err");
-      segments = null;
+      return segments = null;
     }
   }
 
+  void saveGitUser(String gitUser) async { //save git user to preload
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString("gitUser", gitUser); 
+  }
 
-
+  Future<String> getGitUser() async { //save git user to preload
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String gitUser = prefs.getString("gitUser"); 
+    return gitUser;
+  }
 
 }
 

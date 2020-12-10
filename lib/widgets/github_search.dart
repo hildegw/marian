@@ -7,7 +7,7 @@ import 'package:latlong/latlong.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
-import 'menu_search.dart';
+import 'github_search_input.dart';
 import 'menu_cave_item.dart';
 import 'menu_path_item.dart';
 import '../utils/tmlu_data_api.dart';
@@ -118,7 +118,7 @@ class _GithubSearchState extends State<GithubSearch> {
         child: ListView(
           children: 
           [
-            MenuSearch(),
+            GithubSearchInput(),
             Divider(indent: 10, endIndent: 10, height: 5,),
             ...githubList,
             Divider(indent: 10, endIndent: 10, height: 5,),
