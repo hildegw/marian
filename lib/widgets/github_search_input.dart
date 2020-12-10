@@ -27,6 +27,7 @@ class _GithubSearchInputState extends State<GithubSearchInput> {
 
   @override
   void initState() {
+    //load saved git user
     WidgetsBinding.instance.addPostFrameCallback((_) async { await getGitUser();});
     addSearchFn = FocusNode(); //focus for text input fields
     print("gitUser init github search input $gitUser");

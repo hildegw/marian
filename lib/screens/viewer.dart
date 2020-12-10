@@ -32,6 +32,10 @@ class _ViewerState extends State<Viewer> {
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     tmluFilesBloc.add(LoadLocalCaves());  //fetch list of caves saved locally
     tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: []));
+    //TODO open list of caves that were open during last session
+    //if no tmlu available yet, open cave filter
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+    if (tmluBloc.state.status == TmluStatus.loading) openFilter = true;
     super.initState();
   }
 
@@ -52,11 +56,11 @@ class _ViewerState extends State<Viewer> {
           title: 
             //show filter or github search texts
             openSearch
-            ? Text("search github", 
+            ? Text("search github for tmlu files", 
                 style: Theme.of(context).textTheme.button, 
               ) 
             : openFilter
-            ? Text("select saved caves", 
+            ? Text("please select caves", 
                 style: Theme.of(context).textTheme.button, 
               ) 
               

@@ -8,8 +8,8 @@ import 'package:latlong/latlong.dart';
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import 'github_search_input.dart';
-import 'menu_cave_item.dart';
-import 'menu_path_item.dart';
+import 'github_cave_item.dart';
+import 'filter_local_path_item.dart';
 import '../utils/tmlu_data_api.dart';
 import '../models/model_cave.dart';
 import '../blocs/tmlu_bloc.dart';
@@ -37,7 +37,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   void createLocalList(List<String> cavePaths) {
     //resetn Widget list 
     localList = [];
-    //localList.add(MenuPathItem(title: "local files")); //header
+    //localList.add(FilterLocalPathItem(title: "local files")); //header
     //add list widgets to menu list 
     localList.add(          //list of caves per repo
       ListView.builder(
@@ -45,7 +45,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
         itemCount: cavePaths.length,
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          return MenuPathItem(
+          return FilterLocalPathItem(
             path: cavePaths[index], 
             onSelected: (selected) => onLocalSelected(selected, cavePaths[index]),
             onDelete: (deleteItem) => onLocalDelete(deleteItem, cavePaths[index]),
@@ -85,7 +85,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     tmluFilesBloc.add(LoadLocalCaves());  
     //load first selected file - TODO load all selected
     if (localFilesSelected != null && localFilesSelected.length > 0) 
-        getSavedCave(tmluBloc);
+        getSavedCaves(tmluBloc);
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
 
@@ -131,28 +131,20 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     //polylines.forEach((element) => print(element.toString()));
   }
 
-  loadCavesFromGithub(TmluBloc tmluBloc) async {
-    try {
-      Future.forEach(gitFilesSelected, (file) async {
-        ModelCave cave = await TmluData().loadFromGithub(file); 
-        tmluBloc.add(LoadCave(cave: cave, isLocal: false));  //saves each cave to local storage in bloc, adds name to list of paths
-        print("received data in menu for cave, added to tmlu bloc");
-      });
-    } catch (err) { print("Menu: Error saving selected files in files bloc: $err");}
-  }
-
-  //get selected local caves TODO more than one
-  getSavedCave(TmluBloc tmluBloc) async {  
-    try {
-      ModelCave cave = await localStorage.getCave(localFilesSelected[0]);
-//cave.segments.sort((a, b) => a.compareTo(b));
-cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
-      tmluBloc.add(LoadCave(cave: cave, isLocal: true));  //saves each cave to local storage in bloc: TODO handle local caves differently
-      localCavesSelected.add(cave); //TODO not sure what to do with this yet
-    } catch(err) { 
-      print("menu: error fetching cave from storage: $err");
-      localCavesSelected = null; //TODO ???
-    }
+  //get selected local caves
+  getSavedCaves(TmluBloc tmluBloc) async* {  
+    Future.forEach(localFilesSelected, (cave) async {
+      try {
+        ModelCave cave = await localStorage.getCave(localFilesSelected[0]);
+  //cave.segments.sort((a, b) => a.compareTo(b));
+  cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
+       localCavesSelected.add(cave); 
+      } catch(err) { 
+        print("menu: error fetching cave from storage: $err");
+        localCavesSelected = null; //TODO ???
+      }
+    });
+    tmluBloc.add(LocalCavesSelected(localSelectedCaves: localCavesSelected));  //saves all selected caves fetched from storage to state
   }
 
 

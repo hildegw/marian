@@ -9,17 +9,17 @@ import '../models/model_git_search_response.dart';
 
 //github path and cave info returned from search
 
-class MenuCaveItem extends StatefulWidget {
+class GithubCaveItem extends StatefulWidget {
   final ModelGitFile file;
   final String repo;
   final Function onSelected;
-  MenuCaveItem({ this.file, this.repo, this.onSelected });
+  GithubCaveItem({ this.file, this.repo, this.onSelected });
 
   @override
-  _MenuCaveItemState createState() => _MenuCaveItemState();
+  _GithubCaveItemState createState() => _GithubCaveItemState();
 }
 
-class _MenuCaveItemState extends State<MenuCaveItem> {
+class _GithubCaveItemState extends State<GithubCaveItem> {
   bool selected = false;
 
 

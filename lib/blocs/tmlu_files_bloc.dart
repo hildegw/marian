@@ -114,13 +114,15 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       );
     }
 
-    else if (event is LoadLocalCaves) { //called to update list of local cave paths
+    else if (event is LoadLocalCaves) { //called when app is started and later to update list of local cave paths
       print('tmlu files bloc event LoadLocalCaves from storage');
       cavePaths = await localStorage.getCavePaths();
       yield state.copyWith(
         cavePaths: cavePaths,
       );
     }
+
+    //TODO add event called from Viewer initState to load list of last opened caves
 
     //event triggered by app bar when filter or search are closed, triggers filter/search component "on-done"
     else if (event is TmluGithubSearchSelectionDone) { //called from main view when menu bar is clicked

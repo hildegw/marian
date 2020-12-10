@@ -8,8 +8,7 @@ import 'package:latlong/latlong.dart';
 import '../blocs/tmlu_files_bloc.dart';
 import '../utils/responsive.dart';
 import 'github_search_input.dart';
-import 'menu_cave_item.dart';
-import 'menu_path_item.dart';
+import 'github_cave_item.dart';
 import '../utils/tmlu_data_api.dart';
 import '../models/model_cave.dart';
 import '../blocs/tmlu_bloc.dart';
@@ -36,14 +35,14 @@ class _GithubSearchState extends State<GithubSearch> {
     //add list widgets to menu list 
     fullNames.forEach((repo) {  //repo info / full name
       List<ModelGitFile> repoFiles = files.where((file) => file.fullName == repo).toList();
-      githubList.add(MenuCaveItem(repo: repo));
+      githubList.add(GithubCaveItem(repo: repo));
       githubList.add(          //list of caves per repo
         ListView.builder(
           physics: ClampingScrollPhysics(),
           itemCount: repoFiles.length,
           shrinkWrap: true,
           itemBuilder: (context, index) {
-            return MenuCaveItem(
+            return GithubCaveItem(
               file: repoFiles[index], 
               onSelected: (selected) => onGitSelected(selected, files[index]),
             );
@@ -78,7 +77,7 @@ class _GithubSearchState extends State<GithubSearch> {
     try {
       Future.forEach(gitFilesSelected, (file) async {
         ModelCave cave = await TmluData().loadFromGithub(file); 
-        tmluBloc.add(LoadCave(cave: cave, isLocal: false));  //saves each cave to local storage in bloc, adds name to list of paths
+        tmluBloc.add(LoadedCaveFromGithub(cave: cave));  //saves each cave to local storage in bloc, adds name to list of paths
         print("received data in menu for cave, added to tmlu bloc");
       });
     } catch (err) { print("Menu: Error saving selected files in files bloc: $err");}

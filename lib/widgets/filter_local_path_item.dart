@@ -6,18 +6,18 @@ import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
 
 
-class MenuPathItem extends StatefulWidget {
+class FilterLocalPathItem extends StatefulWidget {
   final String path;
   final String title;
   final Function onSelected;
   final Function onDelete;
-  MenuPathItem({ this.path, this.title, this.onSelected, this.onDelete });
+  FilterLocalPathItem({ this.path, this.title, this.onSelected, this.onDelete });
 
   @override
-  _MenuPathItemState createState() => _MenuPathItemState();
+  _FilterLocalPathItemState createState() => _FilterLocalPathItemState();
 }
 
-class _MenuPathItemState extends State<MenuPathItem> {
+class _FilterLocalPathItemState extends State<FilterLocalPathItem> {
   bool selected = false;
   bool deleteItem = false;
 
