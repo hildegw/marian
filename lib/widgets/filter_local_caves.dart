@@ -59,7 +59,6 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
     if (selected) localFilesSelected.add(path);
     else if (localFilesSelected != null && localFilesSelected.length > 0) localFilesSelected.remove(path);
-    print("menu: local files selected  $selected : $localFilesSelected");
   }
 
   void onLocalDelete(bool deleteItem, String path) { //just keeps track of files de/selected
@@ -67,13 +66,14 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
       if (localFilesSelected != null && localFilesSelected.length > 0) localFilesSelected.remove(path);
       localFilesToDelete.add(path);
     }
-    print("menu: deleted file $path");
+    print("filter local files: deleted file $path");
   }
 
   void onSelectionDone() async { //load tmlu for selected caves from github
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     print("filter local files onSelectionDone");
+    print("filter local files: local files selected $localFilesSelected");
     //delete local files
     print("filter local files: to delete $localFilesToDelete");
     if (localFilesToDelete != null && localFilesToDelete.length > 0) {
@@ -85,7 +85,12 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     tmluFilesBloc.add(LoadLocalCaves());  
     //load first selected file - TODO load all selected
     if (localFilesSelected != null && localFilesSelected.length > 0) {
-      getSavedCaves(tmluBloc);
+      try {
+        getSavedCaves(tmluBloc);
+      } catch(err) { 
+        print("menu: error fetching cave from storage: $err");
+        localCavesSelected = null; //TODO ???
+      }
     }
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
   }
@@ -123,8 +128,8 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
       //add line section as polyline
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
-      print(name);
-      section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
+      //print(name);
+      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
     });
     print("polylines");
     print(polylines.length);
@@ -134,17 +139,12 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
 
   //get selected local caves
   getSavedCaves(TmluBloc tmluBloc) async {  
-    try {
-      Future.forEach(localFilesSelected, (path) async {
+      await Future.forEach(localFilesSelected, (path) async {
         ModelCave cave = await localStorage.getCave(path);
     //cave.segments.sort((a, b) => a.compareTo(b));
     cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
         localCavesSelected.add(cave); 
       });
-    } catch(err) { 
-      print("menu: error fetching cave from storage: $err");
-      localCavesSelected = null; //TODO ???
-    }
     tmluBloc.add(LocalCavesSelected(localSelectedCaves: localCavesSelected));  //saves all selected caves fetched from storage to state
   }
 

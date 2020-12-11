@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
-
+import '../models/model_cave.dart';
 
 class FilterLocalPathItem extends StatefulWidget {
   final String path;
@@ -24,7 +24,10 @@ class _FilterLocalPathItemState extends State<FilterLocalPathItem> {
   @override
   void initState() { 
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    selected = tmluBloc.state.cave != null && tmluBloc.state.cave.path != null ? tmluBloc.state.cave.path == widget.path : false; //TODO for all selected caves
+    if (tmluBloc.state.selectedCaves != null && tmluBloc.state.selectedCaves.length > 0) {
+      ModelCave selectedCave = tmluBloc.state.selectedCaves.firstWhere((cave) => cave.path == widget.path, orElse: () => null);
+      selected = selectedCave != null ? true : false;
+    } 
     super.initState();
   }
 
