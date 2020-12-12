@@ -53,6 +53,7 @@ class _MapTilesState extends State<MapTiles> {
   }
 
   createStationIds(ModelCave cave) {
+    stationIds = [];
     Marker stationId;
     cave.segments.forEach((seg) {
       stationId = Marker(
@@ -66,17 +67,21 @@ class _MapTilesState extends State<MapTiles> {
   }
 
   createSectionNames(ModelCave cave) {
-    final Responsive resp = Responsive(context);
+    sectionNameMarkers = [];
     Marker nameMarker;
     List<String> sectionNames = [];
     String nextSectionName;
     cave.segments.forEach((seg) {
       nextSectionName = seg.sc;
       nameMarker = Marker(
-        width: resp.wp(30),
+        width: 150,//resp.wp(90),
         point: seg.latlng,  
         builder: (context) => Container(
-          child: Text(seg.sc, style: Theme.of(context).textTheme.bodyText1,),
+          child: Text(
+            seg.sc, 
+            overflow: TextOverflow.visible, 
+            textAlign: TextAlign.left,
+            style: Theme.of(context).textTheme.bodyText1,),
         )
       );
       if (!sectionNames.contains(nextSectionName)) {
@@ -84,6 +89,7 @@ class _MapTilesState extends State<MapTiles> {
         sectionNames.add(nextSectionName);
       }
     });
+    print(sectionNames);
   }
 
   @override
