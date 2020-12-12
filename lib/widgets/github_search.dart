@@ -28,7 +28,7 @@ class _GithubSearchState extends State<GithubSearch> {
   List<String> paths = [];
   List<ModelGitFile> gitFilesSelected = [];
 
-
+//TODO add spinner
   void createGithubList() { //creates list of all available caves from search
     //reset list 
     githubList = [];
@@ -70,9 +70,9 @@ class _GithubSearchState extends State<GithubSearch> {
         await loadCavesFromGithub(tmluBloc);
     //update state with list of caves saved locally
     tmluFilesBloc.add(LoadLocalCaves());  
-    //TODO show selected git files as selected in local
-    //TODO why doesn't cave data load?
-  }
+//TODO show selected git files as selected in local
+//TODO why doesn't cave data load?
+}
 
 
   loadCavesFromGithub(TmluBloc tmluBloc) async {
@@ -92,9 +92,6 @@ class _GithubSearchState extends State<GithubSearch> {
     final Responsive resp = Responsive(context);
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
-
-      print("github search state ${state.status } ");
-      print("github search  state has cave paths: ${state.cavePaths} ");
 
       //once search result has loaded:
       if (state.status == TmluFilesStatus.hasTmluFiles && state.files != null) {

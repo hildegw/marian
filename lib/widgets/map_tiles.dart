@@ -1,4 +1,5 @@
-import 'dart:typed_data';
+// import 'dart:html';
+// import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import '../models/model_segment.dart';
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
 import '../models/model_segment.dart';
@@ -24,7 +26,7 @@ class MapTiles extends StatefulWidget {
 }
 
 class _MapTilesState extends State<MapTiles> {
-  final _houseAddressKey = GlobalKey<FormState>();
+  final _mapKey = GlobalKey<FormState>();
   final double startIconSize = 15;
   final double startZoom = 18.0;
   
@@ -35,7 +37,7 @@ class _MapTilesState extends State<MapTiles> {
   LatLngBounds bounds;
   List<LatLng> tappedPoints = []; //for later use?
   MapController _mapController;
-  ModelCave cave;
+  List<Marker> stationIds = [];
 
   @override
   void initState() { //TODO make cave to load selectable, set cave name globally
@@ -44,10 +46,22 @@ class _MapTilesState extends State<MapTiles> {
     super.initState();
   }
 
-
   void _handleTap(LatLng latlng) {
     //_mapController.move(LatLng(latlng.latitude, latlng.longitude), _mapController.zoom);
     //setState(() { tappedPoints.add(latlng); });
+  }
+
+  createStationIds(ModelCave cave) {
+    Marker stationId;
+    cave.segments.forEach((seg) {
+      stationId = Marker(
+        point: seg.latlng,  //lines[1].points.first,
+        builder: (context) => Container(
+          child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText2,),
+        )
+      );
+      stationIds.add(stationId);
+    });
   }
 
   @override
@@ -73,7 +87,7 @@ class _MapTilesState extends State<MapTiles> {
       });
       startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
-      print(_mapController.ready);
+      createStationIds(state.cave);
       if (_mapController.ready)  _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);
    }
 
@@ -96,7 +110,7 @@ class _MapTilesState extends State<MapTiles> {
                 child: startLatLng != null 
                 ? FlutterMap(
                   mapController: _mapController,
-                  key: _houseAddressKey,
+                  key: _mapKey,
                   options:  MapOptions(
                     //bounds: state.bounds,
                     center: startLatLng,
@@ -119,6 +133,7 @@ class _MapTilesState extends State<MapTiles> {
                     if (state.status == TmluStatus.hasTmlu)
                       PolylineLayerOptions(
                         polylines: lines,
+                        polylineCulling: true,
                       ),
 
                     MarkerLayerOptions(markers: [
@@ -129,7 +144,10 @@ class _MapTilesState extends State<MapTiles> {
                         builder: (context) => Container(
                           child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
                         )
-                      )
+                      ),
+
+                    ...stationIds,
+
                     ]),
 
                     ZoomButtonsPluginOption(startLatLng: startLatLng, startZoom: startZoom),

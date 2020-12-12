@@ -89,7 +89,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
         getSavedCaves(tmluBloc);
       } catch(err) { 
         print("menu: error fetching cave from storage: $err");
-        localCavesSelected = null; //TODO ???
+        localCavesSelected = null; 
       }
     }
     //if (filesSelected != null && filesSelected.length > 0) print("menu show map ${filesSelected[0]}");
