@@ -119,7 +119,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
       cavePaths = await localStorage.getCavePaths();
       yield state.copyWith(
         cavePaths: cavePaths,
-        status: TmluFilesStatus.hasTmluFiles,
+        status: cavePaths != null && cavePaths.length > 0 ? TmluFilesStatus.hasTmluFiles :TmluFilesStatus.loading,
       );
     }
 
