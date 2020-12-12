@@ -38,6 +38,7 @@ class _MapTilesState extends State<MapTiles> {
   List<LatLng> tappedPoints = []; //for later use?
   MapController _mapController;
   List<Marker> stationIds = [];
+  List<Marker> sectionNameMarkers = [];
 
   @override
   void initState() { //TODO make cave to load selectable, set cave name globally
@@ -57,10 +58,31 @@ class _MapTilesState extends State<MapTiles> {
       stationId = Marker(
         point: seg.latlng,  //lines[1].points.first,
         builder: (context) => Container(
-          child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText2,),
+          child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText1,),
         )
       );
       stationIds.add(stationId);
+    });
+  }
+
+  createSectionNames(ModelCave cave) {
+    final Responsive resp = Responsive(context);
+    Marker nameMarker;
+    List<String> sectionNames = [];
+    String nextSectionName;
+    cave.segments.forEach((seg) {
+      nextSectionName = seg.sc;
+      nameMarker = Marker(
+        width: resp.wp(30),
+        point: seg.latlng,  
+        builder: (context) => Container(
+          child: Text(seg.sc, style: Theme.of(context).textTheme.bodyText1,),
+        )
+      );
+      if (!sectionNames.contains(nextSectionName)) {
+        sectionNameMarkers.add(nameMarker);
+        sectionNames.add(nextSectionName);
+      }
     });
   }
 
@@ -88,6 +110,7 @@ class _MapTilesState extends State<MapTiles> {
       startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
       createStationIds(state.cave);
+      createSectionNames(state.cave);
       if (_mapController.ready)  _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);
    }
 
@@ -146,7 +169,8 @@ class _MapTilesState extends State<MapTiles> {
                         )
                       ),
 
-                    ...stationIds,
+                    //...stationIds,
+                    ...sectionNameMarkers,
 
                     ]),
 
