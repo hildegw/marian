@@ -102,10 +102,13 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     List<String> sectionNames = [];
     List<String> sectionColors = [];
     if (segments == null || segments.length < 1) return polylines = null;
-    //create list of section names to identify line sections for polylines
-    segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
-    //create list of colors per section/name
-    segments.forEach((seg) { if (!sectionColors.contains(seg.cl)) sectionColors.add(seg.cl); }); 
+    //create list of section names to identify line sections for polylines, add colors to list
+    segments.forEach((seg) { 
+      if (!sectionNames.contains(seg.sc)) {
+        sectionNames.add(seg.sc); 
+        sectionColors.add(seg.cl);
+      }
+    });
     //identify jumps and Ts to split into separate polylines
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];

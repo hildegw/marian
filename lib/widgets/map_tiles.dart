@@ -110,6 +110,8 @@ class _MapTilesState extends State<MapTiles> {
     
     if (state.status == TmluStatus.hasTmlu && state.cave.polylines != null && state.cave.startCoord != null) {
       state.cave.polylines.asMap().forEach((idx, lineSegment) {
+        print(idx);
+        print(validate.formatColor(state.cave.colors[idx]));
         lines.add(    
           Polyline(
             points: lineSegment,
