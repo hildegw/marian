@@ -16,8 +16,11 @@ import '../blocs/tmlu_bloc.dart';
 import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
 import '../utils/tmlu_data_api.dart';
+import '../utils/validations.dart';
+import '../utils/validations.dart';
 import './zoom_buttons.dart';
 import '../models/model_cave.dart';
+import '../utils/validations.dart';
 
 
 class MapTiles extends StatefulWidget {
@@ -29,6 +32,7 @@ class _MapTilesState extends State<MapTiles> {
   final _mapKey = GlobalKey<FormState>();
   final double startIconSize = 15;
   final double startZoom = 18.0;
+  final FormValidations validate = FormValidations();
   
   //List<ModelSegment> segments = [];
   List <Polyline> lines = [];
@@ -110,8 +114,10 @@ class _MapTilesState extends State<MapTiles> {
           Polyline(
             points: lineSegment,
             strokeWidth: 1.5,
-            color: Color(int.parse(state.cave.colors[idx], radix: 16)),
+            color: validate.formatColor(state.cave.colors[idx]),
           ));
+            //return new Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
+
       });
       startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
