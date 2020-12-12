@@ -51,7 +51,7 @@ class TmluData {
             lines.add(item);
           });
         if (lines != null && lines.length > 0) lines.forEach((srvdItem) {
-          print(srvdItem);
+          //print(srvdItem);
           srvdItem.forEach((item) {
             bool exc = item.getElement("EXC").text == "true"; 
             double az = double.parse(item.getElement("AZ").text);
@@ -61,7 +61,7 @@ class TmluData {
             int frid = int.parse(item.getElement("FRID").text);
             String sc = item.getElement("SC").text;  //section names
             String cl = item.getElement("CL").text; //colors
-            //srvd.add(item);
+            srvd.add(item);
             segments.add(ModelSegment(id: id, frid: frid, az: az, dp: dp, lg: lg, sc: sc, exc: exc, cl: cl));
           });
         });

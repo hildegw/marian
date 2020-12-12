@@ -3,6 +3,7 @@
 import 'package:latlong/latlong.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
 import './model_segment.dart';
 //part 'model_cave.g.dart';
@@ -42,7 +43,7 @@ class ModelCave extends Equatable {
     segments = _segmentsFromJson(json["segments"]), 
     polylines = _polyFromJson(json["polylines"]), 
     startCoord = _latlngFromJson(json["startCoord"]),
-    colors = _colorsFromJson(json["colors"]);
+    colors = jsonDecode(json["colors"]); //_colorsFromJson(json["colors"]);
 
   Map<String, dynamic> toJson() => {
     "fullName": fullName,
@@ -50,7 +51,7 @@ class ModelCave extends Equatable {
     "segments": _segmentsToJson(segments),
     "polylines": _polyToJson(polylines),
     "startCoord": _latlngToJson(startCoord),
-    "colors": _colorsToJson(colors),
+    "colors": jsonEncode(colors),  //_colorsToJson(colors),
   };
 
 }
@@ -97,17 +98,5 @@ List<List<LatLng>> _polyFromJson(List<dynamic> jsonList) {
 List<dynamic> _polyToJson(List<List<LatLng>> polys){
   List<dynamic> jsonList = [];
   polys.forEach((poly) => jsonList.add(_listLatlngToJson(poly)));
-  return jsonList;
-}
-
-List<String> _colorsFromJson(List<dynamic> jsonList) {
-  List<String> colors = [];
-  jsonList.forEach((json) => colors.add(json));
-  return colors;
-}
-
-List<dynamic> _colorsToJson(List<String> colors){
-  List<dynamic> jsonList = [];
-  colors.forEach((color) => jsonList.add(color));
   return jsonList;
 }
