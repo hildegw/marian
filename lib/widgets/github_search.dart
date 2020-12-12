@@ -67,15 +67,17 @@ class _GithubSearchState extends State<GithubSearch> {
     tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: gitFilesSelected));
     //load files from github
     if (gitFilesSelected != null && gitFilesSelected.length > 0) 
-        loadCavesFromGithub(tmluBloc);
+        await loadCavesFromGithub(tmluBloc);
     //update state with list of caves saved locally
     tmluFilesBloc.add(LoadLocalCaves());  
+    //TODO show selected git files as selected in local
+    //TODO why doesn't cave data load?
   }
 
 
   loadCavesFromGithub(TmluBloc tmluBloc) async {
     try {
-      Future.forEach(gitFilesSelected, (file) async {
+      await Future.forEach(gitFilesSelected, (file) async {
         ModelCave cave = await TmluData().loadFromGithub(file); 
         tmluBloc.add(LoadedCaveFromGithub(cave: cave));  //saves each cave to local storage in bloc, adds name to list of paths
         print("received data in menu for cave, added to tmlu bloc");

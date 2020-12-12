@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../blocs/tmlu_files_bloc.dart';
+import '../blocs/tmlu_files_bloc.dart';
 import '../widgets/map_tiles.dart';
 import '../widgets/filter_local_caves.dart';
 import '../widgets/github_search.dart';
@@ -35,7 +36,9 @@ class _ViewerState extends State<Viewer> {
     //TODO open list of caves that were open during last session
     //if no tmlu available yet, open cave filter
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    if (tmluBloc.state.status == TmluStatus.loading) openFilter = true;
+    if (tmluBloc.state.status == TmluStatus.loading && tmluFilesBloc.state.status == TmluFilesStatus.hasTmluFiles) 
+        openFilter = true;
+    else openSearch = true;
     super.initState();
   }
 

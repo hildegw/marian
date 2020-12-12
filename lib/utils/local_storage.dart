@@ -19,7 +19,7 @@ class LocalStorage {
         return cave;
       } else throw("local storage util error decoding json for $cavePath"); 
     } catch(err) { 
-      print("ocal storage util error fetching cave from storage: $err");
+      print("local storage util error fetching cave from storage: $err");
       return null;
     }
   }
@@ -32,9 +32,9 @@ class LocalStorage {
   }
 
   void saveCavePaths(String newPath) async { 
-    List<String> cavePaths = [];
+    final prefs = await SharedPreferences.getInstance();
     try {     //get list of saved paths from storage
-      final prefs = await SharedPreferences.getInstance();
+      List<String> cavePaths = [];
       cavePaths = prefs.getStringList("cavePaths"); 
       if (cavePaths != null && cavePaths.length > 0 && !cavePaths.contains(newPath))
            cavePaths.add(newPath);
@@ -43,8 +43,11 @@ class LocalStorage {
       await prefs.setStringList("cavePaths", cavePaths);
       print("local storage util: paths final list $cavePaths");
     } catch(err) { 
-      print("local storage util: error updating list of cave paths in storage: $err");
-      cavePaths = null;
+      print("local storage util: error updating list of cave paths in storage: $err, creating new list");
+      //if no cavePaths exist in storage, create new
+      List<String> cavePaths = [];
+      cavePaths.add(newPath);  
+      await prefs.setStringList("cavePaths", cavePaths);
     }
   }
 
