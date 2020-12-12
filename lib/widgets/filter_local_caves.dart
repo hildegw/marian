@@ -97,12 +97,15 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
 
 
 //just for testing, otherwise runs when fetching data from github
-  List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
+  Map<String, dynamic>  calculatePolylineCoord(List<ModelSegment> segments) {
     List<List<LatLng>> polylines = [];
     List<String> sectionNames = [];
+    List<String> sectionColors = [];
+    if (segments == null || segments.length < 1) return polylines = null;
     //create list of section names to identify line sections for polylines
     segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
-    if (segments == null || segments.length < 1) return polylines = null;
+    //create list of colors per section/name
+    segments.forEach((seg) { if (!sectionColors.contains(seg.cl)) sectionColors.add(seg.cl); }); 
     //identify jumps and Ts to split into separate polylines
     sectionNames.forEach((name) { 
       List<LatLng> polyline = [];
@@ -129,11 +132,12 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
       section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
       polylines.add(polyline);
       //print(name);
-      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
+      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc} "));
     });
     print("polylines");
     print(polylines.length);
-    return polylines;
+    print(sectionColors);
+    return { "polylines": polylines, "sectionColors": sectionColors };
     //polylines.forEach((element) => print(element.toString()));
   }
 
@@ -142,7 +146,9 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
       await Future.forEach(localFilesSelected, (path) async {
         ModelCave cave = await localStorage.getCave(path);
     //cave.segments.sort((a, b) => a.compareTo(b));
-    cave.polylines = calculatePolylineCoord(cave.segments); //just for testing
+    Map<String, dynamic> result = calculatePolylineCoord(cave.segments); //just for testing
+    cave.polylines = result["polylines"];
+    cave.colors = result["sectionColors"];
         localCavesSelected.add(cave); 
       });
     tmluBloc.add(LocalCavesSelected(localSelectedCaves: localCavesSelected));  //saves all selected caves fetched from storage to state

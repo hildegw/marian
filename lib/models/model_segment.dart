@@ -11,18 +11,20 @@ class ModelSegment implements Comparable {
   LatLng latlng;
   String sc;
   bool exc;
+  String cl;
    
   ModelSegment({
-    this.id, this.frid, this.az, this.dp, this.lg, this.latlng, this.sc, this.exc,
+    this.id, this.frid, this.az, this.dp, this.lg, this.latlng, this.sc, this.exc, this.cl,
   });
 
   toString() => 'Segment Model from $frid to $id: az=$az dp=$dp lg=$lg, and coord: ${latlng.toString()}, $sc, excluded ? $exc   ';
 
   ModelSegment.fromJson(Map<String, dynamic> json) : id = json["id"], frid = json["frid"], az = json["az"], 
-      dp = json["dp"], lg = json["lg"], sc = json["sc"], exc = json["exc"],
+      dp = json["dp"], lg = json["lg"], sc = json["sc"], exc = json["exc"], cl = json["cl"],
       latlng = LatLng(json["latlng"]["latitude"], json["latlng"]["longitude"]);
 
-  Map<String, dynamic> toJson() => { "id": id, "frid": frid, "az": az, "dp": dp, "lg": lg,  "sc": sc, "exc": exc,
+  Map<String, dynamic> toJson() => { "id": id, "frid": frid, "az": az, "dp": dp, "lg": lg,  
+      "sc": sc, "exc": exc, "cl": cl,
       "latlng": {
         "latitude": latlng != null ? latlng.latitude : 0.0,
         "longitude": latlng != null ? latlng.longitude : 0.0,

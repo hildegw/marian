@@ -21,9 +21,10 @@ class ModelCave extends Equatable {
   List<List<LatLng>> polylines;
   //@JsonKey(fromJson: _latlngFromJson, toJson: _latlngToJson)
   final LatLng startCoord;
+  List<String> colors;
    
   ModelCave({
-    this.fullName, this.path, this.segments, this.startCoord, this.polylines
+    this.fullName, this.path, this.segments, this.startCoord, this.polylines, this.colors,
   });
 
   //to check if cave is equal, just check path > Equitable package
@@ -40,7 +41,8 @@ class ModelCave extends Equatable {
     path = json["path"], 
     segments = _segmentsFromJson(json["segments"]), 
     polylines = _polyFromJson(json["polylines"]), 
-    startCoord = _latlngFromJson(json["startCoord"]);
+    startCoord = _latlngFromJson(json["startCoord"]),
+    colors = _colorsFromJson(json["colors"]);
 
   Map<String, dynamic> toJson() => {
     "fullName": fullName,
@@ -48,6 +50,7 @@ class ModelCave extends Equatable {
     "segments": _segmentsToJson(segments),
     "polylines": _polyToJson(polylines),
     "startCoord": _latlngToJson(startCoord),
+    "colors": _colorsToJson(colors),
   };
 
 }
@@ -94,5 +97,17 @@ List<List<LatLng>> _polyFromJson(List<dynamic> jsonList) {
 List<dynamic> _polyToJson(List<List<LatLng>> polys){
   List<dynamic> jsonList = [];
   polys.forEach((poly) => jsonList.add(_listLatlngToJson(poly)));
+  return jsonList;
+}
+
+List<String> _colorsFromJson(List<dynamic> jsonList) {
+  List<String> colors = [];
+  jsonList.forEach((json) => colors.add(json));
+  return colors;
+}
+
+List<dynamic> _colorsToJson(List<String> colors){
+  List<dynamic> jsonList = [];
+  colors.forEach((color) => jsonList.add(color));
   return jsonList;
 }
