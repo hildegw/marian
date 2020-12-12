@@ -36,18 +36,13 @@ class _ViewerState extends State<Viewer> {
     tmluFilesBloc.add(LoadLocalCaves());  //fetch list of caves saved locally
     tmluFilesBloc.add(TmluFilesSelected(gitFilesSelected: []));
     //TODO open list of caves that were open during last session
-    //if no tmlu available yet, open cave filter
-    final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    
     //check if local list exists and open either github or filter menu
-    //TODO does not work!!!
     List<String> cavePaths;
     WidgetsBinding.instance.addPostFrameCallback((_) async {  
       cavePaths = await localStorage.getCavePaths();  
-      print("found $cavePaths");
-      if (tmluBloc.state.status == TmluStatus.loading && cavePaths != null && cavePaths.length > 0) 
-          openFilter = true;
-      else openSearch = true;
+      if (cavePaths != null && cavePaths.length > 0) 
+        setState(() => openFilter = true);
+      else setState(() => openSearch = true);
     });
     super.initState();
   }
