@@ -132,15 +132,24 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   // });
   // //add previous segment at start of section
   // if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
-      //add line section as polyline
-      section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
-      polylines.add(polyline);
-      //print(name);
-      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc} "));
+      
+      //try adding each piece of line separately, find previous segment
+      ModelSegment prevSeg;
+      ModelSegment prevSegToAdd;
+      if (section != null && section.length > 0) section.forEach((sectionSeg) {
+        if (sectionSeg.frid == -1) prevSeg = null;
+        prevSeg = segments.firstWhere((prev) => prev.id == sectionSeg.frid, orElse: () => null); //should be array with only one element found
+        if (prevSeg != null) 
+          polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(sectionSeg.latlng.latitude, sectionSeg.latlng.longitude)]);
+      });
+      
+      // //add line section as polyline
+      // section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
+      // polylines.add(polyline);
+      if (name == "RipToKenToWall") section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc} "));
     });
     print("polylines");
     print(polylines.length);
-    print(sectionColors);
     return { "polylines": polylines, "sectionColors": sectionColors };
     //polylines.forEach((element) => print(element.toString()));
   }
