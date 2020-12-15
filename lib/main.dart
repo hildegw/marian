@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         primaryColorDark: Colors.black,
         buttonColor: Colors.amber,
         backgroundColor: Color(0xEE222222), //transparent
+        shadowColor: Color(0x44222222), //transparent
         dividerColor: Colors.amber[100],
         primaryColorLight: Colors.white,
         errorColor: Colors.amber,
