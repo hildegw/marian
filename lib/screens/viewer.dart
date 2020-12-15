@@ -22,6 +22,7 @@ class _ViewerState extends State<Viewer> {
   final LocalStorage localStorage = LocalStorage();
   bool openFilter = false;
   bool openSearch = false;
+  bool openSettings = false;
 
   List <Widget> stackWidgets() {
      List <Widget>  stackList = [MapTiles()];
@@ -58,9 +59,9 @@ class _ViewerState extends State<Viewer> {
       return Scaffold(
         backgroundColor: Theme.of(context).primaryColorDark,
         appBar: AppBar( 
-          titleSpacing: 0.0,
+          titleSpacing: 20.0,
           toolbarHeight: 40,
-          centerTitle: true,
+          centerTitle: false,
           title: 
             //show filter or github search texts
             openSearch
@@ -75,30 +76,55 @@ class _ViewerState extends State<Viewer> {
              //show either title or cave name when menues are closed 
             : state.cave != null 
             ? Text(state.cave.path, 
-                  style: Theme.of(context).textTheme.button.copyWith(fontSize: 12.0), 
+                  style: Theme.of(context).textTheme.button.copyWith(fontSize: 13.0), 
                   overflow: TextOverflow.visible,
                   softWrap: true,
                 ) 
             : Text(widget.title,),
-          leading: IconButton(
-            padding: EdgeInsets.all(0.0),
-            icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 25, color: Theme.of(context).primaryColorDark,),
-            onPressed: () { 
-              tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
-              //delay menu closing, so that menu component can send off selected data to bloc
-              if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
-                else setState(() { openSearch = false; openFilter = true; });
-            },
-          ), 
+          // leading: IconButton(
+          //   padding: EdgeInsets.all(0.0),
+          //   icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 25, color: Theme.of(context).primaryColorDark,),
+          //   onPressed: () { 
+          //     tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
+          //     //delay menu closing, so that menu component can send off selected data to bloc
+          //     if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
+          //       else setState(() { openSearch = false; openFilter = true; });
+          //   },
+          // ), 
 
           actions: <Widget>[
+
             IconButton(
               padding: EdgeInsets.all(0.0),
-              icon: Icon(openSearch ? Icons.done_all : Icons.search, size: 25, color: Theme.of(context).primaryColorDark,),
+              visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
+              icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 23, color: Theme.of(context).primaryColorDark,),
+              onPressed: () { 
+                tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
+                //delay menu closing, so that menu component can send off selected data to bloc
+                if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
+                  else setState(() { openSearch = false; openFilter = true; });
+              },
+            ), 
+
+            IconButton(
+              padding: EdgeInsets.all(0.0),
+              visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
+              icon: Icon(openSearch ? Icons.done_all : Icons.search, size: 22, color: Theme.of(context).primaryColorDark,),
               onPressed: () { 
                 tmluFilesBloc.add(TmluGithubSearchSelectionDone()); //sets status to selectino done
                 if (openSearch) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSearch = false));
                 else setState(() { openSearch = true; openFilter = false; });
+              },
+            ), 
+
+            IconButton(
+              padding: EdgeInsets.only(left: 0.0, right: 10.0),
+              visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
+              icon: Icon(Icons.settings_outlined, size: 21, color: Theme.of(context).primaryColorDark,),
+              onPressed: () { 
+                tmluFilesBloc.add(TmluGithubSearchSelectionDone()); //sets status to selectino done
+                if (openSettings) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSettings = false));
+                else setState(() { openSettings = true;});
               },
             ), 
 
