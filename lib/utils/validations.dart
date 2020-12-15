@@ -14,9 +14,9 @@ class FormValidations {
   }
 
   Color formatColor(String colorString) {
-    if (colorString.length < 9) return null;
-    else if (colorString.length == 9) return Color(int.parse(colorString.substring(1,7), radix: 16) + 0xff000000);
-    else return Color(int.parse(colorString.substring(2,8), radix: 16) + 0xff000000);
+    if (colorString.length == 9) return Color(int.parse(colorString.substring(1,7), radix: 16) + 0xff000000);
+    else if (colorString.length == 10) return Color(int.parse(colorString.substring(2,8), radix: 16) + 0xff000000);
+    else return Colors.white;
   }
 
 }

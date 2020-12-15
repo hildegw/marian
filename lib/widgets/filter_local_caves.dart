@@ -96,37 +96,38 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   }
 
 
-//just for testing, otherwise runs when fetching data from github
-  Map<String, dynamic>  calculatePolylineCoord(List<ModelSegment> segments) {
-    List<List<LatLng>> polylines = [];
-    List<String> sectionNames = [];
-    List<String> sectionColors = [];
-    if (segments == null || segments.length < 1) return polylines = null;
-    //create list of section names to identify line sections for polylines, add colors to list
-    segments.forEach((seg) { 
-      sectionColors.add(seg.cl);
-      if (!sectionNames.contains(seg.sc)) {
-        sectionNames.add(seg.sc); 
-      }
-    });
-    //create a polyline for each station, going from frid to id
-    ModelSegment prevSeg;
-    segments.forEach((seg) {
-      if (seg.frid == -1) prevSeg = null;
-      prevSeg = segments.firstWhere((prev) => prev.id == seg.frid, orElse: () => null); //should be array with only one element found
-      if (prevSeg != null && prevSeg.latlng != null) 
-        polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(seg.latlng.latitude, seg.latlng.longitude)]);
-    });
-    print("stations");
-    print(polylines.length);
-    return { "polylines": polylines, "sectionColors": sectionColors };
-    //polylines.forEach((element) => print(element.toString()));
-  }
+// //just for testing, otherwise runs when fetching data from github
+//   Map<String, dynamic>  calculatePolylineCoord(List<ModelSegment> segments) {
+//     List<List<LatLng>> polylines = [];
+//     List<String> sectionNames = [];
+//     List<String> sectionColors = [];
+//     if (segments == null || segments.length < 1) return polylines = null;
+//     //create list of section names to identify line sections for polylines, add colors to list
+//     segments.forEach((seg) { 
+//       sectionColors.add(seg.cl);
+//       if (!sectionNames.contains(seg.sc)) {
+//         sectionNames.add(seg.sc); 
+//       }
+//     });
+//     //create a polyline for each station, going from frid to id
+//     ModelSegment prevSeg;
+//     segments.forEach((seg) {
+//       if (seg.frid == -1) prevSeg = null;
+//       prevSeg = segments.firstWhere((prev) => prev.id == seg.frid, orElse: () => null); //should be array with only one element found
+//       if (prevSeg != null && prevSeg.latlng != null) 
+//         polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(seg.latlng.latitude, seg.latlng.longitude)]);
+//     });
+//     print("stations");
+//     print(polylines.length);
+//     return { "polylines": polylines, "sectionColors": sectionColors };
+//     //polylines.forEach((element) => print(element.toString()));
+//   }
 
   //get selected local caves
   getSavedCaves(TmluBloc tmluBloc) async {  
       await Future.forEach(localFilesSelected, (path) async {
         ModelCave cave = await localStorage.getCave(path);
+    //>> called in tmlu data api, here just for manipulating polylines
     // //cave.segments.sort((a, b) => a.compareTo(b));
     // Map<String, dynamic> result = calculatePolylineCoord(cave.segments); //just for testing
     // cave.polylines = result["polylines"];

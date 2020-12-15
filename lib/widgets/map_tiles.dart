@@ -107,7 +107,7 @@ class _MapTilesState extends State<MapTiles> {
     final Responsive _responsive = Responsive(context);
     print("building map");
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
-    
+
     if (state.status == TmluStatus.hasTmlu && state.cave.polylines != null && state.cave.startCoord != null) {
       state.cave.polylines.asMap().forEach((idx, lineSegment) {
         lines.add(    

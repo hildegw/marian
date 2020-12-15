@@ -33,8 +33,6 @@ class TmluData {
 
 
   Future loadFromGithub(ModelGitFile file) async {
-    await localStorage.getSegments(file.filename); //check if data is available in storage, if not, load from github
-    if (segments == null || segments.length < 1) {
       segments = [];
       final url = Uri.parse("https://raw.githubusercontent.com/" + file.fullName + "/master/" + file.path);
       //final url = Uri.parse('https://raw.githubusercontent.com/arosl/cave_survey/master/kaan_ha/KaanHa.tmlu');
@@ -73,25 +71,10 @@ class TmluData {
         getStartCoordinates(); 
         addCoordinates();
         calculatePolylineCoord(segments);
-        localStorage.saveSegments(file.filename, segments);
       } catch (err) {
         print('error loading tmlu data in utils: $err');
       }
-    } else { //segments retrieved from storage
-      print("local data");
-      //segments.forEach((element) => print(element));
-      //identify start coordinates
-      int segIndex = segments.indexWhere((currentSeg) => currentSeg.frid == -1); //find start segment
-      if (segIndex > -1) {
-        startCoord = segments[segIndex].latlng;
-        startId = segIndex;
-      } else throw ("error finding start segment in segments retrieved from storage");
-      //calculate polyline  //coordinates are already in list, no need to calculate again
-      calculatePolylineCoord(segments);
-      // polylines[0].forEach((el) {print(el); });
-    }
-    //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
-    print("adding to tmlu bloc");
+    print("adding cave to tmlu bloc");
     cave = ModelCave(
       fullName: file.fullName, 
       path: file.path, 
@@ -100,11 +83,6 @@ class TmluData {
       startCoord: startCoord,
     );
     return cave;
-    //need to add data from files bloc to tmlu bloc
-    // final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    // tmluBloc.add(LoadData(cave: cave));
-    //tmluBloc.add(LoadData(segments: segments, polylines: polylines, startCoord: startCoord));
-    //segments.forEach((element) => print(element));
   }
 
   void getStartCoordinates() {
@@ -147,17 +125,7 @@ class TmluData {
   }
 
   calculatePolylineCoord(List<ModelSegment> segments) {
-    List<List<LatLng>> polylines = [];
-    // List<String> sectionNames = [];
-    // List<String> sectionColors = [];
     if (segments == null || segments.length < 1) return polylines = null;
-    // //create list of section names to identify line sections for polylines, add colors to list
-    // segments.forEach((seg) { 
-    //   sectionColors.add(seg.cl);
-    //   if (!sectionNames.contains(seg.sc)) {
-    //     sectionNames.add(seg.sc); 
-    //   }
-    // });
     //create a polyline for each station, going from frid to id
     ModelSegment prevSeg;
     segments.forEach((seg) {
@@ -168,7 +136,6 @@ class TmluData {
     });
     print("stations");
     print(polylines.length);
-    //return { "polylines": polylines, "sectionColors": sectionColors };
     //polylines.forEach((element) => print(element.toString()));
   }
 
