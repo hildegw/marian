@@ -104,51 +104,20 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     if (segments == null || segments.length < 1) return polylines = null;
     //create list of section names to identify line sections for polylines, add colors to list
     segments.forEach((seg) { 
+      sectionColors.add(seg.cl);
       if (!sectionNames.contains(seg.sc)) {
         sectionNames.add(seg.sc); 
-        sectionColors.add(seg.cl);
       }
     });
-    //identify jumps and Ts to split into separate polylines
-    sectionNames.forEach((name) { 
-      List<LatLng> polyline = [];
-      //create section list with all segments that have the same name
-      List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
-      //sort section based on frid, see compare method in model segment
-      section.sort((a, b) => a.compareTo(b));
-      //find previous segment with different name and add as first item to polyline
-  //currently disabled to find line errors
-  // Iterable<ModelSegment> prevSegs = [];
-  // ModelSegment prevSegToAdd;
-  // if (section != null && section.length > 0) section.forEach((sectionSeg) {
-  //   if (sectionSeg.frid == -1) return prevSegs = null;
-  //   prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
-  //   //if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
-  //   if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
-  //     if (prevseg.latlng != null) prevSegToAdd = prevseg; //add segment to section rather than polyline        
-  //     else prevSegToAdd = null; 
-  //          //polyline.add(prevseg.latlng);
-  //   });
-  // });
-  // //add previous segment at start of section
-  // if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
-      
-      //try adding each piece of line separately, find previous segment
-      ModelSegment prevSeg;
-      ModelSegment prevSegToAdd;
-      if (section != null && section.length > 0) section.forEach((sectionSeg) {
-        if (sectionSeg.frid == -1) prevSeg = null;
-        prevSeg = segments.firstWhere((prev) => prev.id == sectionSeg.frid, orElse: () => null); //should be array with only one element found
-        if (prevSeg != null) 
-          polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(sectionSeg.latlng.latitude, sectionSeg.latlng.longitude)]);
-      });
-      
-      // //add line section as polyline
-      // section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
-      // polylines.add(polyline);
-      if (name == "RipToKenToWall") section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc} "));
+    //create a polyline for each station, going from frid to id
+    ModelSegment prevSeg;
+    segments.forEach((seg) {
+      if (seg.frid == -1) prevSeg = null;
+      prevSeg = segments.firstWhere((prev) => prev.id == seg.frid, orElse: () => null); //should be array with only one element found
+      if (prevSeg != null && prevSeg.latlng != null) 
+        polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(seg.latlng.latitude, seg.latlng.longitude)]);
     });
-    print("polylines");
+    print("stations");
     print(polylines.length);
     return { "polylines": polylines, "sectionColors": sectionColors };
     //polylines.forEach((element) => print(element.toString()));
@@ -158,10 +127,10 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   getSavedCaves(TmluBloc tmluBloc) async {  
       await Future.forEach(localFilesSelected, (path) async {
         ModelCave cave = await localStorage.getCave(path);
-    //cave.segments.sort((a, b) => a.compareTo(b));
-    Map<String, dynamic> result = calculatePolylineCoord(cave.segments); //just for testing
-    cave.polylines = result["polylines"];
-    cave.colors = result["sectionColors"];
+    // //cave.segments.sort((a, b) => a.compareTo(b));
+    // Map<String, dynamic> result = calculatePolylineCoord(cave.segments); //just for testing
+    // cave.polylines = result["polylines"];
+    // cave.sectionColors = result["sectionColors"];
         localCavesSelected.add(cave); 
       });
     tmluBloc.add(LocalCavesSelected(localSelectedCaves: localCavesSelected));  //saves all selected caves fetched from storage to state

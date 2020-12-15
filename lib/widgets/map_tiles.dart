@@ -114,10 +114,8 @@ class _MapTilesState extends State<MapTiles> {
           Polyline(
             points: lineSegment,
             strokeWidth: 1.5,
-            color: Colors.white, //validate.formatColor(state.cave.colors[idx]),
+            color: validate.formatColor(state.cave.segments[idx].cl),
           ));
-            //return new Color(int.parse(code.substring(1, 7), radix: 16) + 0xFF000000);
-
       });
       startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");

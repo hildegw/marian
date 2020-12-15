@@ -25,6 +25,7 @@ class TmluData {
   List<List<LatLng>> polylines = [];
   LatLng startCoord;
   List<String> sectionNames = [];
+  List<String> sectionColors = [];
   List<List<XmlNode>> lines = [];
   int missedCoord;
   int startId = 0;
@@ -91,7 +92,13 @@ class TmluData {
     }
     //add data to bloc >>> TODO move into files bloc!!!! Or add to list as part of event. 
     print("adding to tmlu bloc");
-    cave = ModelCave(fullName: file.fullName, path: file.path, segments: segments, polylines: polylines, startCoord: startCoord);
+    cave = ModelCave(
+      fullName: file.fullName, 
+      path: file.path, 
+      segments: segments, 
+      polylines: polylines, 
+      startCoord: startCoord,
+    );
     return cave;
     //need to add data from files bloc to tmlu bloc
     // final tmluBloc = BlocProvider.of<TmluBloc>(context);
@@ -139,44 +146,71 @@ class TmluData {
     }
   }
 
-  List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
+  calculatePolylineCoord(List<ModelSegment> segments) {
     List<List<LatLng>> polylines = [];
-    List<String> sectionNames = [];
-    //create list of section names to identify line sections for polylines
-    segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
+    // List<String> sectionNames = [];
+    // List<String> sectionColors = [];
     if (segments == null || segments.length < 1) return polylines = null;
-    //identify jumps and Ts to split into separate polylines
-    sectionNames.forEach((name) { 
-      List<LatLng> polyline = [];
-      //create section list with all segments that have the same name
-      List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
-      //sort section based on frid, see compare method in model segment
-      section.sort((a, b) => a.compareTo(b));
-      //find previous segment with different name and add as first item to polyline
-      Iterable<ModelSegment> prevSegs = [];
-      ModelSegment prevSegToAdd;
-      if (section != null && section.length > 0) section.forEach((sectionSeg) {
-        if (sectionSeg.frid == -1) return prevSegs = null;
-        prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
-        //if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
-        if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
-          if (prevseg.latlng != null) prevSegToAdd = prevseg; //add segment to section rather than polyline        
-          else prevSegToAdd = null; 
-               //polyline.add(prevseg.latlng);
-        });
-      });
-      //add previous segment at start of section
-      if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
-      //add line section as polyline
-      section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
-      polylines.add(polyline);
-      //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
+    // //create list of section names to identify line sections for polylines, add colors to list
+    // segments.forEach((seg) { 
+    //   sectionColors.add(seg.cl);
+    //   if (!sectionNames.contains(seg.sc)) {
+    //     sectionNames.add(seg.sc); 
+    //   }
+    // });
+    //create a polyline for each station, going from frid to id
+    ModelSegment prevSeg;
+    segments.forEach((seg) {
+      if (seg.frid == -1) prevSeg = null;
+      prevSeg = segments.firstWhere((prev) => prev.id == seg.frid, orElse: () => null); //should be array with only one element found
+      if (prevSeg != null && prevSeg.latlng != null) 
+        polylines.add([LatLng(prevSeg.latlng.latitude, prevSeg.latlng.longitude), LatLng(seg.latlng.latitude, seg.latlng.longitude)]);
     });
-    print("polylines");
+    print("stations");
     print(polylines.length);
-    return polylines;
+    //return { "polylines": polylines, "sectionColors": sectionColors };
     //polylines.forEach((element) => print(element.toString()));
   }
+
+
+  // List<List<LatLng>>  calculatePolylineCoord(List<ModelSegment> segments) {
+  //   List<List<LatLng>> polylines = [];
+  //   List<String> sectionNames = [];
+  //   //create list of section names to identify line sections for polylines
+  //   segments.forEach((seg) { if (!sectionNames.contains(seg.sc)) sectionNames.add(seg.sc); }); 
+  //   if (segments == null || segments.length < 1) return polylines = null;
+  //   //identify jumps and Ts to split into separate polylines
+  //   sectionNames.forEach((name) { 
+  //     List<LatLng> polyline = [];
+  //     //create section list with all segments that have the same name
+  //     List<ModelSegment> section = segments.where((seg) => seg.sc == name && seg.latlng != null).toList(); 
+  //     //sort section based on frid, see compare method in model segment
+  //     section.sort((a, b) => a.compareTo(b));
+  //     //find previous segment with different name and add as first item to polyline
+  //     Iterable<ModelSegment> prevSegs = [];
+  //     ModelSegment prevSegToAdd;
+  //     if (section != null && section.length > 0) section.forEach((sectionSeg) {
+  //       if (sectionSeg.frid == -1) return prevSegs = null;
+  //       prevSegs = segments.where((prev) => prev.id == sectionSeg.frid && prev.sc != name); //should be array with only one element found
+  //       //if (prevSegs != null &&  prevSegs.length > 0) print("attaching jump from ${prevSegs.first.sc} ${prevSegs.first.id}  ");
+  //       if (prevSegs != null &&  prevSegs.length > 0) prevSegs.forEach((prevseg) { //add segment to poly-section 
+  //         if (prevseg.latlng != null) prevSegToAdd = prevseg; //add segment to section rather than polyline        
+  //         else prevSegToAdd = null; 
+  //              //polyline.add(prevseg.latlng);
+  //       });
+  //     });
+  //     //add previous segment at start of section
+  //     if (prevSegToAdd != null) section.insert(0, prevSegToAdd); 
+  //     //add line section as polyline
+  //     section.forEach((seg) => polyline.add(LatLng(seg.latlng.latitude, seg.latlng.longitude)));
+  //     polylines.add(polyline);
+  //     //section.forEach((seg) => print("section after sorting: from ${seg.frid} to ${seg.id}: ${seg.sc}"));
+  //   });
+  //   print("polylines");
+  //   print(polylines.length);
+  //   return polylines;
+  //   //polylines.forEach((element) => print(element.toString()));
+  // }
 
 
   // saveSegments(String caveName) async {

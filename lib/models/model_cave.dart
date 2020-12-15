@@ -22,10 +22,9 @@ class ModelCave extends Equatable {
   List<List<LatLng>> polylines;
   //@JsonKey(fromJson: _latlngFromJson, toJson: _latlngToJson)
   final LatLng startCoord;
-  List<String> colors;
    
   ModelCave({
-    this.fullName, this.path, this.segments, this.startCoord, this.polylines, this.colors,
+    this.fullName, this.path, this.segments, this.startCoord, this.polylines, 
   });
 
   //to check if cave is equal, just check path > Equitable package
@@ -42,8 +41,8 @@ class ModelCave extends Equatable {
     path = json["path"], 
     segments = _segmentsFromJson(json["segments"]), 
     polylines = _polyFromJson(json["polylines"]), 
-    startCoord = _latlngFromJson(json["startCoord"]),
-    colors = jsonDecode(json["colors"]); //_colorsFromJson(json["colors"]);
+    startCoord = _latlngFromJson(json["startCoord"]);
+
 
   Map<String, dynamic> toJson() => {
     "fullName": fullName,
@@ -51,7 +50,6 @@ class ModelCave extends Equatable {
     "segments": _segmentsToJson(segments),
     "polylines": _polyToJson(polylines),
     "startCoord": _latlngToJson(startCoord),
-    "colors": jsonEncode(colors),  //_colorsToJson(colors),
   };
 
 }
