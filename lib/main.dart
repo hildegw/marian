@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.amber,
         primaryColor: Colors.amber[300],
         primaryColorDark: Colors.black,
+        buttonColor: Colors.amber,
         backgroundColor: Color(0xEE222222), //transparent
         dividerColor: Colors.amber[100],
         primaryColorLight: Colors.white,
