@@ -17,8 +17,8 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   final LocalStorage localStorage = LocalStorage();
-  bool openSettings = false;
-
+  bool showSegmentNames = false;
+  bool showStationIds = false;
 
 
 
@@ -33,7 +33,7 @@ class _SettingsState extends State<Settings> {
       return Positioned(
         right: 0,
         child: Container(
-          width: 40,
+          width: 45,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10.0)),
             border: Border.all(color: Colors.transparent),
@@ -50,15 +50,65 @@ class _SettingsState extends State<Settings> {
             children: [
               SizedBox(height: 5),
               
-              IconButton(
-                padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
-                visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
-                icon: Icon(openSettings ? Icons.settings_outlined : Icons.settings_outlined, size: 21, color: Theme.of(context).primaryColorDark,),
-                onPressed: () { 
-                  if (openSettings) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSettings = false));
-                  else setState(() { openSettings = true; });
-                },
-              ),
+              Padding(
+                padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 1.0, bottom: 5.0),
+                child: Container(
+                  width: 34,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.transparent),
+                    color: showStationIds ? Theme.of(context).buttonColor : Colors.transparent,
+                    boxShadow: [
+                      BoxShadow(
+                        color: showStationIds ? Theme.of(context).shadowColor : Colors.transparent,
+                        spreadRadius: 1,
+                        blurRadius: 1,
+                        offset: Offset(1, 1), 
+                      ),],
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.all(0.0),
+                    visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
+                    icon: Icon(showStationIds ? Icons.pin_drop_rounded : Icons.pin_drop_outlined, size: 23, color: Theme.of(context).primaryColorDark,),
+                    onPressed: () { 
+                      if (showStationIds) setState(() => showStationIds = false);
+                      else setState(() { showStationIds = true; }); 
+                      // tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
+                      // //delay menu closing, so that menu component can send off selected data to bloc
+                      // if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
+                      //   else setState(() { openSearch = false; openFilter = true; });
+                    },
+                  ), 
+                ),
+              ), 
+
+              Padding(
+                padding: EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 4.0),
+                child: Container(
+                  width: 34,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.transparent),
+                    color: showSegmentNames ? Theme.of(context).buttonColor : Colors.transparent,
+                    boxShadow: [
+                      BoxShadow(
+                        color: showSegmentNames ? Theme.of(context).shadowColor : Colors.transparent,
+                        spreadRadius: 1,
+                        blurRadius: 1,
+                        offset: Offset(1, 1), 
+                      ),],
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.all(0.0),
+                    visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
+                    icon: Icon(showSegmentNames ? Icons.label : Icons.label_outline, size: 23, color: Theme.of(context).primaryColorDark,),
+                    onPressed: () { 
+                      if (showSegmentNames) setState(() => showSegmentNames = false);
+                      else setState(() { showSegmentNames = true; }); 
+                    },
+                  ), 
+                ),
+              ), 
 
               SizedBox(height: 5),
             ],

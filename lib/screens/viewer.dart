@@ -149,7 +149,7 @@ class _ViewerState extends State<Viewer> {
             ), 
 
             Padding(
-              padding: EdgeInsets.only(left: 1.0, right: 4.0, top: 1.0, bottom: 4.0),
+              padding: EdgeInsets.only(left: 1.0, right: 5.0, top: 1.0, bottom: 4.0),
               child: Container(
                 width: 34,
                 decoration: BoxDecoration(
@@ -167,7 +167,7 @@ class _ViewerState extends State<Viewer> {
                 child: IconButton(
                   padding: EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
                   visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
-                  icon: Icon(openSettings ? Icons.settings_outlined : Icons.settings_outlined, size: 21, color: Theme.of(context).primaryColorDark,),
+                  icon: Icon(openSettings ? Icons.settings_rounded : Icons.settings_outlined, size: 21, color: Theme.of(context).primaryColorDark,),
                   onPressed: () { 
                     tmluFilesBloc.add(TmluGithubSearchSelectionDone()); //sets status to selectino done
                     if (openSettings) Future.delayed(Duration(milliseconds: 500), () => setState(() => openSettings = false));
