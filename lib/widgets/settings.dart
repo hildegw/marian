@@ -25,6 +25,7 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     final Responsive resp = Responsive(context);
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
 
 
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
@@ -73,10 +74,7 @@ class _SettingsState extends State<Settings> {
                     onPressed: () { 
                       if (showStationIds) setState(() => showStationIds = false);
                       else setState(() { showStationIds = true; }); 
-                      // tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
-                      // //delay menu closing, so that menu component can send off selected data to bloc
-                      // if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
-                      //   else setState(() { openSearch = false; openFilter = true; });
+                      tmluBloc.add(SettingsSelected(showSegmentNames: showSegmentNames, showStationIds: showStationIds)); 
                     },
                   ), 
                 ),
@@ -105,6 +103,7 @@ class _SettingsState extends State<Settings> {
                     onPressed: () { 
                       if (showSegmentNames) setState(() => showSegmentNames = false);
                       else setState(() { showSegmentNames = true; }); 
+                      tmluBloc.add(SettingsSelected(showSegmentNames: showSegmentNames, showStationIds: showStationIds)); 
                     },
                   ), 
                 ),

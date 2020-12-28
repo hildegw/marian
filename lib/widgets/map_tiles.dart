@@ -179,8 +179,8 @@ class _MapTilesState extends State<MapTiles> {
                         )
                       ),
 
-                    ...stationIds,
-                    ...sectionNameMarkers,
+                    if (state.showStationIds) ...stationIds,
+                    if (state.showSegmentNames) ...sectionNameMarkers,
 
                     ]),
 

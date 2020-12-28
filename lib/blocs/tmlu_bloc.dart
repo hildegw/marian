@@ -30,6 +30,11 @@ class Zooming extends TmluEvent {
   Zooming({ this.zoom });
 }
 
+class SettingsSelected extends TmluEvent {
+  final bool showStationIds, showSegmentNames;
+  SettingsSelected({ this.showStationIds, this.showSegmentNames });
+}
+
 class TmluError extends TmluEvent {
   final String error;
   TmluError({this.error});
@@ -46,27 +51,35 @@ class TmluState {
   final ModelCave cave;
   final List<ModelCave> selectedCaves;  //adds both caves selected locally and loaded from github
   final double zoom;
+  final bool showStationIds;
+  final bool showSegmentNames;
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
     this.cave,
     this.selectedCaves,
     this.zoom,
+    this.showStationIds,
+    this.showSegmentNames,
     this.error,
   });
 
   TmluState copyWith({
     TmluStatus status,
     ModelCave cave,
-    List<ModelCave> localSelectedCaves,
+    List<ModelCave> selectedCaves,
     double zoom,
+    bool showStationIds,
+    bool showSegmentNames,
     String error,
   }) {
     return TmluState(
       status: status ?? this.status,
       cave: cave ?? this.cave,
-      selectedCaves: localSelectedCaves ?? this.selectedCaves,
+      selectedCaves: selectedCaves ?? this.selectedCaves,
       zoom: zoom?? this.zoom,
+      showStationIds: showStationIds?? this.showStationIds,
+      showSegmentNames: showSegmentNames?? this.showSegmentNames,
       error: error ?? this.error,
     );
   }
@@ -74,7 +87,11 @@ class TmluState {
 
 class TmluBloc extends Bloc<TmluEvent, TmluState> {
 
-  TmluBloc(this._myRepository) : super(TmluState(status: TmluStatus.loading));
+  TmluBloc(this._myRepository) : super(TmluState(
+      status: TmluStatus.loading,
+      showStationIds: false,
+      showSegmentNames: false,
+    ));
   final String _myRepository;  //just in case TODO
 
   final LocalStorage localStorage = LocalStorage();
@@ -99,7 +116,7 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
       print('tmlu bloc has local selected caves ${event.localSelectedCaves.length} ');
       //add existing list to local selected caves
       selectedCaves = List.from(event.localSelectedCaves)..addAll(selectedCaves);  
-      yield TmluState(
+      yield state.copyWith(
         status: TmluStatus.hasTmlu,
         cave: selectedCaves[0],   //TODO show more than one cave
         selectedCaves: selectedCaves, //all caves from github and selected locally 
@@ -110,6 +127,13 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
 
     else if (event is Zooming) {
         yield state.copyWith(zoom: event.zoom);
+    }
+
+    else if (event is SettingsSelected) {
+        yield state.copyWith(
+          showStationIds: event.showStationIds,
+          showSegmentNames: event.showSegmentNames,
+        );
     }
 
     else if (event is TmluError) {
