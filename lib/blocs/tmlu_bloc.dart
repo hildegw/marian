@@ -118,7 +118,7 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
       selectedCaves = List.from(event.localSelectedCaves)..addAll(selectedCaves);  
       yield state.copyWith(
         status: TmluStatus.hasTmlu,
-        cave: selectedCaves[0],   //TODO show more than one cave
+        cave: selectedCaves[0],   //TODO show more than one cave >> use selectedCaves instead
         selectedCaves: selectedCaves, //all caves from github and selected locally 
         zoom: 14.0,
         error: null,

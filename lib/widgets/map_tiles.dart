@@ -3,24 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart'; //https://github.com/fleaflet/flutter_map/tree/master/example/lib/pages
 import 'package:flutter_map/plugin_api.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
-import '../models/model_segment.dart';
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
-import '../models/model_segment.dart';
 import '../utils/mapbox_settings.dart';
-import '../utils/tmlu_data_api.dart';
-import '../utils/validations.dart';
 import '../utils/validations.dart';
 import './zoom_buttons.dart';
 import '../models/model_cave.dart';
-import '../utils/validations.dart';
 
 
 class MapTiles extends StatefulWidget {
@@ -43,6 +35,7 @@ class _MapTilesState extends State<MapTiles> {
   MapController _mapController;
   List<Marker> stationIds = [];
   List<Marker> sectionNameMarkers = [];
+  List<Marker> startMarkers = [];
 
   @override
   void initState() { //TODO make cave to load selectable, set cave name globally
@@ -62,6 +55,7 @@ class _MapTilesState extends State<MapTiles> {
     cave.segments.forEach((seg) {
       stationId = Marker(
         point: seg.latlng,  //lines[1].points.first,
+        anchorPos: AnchorPos.align(AnchorAlign.right),
         builder: (context) => Container(
           child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText1,),
         )
@@ -80,6 +74,7 @@ class _MapTilesState extends State<MapTiles> {
       nameMarker = Marker(
         width: 150,//resp.wp(90),
         point: seg.latlng,  
+        anchorPos: AnchorPos.align(AnchorAlign.right),
         builder: (context) => Container(
           child: Text(
             seg.sc, 
@@ -96,6 +91,21 @@ class _MapTilesState extends State<MapTiles> {
     print(sectionNames);
   }
 
+  createStartMarkers(List<ModelCave> selectedCaves) {
+    selectedCaves.forEach((cave) {
+      Marker startMarker =  Marker(
+        width: startIconSize,
+        height: startIconSize,
+        point: LatLng(cave.startCoord.latitude, cave.startCoord.longitude),
+        builder: (context) => Container(
+          child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
+        )
+      ),
+      startMarkers.add(startMarker);
+    });
+
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -109,14 +119,20 @@ class _MapTilesState extends State<MapTiles> {
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
 
     if (state.status == TmluStatus.hasTmlu && state.cave.polylines != null && state.cave.startCoord != null) {
-      state.cave.polylines.asMap().forEach((idx, lineSegment) {
-        lines.add(    
-          Polyline(
-            points: lineSegment,
-            strokeWidth: 1.5,
-            color: validate.formatColor(state.cave.segments[idx].cl),
-          ));
+      state.selectedCaves.forEach((cave) { 
+        if (cave.polylines != null && cave.startCoord != null) {
+          cave.polylines.asMap().forEach((idx, lineSegment) {
+            lines.add(    
+              Polyline(
+                points: lineSegment,
+                strokeWidth: 1.5,
+                color: validate.formatColor(cave.segments[idx].cl),
+              ));
+          });
+        }
+
       });
+
       startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
       print("start $startLatLng");
       createStationIds(state.cave);
@@ -166,7 +182,7 @@ class _MapTilesState extends State<MapTiles> {
                     if (state.status == TmluStatus.hasTmlu)
                       PolylineLayerOptions(
                         polylines: lines,
-                        polylineCulling: true,
+                        polylineCulling: false,
                       ),
 
                     MarkerLayerOptions(markers: [
