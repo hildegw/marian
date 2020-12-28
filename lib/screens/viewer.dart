@@ -74,9 +74,10 @@ class _ViewerState extends State<Viewer> {
                 style: Theme.of(context).textTheme.button, 
               ) 
               
-             //show either title or cave name when menues are closed 
-            : state.cave != null 
-            ? Text(state.cave.path, 
+            //show either title or cave name when menues are closed 
+  //TODO show list of caves, or find out which one is showing
+            : state.selectedCaves != null && state.selectedCaves.length > 0 
+            ? Text(state.selectedCaves[0].path, 
                   style: Theme.of(context).textTheme.button.copyWith(fontSize: 13.0), 
                   overflow: TextOverflow.visible,
                   softWrap: true,

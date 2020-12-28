@@ -25,6 +25,11 @@ class LocalCavesSelected extends TmluEvent {
   LocalCavesSelected({ this.localSelectedCaves });
 }
 
+class InitialViewDone extends TmluEvent {
+  InitialViewDone();
+}
+
+
 class Zooming extends TmluEvent {
   final double zoom;
   Zooming({ this.zoom });
@@ -43,12 +48,13 @@ class TmluError extends TmluEvent {
 enum TmluStatus {
   loading,
   hasTmlu,
+  initialViewDone,
   error
 }
 
 class TmluState {
   final TmluStatus status;
-  final ModelCave cave;
+  //final ModelCave cave;
   final List<ModelCave> selectedCaves;  //adds both caves selected locally and loaded from github
   final double zoom;
   final bool showStationIds;
@@ -56,7 +62,7 @@ class TmluState {
   final String error;
   TmluState({
     this.status = TmluStatus.loading,
-    this.cave,
+    //this.cave,
     this.selectedCaves,
     this.zoom,
     this.showStationIds,
@@ -66,7 +72,7 @@ class TmluState {
 
   TmluState copyWith({
     TmluStatus status,
-    ModelCave cave,
+    //ModelCave cave,
     List<ModelCave> selectedCaves,
     double zoom,
     bool showStationIds,
@@ -75,7 +81,7 @@ class TmluState {
   }) {
     return TmluState(
       status: status ?? this.status,
-      cave: cave ?? this.cave,
+      //cave: cave ?? this.cave,
       selectedCaves: selectedCaves ?? this.selectedCaves,
       zoom: zoom?? this.zoom,
       showStationIds: showStationIds?? this.showStationIds,
@@ -106,7 +112,8 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
       localStorage.saveCave(event.cave); //saves cave locally and adds path to list of names, if necessary
       yield state.copyWith(
         status: TmluStatus.hasTmlu,
-        cave: selectedCaves[0],   //TODO show more than one cave
+        //cave: selectedCaves[0],   >> use selectedCaves instead
+        selectedCaves: selectedCaves, //all caves from github and selected locally 
         zoom: 14.0,
         error: null,
       );
@@ -118,11 +125,15 @@ class TmluBloc extends Bloc<TmluEvent, TmluState> {
       selectedCaves = List.from(event.localSelectedCaves)..addAll(selectedCaves);  
       yield state.copyWith(
         status: TmluStatus.hasTmlu,
-        cave: selectedCaves[0],   //TODO show more than one cave >> use selectedCaves instead
+        //cave: selectedCaves[0],   >> use selectedCaves instead
         selectedCaves: selectedCaves, //all caves from github and selected locally 
         zoom: 14.0,
         error: null,
       );
+    }
+
+    else if (event is InitialViewDone) {
+        yield state.copyWith(status: TmluStatus.initialViewDone);
     }
 
     else if (event is Zooming) {

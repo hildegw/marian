@@ -49,61 +49,81 @@ class _MapTilesState extends State<MapTiles> {
     //setState(() { tappedPoints.add(latlng); });
   }
 
-  createStationIds(ModelCave cave) {
-    stationIds = [];
-    Marker stationId;
-    cave.segments.forEach((seg) {
-      stationId = Marker(
-        point: seg.latlng,  //lines[1].points.first,
-        anchorPos: AnchorPos.align(AnchorAlign.right),
-        builder: (context) => Container(
-          child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText1,),
-        )
-      );
-      stationIds.add(stationId);
+  createLines(List<ModelCave> selectedCaves) {
+    lines = [];
+    selectedCaves.forEach((cave) { 
+      if (cave.polylines != null && cave.startCoord != null) {
+        cave.polylines.asMap().forEach((idx, lineSegment) {
+          lines.add(    
+            Polyline(
+              points: lineSegment,
+              strokeWidth: 1.5,
+              color: validate.formatColor(cave.segments[idx].cl),
+            ));
+        });
+      }
     });
   }
 
-  createSectionNames(ModelCave cave) {
+  createStationIds(List<ModelCave> selectedCaves) {
+    stationIds = [];
+    Marker stationId;
+    selectedCaves.forEach((cave) {
+      cave.segments.forEach((seg) {
+        stationId = Marker(
+          point: seg.latlng,  //lines[1].points.first,
+          anchorPos: AnchorPos.align(AnchorAlign.right),
+          builder: (context) => Container(
+            child: Text(seg.id.toString(), style: Theme.of(context).textTheme.bodyText1,),
+          )
+        );
+        stationIds.add(stationId);
+      });
+    });
+  }
+
+  createSectionNames(List<ModelCave> selectedCaves) {
     sectionNameMarkers = [];
     Marker nameMarker;
     List<String> sectionNames = [];
     String nextSectionName;
-    cave.segments.forEach((seg) {
-      nextSectionName = seg.sc;
-      nameMarker = Marker(
-        width: 150,//resp.wp(90),
-        point: seg.latlng,  
-        anchorPos: AnchorPos.align(AnchorAlign.right),
-        builder: (context) => Container(
-          child: Text(
-            seg.sc, 
-            overflow: TextOverflow.visible, 
-            textAlign: TextAlign.left,
-            style: Theme.of(context).textTheme.bodyText1,),
-        )
-      );
-      if (!sectionNames.contains(nextSectionName)) {
-        sectionNameMarkers.add(nameMarker);
-        sectionNames.add(nextSectionName);
-      }
+    selectedCaves.forEach((cave) {
+      cave.segments.forEach((seg) {
+        nextSectionName = seg.sc;
+        nameMarker = Marker(
+          width: 150,//resp.wp(90),
+          point: seg.latlng,  
+          anchorPos: AnchorPos.align(AnchorAlign.right),
+          builder: (context) => Container(
+            child: Text(
+              seg.sc, 
+              overflow: TextOverflow.visible, 
+              textAlign: TextAlign.left,
+              style: Theme.of(context).textTheme.bodyText1,),
+          )
+        );
+        if (!sectionNames.contains(nextSectionName)) {
+          sectionNameMarkers.add(nameMarker);
+          sectionNames.add(nextSectionName);
+        }
+      });
     });
-    print(sectionNames);
   }
 
   createStartMarkers(List<ModelCave> selectedCaves) {
     selectedCaves.forEach((cave) {
-      Marker startMarker =  Marker(
-        width: startIconSize,
-        height: startIconSize,
-        point: LatLng(cave.startCoord.latitude, cave.startCoord.longitude),
-        builder: (context) => Container(
-          child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
-        )
-      ),
-      startMarkers.add(startMarker);
+      if (cave.startCoord != null) {
+        Marker startMarker =  Marker(
+          width: startIconSize,
+          height: startIconSize,
+          point: LatLng(cave.startCoord.latitude, cave.startCoord.longitude),
+          builder: (context) => Container(
+            child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
+          )
+        );
+        startMarkers.add(startMarker);
+      }
     });
-
   }
 
   @override
@@ -115,31 +135,24 @@ class _MapTilesState extends State<MapTiles> {
   @override
   Widget build(BuildContext context) {
     final Responsive _responsive = Responsive(context);
+    final tmluBloc = BlocProvider.of<TmluBloc>(context);
+
     print("building map");
     return BlocBuilder<TmluBloc, TmluState>(builder: (context, state) {   
 
-    if (state.status == TmluStatus.hasTmlu && state.cave.polylines != null && state.cave.startCoord != null) {
-      state.selectedCaves.forEach((cave) { 
-        if (cave.polylines != null && cave.startCoord != null) {
-          cave.polylines.asMap().forEach((idx, lineSegment) {
-            lines.add(    
-              Polyline(
-                points: lineSegment,
-                strokeWidth: 1.5,
-                color: validate.formatColor(cave.segments[idx].cl),
-              ));
-          });
-        }
-
-      });
-
-      startLatLng = LatLng(state.cave.startCoord.latitude, state.cave.startCoord.longitude); //LatLng(20.196525, -87.517539)
-      print("start $startLatLng");
-      createStationIds(state.cave);
-      createSectionNames(state.cave);
+    if (state.status == TmluStatus.hasTmlu) {
+      createLines(state.selectedCaves);
+      createStartMarkers(state.selectedCaves); //indicating cenote / start of line / from station -1
+      createStationIds(state.selectedCaves);
+      createSectionNames(state.selectedCaves);
+      //go to first selected cave and center map
+      startLatLng = LatLng(state.selectedCaves[0].startCoord.latitude, state.selectedCaves[0].startCoord.longitude); //LatLng(20.196525, -87.517539)
       if (_mapController.ready)  _mapController.move(LatLng(startLatLng.latitude, startLatLng.longitude), _mapController.zoom);
+      print("start $startLatLng");
+      //set initial view status once data is initialized
+      tmluBloc.add(InitialViewDone());
    }
-
+    print("viewer done $lines");
 
     return Stack(
         children: <Widget>[
@@ -179,22 +192,14 @@ class _MapTilesState extends State<MapTiles> {
                       },                
                     ),
 
-                    if (state.status == TmluStatus.hasTmlu)
+                    if (state.status == TmluStatus.initialViewDone )
                       PolylineLayerOptions(
                         polylines: lines,
                         polylineCulling: false,
                       ),
 
                     MarkerLayerOptions(markers: [
-                      Marker(
-                        width: startIconSize,
-                        height: startIconSize,
-                        point: startLatLng,
-                        builder: (context) => Container(
-                          child: Icon(Icons.radio_button_unchecked, size: startIconSize, color: Theme.of(context).primaryColor,),
-                        )
-                      ),
-
+                    ...startMarkers,
                     if (state.showStationIds) ...stationIds,
                     if (state.showSegmentNames) ...sectionNameMarkers,
 
