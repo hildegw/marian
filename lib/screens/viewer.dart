@@ -107,10 +107,10 @@ class _ViewerState extends State<Viewer> {
                   visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0), //remove more padding
                   icon: Icon(openFilter ? Icons.done_all : Icons.filter_list, size: 23, color: Theme.of(context).primaryColorDark,),
                   onPressed: () { 
-                    tmluFilesBloc.add(TmluLocalCaveSelectionDone()); //sets status to selectino done
+                    tmluFilesBloc.add(TmluLocalCaveSelectionDone(openFilter)); //sets status to selectino done
                     //delay menu closing, so that menu component can send off selected data to bloc
                     if (openFilter) Future.delayed(Duration(milliseconds: 500), () => setState(() => openFilter = false));
-                      else setState(() { openSearch = false; openFilter = true; });
+                    else setState(() { openSearch = false; openFilter = true; });
                   },
                 ), 
               ),

@@ -152,7 +152,6 @@ class _MapTilesState extends State<MapTiles> {
       //set initial view status once data is initialized
       tmluBloc.add(InitialViewDone());
    }
-    print("viewer done $lines");
 
     return Stack(
         children: <Widget>[

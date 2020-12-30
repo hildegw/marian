@@ -27,7 +27,8 @@ class LoadLocalCaves extends TmluFilesEvent {
 }
 
 class TmluLocalCaveSelectionDone extends TmluFilesEvent {
-  TmluLocalCaveSelectionDone();
+  final bool closeSelectionList;
+  TmluLocalCaveSelectionDone(this.closeSelectionList);
 }
 
 class TmluGithubSearchSelectionDone extends TmluFilesEvent {
@@ -49,6 +50,7 @@ enum TmluFilesStatus {
   loading,
   hasTmluFiles,
   localFileSelectionDone,
+  localFileSelectionOpen,
   githubSearchSelectionDone,
   gitFilesSelected,
   localFilesSelected,
@@ -137,7 +139,7 @@ class TmluFilesBloc extends Bloc<TmluFilesEvent, TmluFilesState> {
     else if (event is TmluLocalCaveSelectionDone) { //called from main view when menu bar is clicked
       print('tmlu files bloc event local file selection is done');
       yield state.copyWith(
-        status: TmluFilesStatus.localFileSelectionDone,
+        status: event.closeSelectionList ? TmluFilesStatus.localFileSelectionDone : TmluFilesStatus.localFileSelectionOpen ,
       );
     }
 

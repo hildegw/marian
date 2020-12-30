@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../utils/responsive.dart';
 import '../blocs/tmlu_bloc.dart';
+import '../blocs/tmlu_files_bloc.dart';
 import '../models/model_cave.dart';
 
 class FilterLocalPathItem extends StatefulWidget {
@@ -23,17 +24,17 @@ class _FilterLocalPathItemState extends State<FilterLocalPathItem> {
 
   @override
   void initState() { 
-    final tmluBloc = BlocProvider.of<TmluBloc>(context);
-    if (tmluBloc.state.selectedCaves != null && tmluBloc.state.selectedCaves.length > 0) {
-      ModelCave selectedCave = tmluBloc.state.selectedCaves.firstWhere((cave) => cave.path == widget.path, orElse: () => null);
-      selected = selectedCave != null ? true : false;
+    final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
+    if (tmluFilesBloc.state.localFilesSelected != null && tmluFilesBloc.state.localFilesSelected.length > 0) {
+      String path = tmluFilesBloc.state.localFilesSelected.firstWhere((path) => path == widget.path, orElse: () => null);
+      selected = path != null ? true : false;
     } 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Responsive resp = Responsive(context);
+    //final Responsive resp = Responsive(context);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,

@@ -33,9 +33,23 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
   List<String> localFilesToDelete = [];
 
 //TODO: show selected caves in local list as selected
+  @override
+  void initState() { 
+    print("creating local list - init state");
+    final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
+    localFilesSelected = tmluFilesBloc.state.localFilesSelected != null && tmluFilesBloc.state.localFilesSelected.length > 0 
+      ? tmluFilesBloc.state.localFilesSelected : [];
+    print(localFilesSelected);
+    if (tmluFilesBloc.state.cavePaths != null && tmluFilesBloc.state.cavePaths.length > 0) 
+      createLocalList(tmluFilesBloc.state.cavePaths);
+    super.initState();
+  }
+
+
 
   void createLocalList(List<String> cavePaths) {
-    //resetn Widget list 
+    print("creating local list");
+    //reset Widget list 
     localList = [];
     //localList.add(FilterLocalPathItem(title: "local files")); //header
     //add list widgets to menu list 
@@ -57,8 +71,10 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
 
 
   void onLocalSelected(bool selected, String path) { //just keeps track of files de/selected
+    print("filter local caves - selected path $path $selected");
     if (selected) localFilesSelected.add(path);
     else if (localFilesSelected != null && localFilesSelected.length > 0) localFilesSelected.remove(path);
+    print(localFilesSelected);
   }
 
   void onLocalDelete(bool deleteItem, String path) { //just keeps track of files de/selected
@@ -69,7 +85,7 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
     print("filter local files: deleted file $path");
   }
 
-  void onSelectionDone() async { //load tmlu for selected caves from github
+  void onSelectionDone() async { 
     final tmluFilesBloc = BlocProvider.of<TmluFilesBloc>(context);
     final tmluBloc = BlocProvider.of<TmluBloc>(context);
     print("filter local files onSelectionDone");
@@ -144,14 +160,15 @@ class _FilterLocalCavesState extends State<FilterLocalCaves> {
 
     return BlocBuilder<TmluFilesBloc, TmluFilesState>(builder: (context, state) {   
 
-      if (state.cavePaths != null && state.cavePaths.length > 0) 
-          createLocalList(state.cavePaths);
+      // if (state.cavePaths != null && state.cavePaths.length > 0) 
+      //   createLocalList(state.cavePaths);
 
       //upon closing the list of caves
       if (state.status == TmluFilesStatus.localFileSelectionDone){ 
         onSelectionDone();
       }
 
+      print(state.status);
 
       return Container(
         color: Theme.of(context).backgroundColor, 
